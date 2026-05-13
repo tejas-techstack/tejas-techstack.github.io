@@ -1,0 +1,2697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compiler Design – Unit 1 Flashcards</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --card: #1c2130;
+    --border: #2a3045;
+    --accent: #4f9eff;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --code-bg: #111520;
+    --answer-bg: #131824;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0d0f14 0%, #161a2f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2rem 1.5rem;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  header h1 {
+    font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  header p { color: var(--muted); font-size: 0.82rem; margin-top: 0.2rem; }
+  .stats { display: flex; gap: 1.5rem; margin-top: 0.8rem; flex-wrap: wrap; }
+  .stat-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.2rem 0.8rem;
+    font-size: 0.75rem; color: var(--muted);
+  }
+  .stat-chip span { color: var(--accent); font-weight: 600; }
+
+  /* ── Section Headers ── */
+  .section-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 1.5rem 2rem 0.6rem;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent2);
+  }
+  .section-header::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── Question Cards ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .q-card:hover { border-color: #3a4560; }
+  .q-card.open { border-color: var(--accent); }
+
+  .q-btn {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 1rem 1.2rem; display: flex; align-items: flex-start;
+    gap: 0.8rem; text-align: left; color: var(--text);
+  }
+
+  .q-num {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.15rem 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--muted);
+    white-space: nowrap; flex-shrink: 0; margin-top: 0.15rem;
+  }
+
+  .q-text { flex: 1; font-size: 0.9rem; font-weight: 500; line-height: 1.5; }
+
+  .q-meta {
+    display: flex; align-items: center; gap: 0.5rem;
+    flex-shrink: 0; flex-direction: column; align-items: flex-end;
+  }
+  .marks-badge {
+    background: #1a2440; border: 1px solid var(--accent);
+    color: var(--accent); border-radius: 4px;
+    padding: 0.1rem 0.45rem; font-size: 0.7rem; font-weight: 600;
+    white-space: nowrap;
+  }
+  .chevron {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--surface); color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; transition: transform 0.25s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .q-card.open .chevron { transform: rotate(180deg); background: var(--accent); color: #fff; }
+
+  /* ── Answer Panel ── */
+  .answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease;
+    border-top: 0px solid transparent;
+  }
+  .q-card.open .answer {
+    max-height: 9999px;
+    border-top: 1px solid var(--border);
+  }
+  .answer-inner {
+    padding: 1.2rem 1.4rem 1.4rem;
+    background: var(--answer-bg);
+    font-size: 0.875rem; line-height: 1.75;
+  }
+
+  /* ── Answer Typography ── */
+  .answer-inner h3 {
+    color: var(--accent2); font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin: 1.2rem 0 0.5rem; padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .answer-inner h3:first-child { margin-top: 0; }
+  .answer-inner p { margin-bottom: 0.7rem; }
+  .answer-inner ul, .answer-inner ol {
+    padding-left: 1.4rem; margin-bottom: 0.8rem;
+  }
+  .answer-inner li { margin-bottom: 0.3rem; }
+  .answer-inner strong { color: var(--accent3); }
+  .answer-inner em { color: #f9a8d4; }
+
+  /* ── Code blocks ── */
+  .answer-inner pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.8rem 1rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    overflow-x: auto; margin: 0.6rem 0; line-height: 1.6;
+    color: #c9d1d9;
+  }
+  .answer-inner code {
+    background: var(--code-bg); border-radius: 3px;
+    padding: 0.1em 0.35em; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em; color: #a78bfa;
+  }
+
+  /* ── Tables ── */
+  .answer-inner table {
+    width: 100%; border-collapse: collapse;
+    margin: 0.8rem 0; font-size: 0.82rem;
+  }
+  .answer-inner th {
+    background: var(--surface); color: var(--accent);
+    padding: 0.5rem 0.8rem; text-align: left;
+    border: 1px solid var(--border); font-size: 0.78rem;
+  }
+  .answer-inner td {
+    padding: 0.45rem 0.8rem; border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .answer-inner tr:nth-child(even) td { background: #12161f; }
+
+  /* ── SVG Diagrams ── */
+  .diagram-wrap {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem;
+    margin: 0.8rem 0; overflow-x: auto; text-align: center;
+  }
+  .diagram-wrap svg { max-width: 100%; height: auto; }
+
+  /* ── Highlight boxes ── */
+  .note-box {
+    background: #0f1a2e; border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0; padding: 0.6rem 1rem;
+    margin: 0.6rem 0; font-size: 0.83rem;
+  }
+  .warn-box {
+    background: #1a150f; border-left: 3px solid #f59e0b;
+    border-radius: 0 6px 6px 0; padding: 0.6rem 1rem;
+    margin: 0.6rem 0; font-size: 0.83rem; color: #fcd34d;
+  }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    padding: 0.8rem 2rem; display: flex; gap: 0.5rem; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg); position: sticky; top: 96px; z-index: 90;
+  }
+  .filter-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 20px;
+    padding: 0.2rem 0.9rem; font-size: 0.75rem; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚙ Compiler Design — Unit 1</h1>
+  <p>PES University · ESA Question Bank with Detailed Answers</p>
+  <div class="stats">
+    <div class="stat-chip">Questions: <span>69</span></div>
+    <div class="stat-chip">Topics: <span>Introduction · Lexical Analysis · Top-Down Parsing</span></div>
+    <div class="stat-chip">Click any question to reveal answer</div>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+  <button class="filter-btn" onclick="filterCards('intro',this)">Introduction</button>
+  <button class="filter-btn" onclick="filterCards('lexical',this)">Lexical Analysis</button>
+  <button class="filter-btn" onclick="filterCards('topdwn',this)">Top-Down Parsing</button>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SECTION 1 – INTRODUCTION                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">Introduction to Compilers</div>
+
+<!-- Q1 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q1</span>
+    <span class="q-text">With a diagram explain the various phases of a compiler. You must clearly depict every input and output to each phase.</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Definition</h3>
+    <p>A <strong>compiler</strong> is a program that translates source code written in a high-level language into equivalent target code (typically machine code or assembly), while reporting errors.</p>
+
+    <h3>Phases of a Compiler</h3>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 420 620" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="12">
+  <!-- Source program -->
+  <rect x="130" y="10" width="160" height="34" rx="6" fill="#1a2440" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="210" y="32" text-anchor="middle" fill="#4f9eff" font-weight="600">Source Program</text>
+
+  <!-- Arrow -->
+  <line x1="210" y1="44" x2="210" y2="66" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="58" fill="#8892a4" font-size="10">character stream</text>
+
+  <!-- Phase boxes -->
+  <!-- Lexical -->
+  <rect x="110" y="66" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="84" text-anchor="middle" fill="#a78bfa" font-weight="600">Lexical Analyzer</text>
+  <text x="210" y="96" text-anchor="middle" fill="#8892a4" font-size="10">(Scanner)</text>
+
+  <line x1="210" y1="102" x2="210" y2="124" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="116" fill="#8892a4" font-size="10">token stream</text>
+
+  <!-- Syntax -->
+  <rect x="110" y="124" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="142" text-anchor="middle" fill="#a78bfa" font-weight="600">Syntax Analyzer</text>
+  <text x="210" y="154" text-anchor="middle" fill="#8892a4" font-size="10">(Parser)</text>
+
+  <line x1="210" y1="160" x2="210" y2="182" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="174" fill="#8892a4" font-size="10">syntax tree</text>
+
+  <!-- Semantic -->
+  <rect x="110" y="182" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="200" text-anchor="middle" fill="#a78bfa" font-weight="600">Semantic Analyzer</text>
+  <text x="210" y="212" text-anchor="middle" fill="#8892a4" font-size="10"></text>
+
+  <line x1="210" y1="218" x2="210" y2="240" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="232" fill="#8892a4" font-size="10">annotated tree</text>
+
+  <!-- IR Gen -->
+  <rect x="110" y="240" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="258" text-anchor="middle" fill="#a78bfa" font-weight="600">Intermediate Code</text>
+  <text x="210" y="270" text-anchor="middle" fill="#a78bfa" font-weight="600">Generator</text>
+
+  <line x1="210" y1="276" x2="210" y2="298" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="290" fill="#8892a4" font-size="10">3-address code / IR</text>
+
+  <!-- Code Optimizer -->
+  <rect x="110" y="298" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="320" text-anchor="middle" fill="#a78bfa" font-weight="600">Code Optimizer</text>
+
+  <line x1="210" y1="334" x2="210" y2="356" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="348" fill="#8892a4" font-size="10">optimized IR</text>
+
+  <!-- Code Gen -->
+  <rect x="110" y="356" width="200" height="36" rx="6" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="378" text-anchor="middle" fill="#a78bfa" font-weight="600">Code Generator</text>
+
+  <line x1="210" y1="392" x2="210" y2="414" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr)"/>
+  <text x="215" y="406" fill="#8892a4" font-size="10">target machine code</text>
+
+  <!-- Target -->
+  <rect x="130" y="414" width="160" height="34" rx="6" fill="#1a2440" stroke="#34d399" stroke-width="1.5"/>
+  <text x="210" y="436" text-anchor="middle" fill="#34d399" font-weight="600">Target Program</text>
+
+  <!-- Symbol Table & Error Handler (side) -->
+  <rect x="330" y="124" width="80" height="270" rx="6" fill="#131824" stroke="#f59e0b" stroke-width="1"/>
+  <text x="370" y="245" text-anchor="middle" fill="#f59e0b" font-size="11" transform="rotate(-90,370,245)">Symbol Table Manager</text>
+
+  <rect x="0" y="124" width="80" height="270" rx="6" fill="#131824" stroke="#f87171" stroke-width="1"/>
+  <text x="40" y="245" text-anchor="middle" fill="#f87171" font-size="11" transform="rotate(-90,40,245)">Error Handler</text>
+
+  <!-- Bidirectional dotted lines to side boxes -->
+  <line x1="310" y1="145" x2="330" y2="200" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="3,3"/>
+  <line x1="310" y1="200" x2="330" y2="230" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="3,3"/>
+  <line x1="310" y1="260" x2="330" y2="270" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="3,3"/>
+  <line x1="110" y1="145" x2="80" y2="200" stroke="#f87171" stroke-width="0.8" stroke-dasharray="3,3"/>
+  <line x1="110" y1="200" x2="80" y2="230" stroke="#f87171" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4f9eff"/>
+    </marker>
+  </defs>
+</svg>
+    </div>
+
+    <h3>Phase-by-Phase Explanation</h3>
+    <table>
+      <tr><th>Phase</th><th>Input</th><th>Output</th><th>Example</th></tr>
+      <tr><td><strong>Lexical Analyzer</strong></td><td>Character stream</td><td>Token stream</td><td><code>position = initial + rate * 60</code> → tokens: id, =, id, +, id, *, num</td></tr>
+      <tr><td><strong>Syntax Analyzer</strong></td><td>Token stream</td><td>Parse tree / AST</td><td>Builds tree showing <code>=</code> at root, operands as children</td></tr>
+      <tr><td><strong>Semantic Analyzer</strong></td><td>Parse tree</td><td>Annotated tree</td><td>Type checking: ensures <code>rate * 60</code> is valid; inserts implicit cast if needed</td></tr>
+      <tr><td><strong>IR Code Generator</strong></td><td>Annotated tree</td><td>Three-address code</td><td><code>t1 = inttofloat(60); t2 = id3 * t1; t3 = id2 + t2; id1 = t3</code></td></tr>
+      <tr><td><strong>Code Optimizer</strong></td><td>IR code</td><td>Optimized IR</td><td><code>t1 = id3 * 60.0; id1 = id2 + t1</code></td></tr>
+      <tr><td><strong>Code Generator</strong></td><td>Optimized IR</td><td>Target assembly/machine code</td><td><code>LDF R2, id3; MULF R2, R2, #60.0; ...</code></td></tr>
+    </table>
+
+    <h3>Support Components</h3>
+    <ul>
+      <li><strong>Symbol Table</strong>: Stores information about identifiers (name, type, scope, memory location). All phases read/write to it.</li>
+      <li><strong>Error Handler</strong>: Detects and reports lexical, syntactic, semantic, and run-time errors and attempts recovery.</li>
+    </ul>
+    <div class="note-box">The compiler is split into a <strong>front end</strong> (phases 1–3, language-dependent) and a <strong>back end</strong> (phases 4–6, machine-dependent), with the IR acting as the interface.</div>
+  </div></div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q2</span>
+    <span class="q-text">Explain the different phases of a compiler with a neat diagram and give an example for each phase.</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q1 for the diagram. Here is a worked example for each phase with the expression: <code>position = initial + rate * 60</code></p>
+    <h3>Phase-by-Phase Example</h3>
+    <table>
+      <tr><th>Phase</th><th>Output for the expression</th></tr>
+      <tr><td>Lexical Analysis</td><td><code>&lt;id,1&gt; &lt;=&gt; &lt;id,2&gt; &lt;+&gt; &lt;id,3&gt; &lt;*&gt; &lt;60&gt;</code> — identifiers stored in symbol table</td></tr>
+      <tr><td>Syntax Analysis</td><td>Parse tree with assignment at root; subtree for <code>initial + (rate * 60)</code></td></tr>
+      <tr><td>Semantic Analysis</td><td>Type check: 60 is int, rate is float → insert <code>inttoreal</code> node. Annotated tree produced.</td></tr>
+      <tr><td>IR Generation</td><td><code>t1 = inttoreal(60)</code><br><code>t2 = id3 * t1</code><br><code>t3 = id2 + t2</code><br><code>id1 = t3</code></td></tr>
+      <tr><td>Code Optimization</td><td><code>t1 = id3 * 60.0</code><br><code>id1 = id2 + t1</code> (constant folded, t3 eliminated)</td></tr>
+      <tr><td>Code Generation</td><td><code>LDF R2, id3</code><br><code>MULF R2, R2, #60.0</code><br><code>LDF R1, id2</code><br><code>ADDF R1, R1, R2</code><br><code>STF id1, R1</code></td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q3</span>
+    <span class="q-text">Define Compiler. Explain in brief how it is different from an Interpreter. Also explain any two types of compilers.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Compiler</h3>
+    <p>A <strong>compiler</strong> translates the entire source program written in a high-level language into equivalent target code (machine code or another language) before execution. The translation happens all at once, and a separate executable is produced.</p>
+
+    <h3>Interpreter</h3>
+    <p>An <strong>interpreter</strong> reads and executes the source program statement-by-statement, without generating a complete machine-code file first.</p>
+
+    <table>
+      <tr><th>Compiler</th><th>Interpreter</th></tr>
+      <tr><td>Translates whole program at once</td><td>Executes one statement at a time</td></tr>
+      <tr><td>Faster execution (after compilation)</td><td>Slower execution (translates on the fly)</td></tr>
+      <tr><td>Error reported after scanning all code</td><td>Error reported immediately at that line</td></tr>
+      <tr><td>Produces object code / executable</td><td>No separate object file produced</td></tr>
+      <tr><td>E.g., C, C++, Java (to bytecode)</td><td>E.g., Python, Ruby, JavaScript (interpreted)</td></tr>
+    </table>
+
+    <h3>Two Types of Compilers</h3>
+    <ul>
+      <li><strong>Cross Compiler</strong>: Runs on one machine (host) but generates code for a different machine (target). E.g., compiling ARM code on an x86 machine. Useful in embedded development.</li>
+      <li><strong>Just-In-Time (JIT) Compiler</strong>: Compiles bytecode (e.g., Java bytecode) into native machine code at runtime, combining benefits of both compilation and interpretation. Used in JVM, .NET CLR.</li>
+    </ul>
+    <div class="note-box">Other types include: <strong>Bootstrapping compiler</strong> (compiler written in its own language), <strong>Single-pass compiler</strong> (one scan), <strong>Multi-pass compiler</strong> (multiple scans for better optimization).</div>
+  </div></div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q4</span>
+    <span class="q-text">Explain in brief the Frontend and Backend of a Compiler.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Front End</h3>
+    <p>The <strong>front end</strong> is the language-dependent part of the compiler. It analyzes the source program and checks its correctness. It comprises:</p>
+    <ul>
+      <li><strong>Lexical Analysis</strong> – tokenizes source code</li>
+      <li><strong>Syntax Analysis</strong> – verifies grammar structure</li>
+      <li><strong>Semantic Analysis</strong> – type checking, scope checking</li>
+      <li><strong>Intermediate Code Generation</strong> – produces IR (e.g., 3-address code)</li>
+    </ul>
+    <p>The front end produces an <em>Intermediate Representation (IR)</em> which is the output passed to the back end.</p>
+
+    <h3>Back End</h3>
+    <p>The <strong>back end</strong> is the machine-dependent part. It transforms the IR into efficient target code. It comprises:</p>
+    <ul>
+      <li><strong>Code Optimization</strong> – improves IR for speed/space</li>
+      <li><strong>Code Generation</strong> – maps IR to target instructions, allocates registers</li>
+    </ul>
+
+    <h3>Advantage of Separation</h3>
+    <p>By using an IR as a bridge, you can create <em>m</em> front ends (one per source language) and <em>n</em> back ends (one per target machine), giving m×n compilers with only m+n components.</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <rect x="5" y="10" width="120" height="70" rx="6" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="65" y="42" text-anchor="middle" fill="#4f9eff" font-weight="600">Front End</text>
+  <text x="65" y="56" text-anchor="middle" fill="#8892a4" font-size="10">Language-dependent</text>
+  <text x="65" y="70" text-anchor="middle" fill="#8892a4" font-size="10">Lexical/Syntax/Semantic</text>
+
+  <rect x="140" y="28" width="120" height="34" rx="6" fill="#131824" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="200" y="46" text-anchor="middle" fill="#f59e0b" font-weight="600">IR / 3-addr code</text>
+  <text x="200" y="57" text-anchor="middle" fill="#8892a4" font-size="10">Machine-independent</text>
+
+  <rect x="275" y="10" width="120" height="70" rx="6" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <text x="335" y="42" text-anchor="middle" fill="#34d399" font-weight="600">Back End</text>
+  <text x="335" y="56" text-anchor="middle" fill="#8892a4" font-size="10">Machine-dependent</text>
+  <text x="335" y="70" text-anchor="middle" fill="#8892a4" font-size="10">Optimization/Code Gen</text>
+
+  <line x1="125" y1="45" x2="140" y2="45" stroke="#4f9eff" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <line x1="260" y1="45" x2="275" y2="45" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr3)"/>
+  <defs>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4f9eff"/></marker>
+    <marker id="arr3" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#34d399"/></marker>
+  </defs>
+</svg>
+    </div>
+  </div></div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q5</span>
+    <span class="q-text">What is Lex and Yacc? Explain in brief.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Lex</h3>
+    <p><strong>Lex</strong> (Lexical Analyzer Generator) is a tool that takes a specification file consisting of regular expressions (patterns) and associated actions, and automatically generates C code for a lexical analyzer. The generated scanner (lexer) reads input characters, matches them against the patterns, and executes the corresponding action (e.g., return a token).</p>
+    <h3>Lex Program Structure</h3>
+    <pre>
+%{ 
+  /* C declarations */
+%}
+/* Definitions */
+%%
+/* Rules: pattern  { action } */
+[a-zA-Z][a-zA-Z0-9]*  { return ID; }
+[0-9]+                { return NUM; }
+%%
+/* User C code */</pre>
+    <ul>
+      <li>Section 1 (before first <code>%%</code>): Declarations and definitions</li>
+      <li>Section 2 (between <code>%%</code>): Pattern-action rules</li>
+      <li>Section 3 (after second <code>%%</code>): Auxiliary C functions</li>
+    </ul>
+
+    <h3>Yacc</h3>
+    <p><strong>Yacc</strong> (Yet Another Compiler Compiler) is a parser generator. It takes a grammar specification (context-free grammar with associated semantic actions) and generates a LALR(1) parser in C. Yacc is typically used together with Lex — Lex provides tokens, Yacc uses them to parse and apply semantic actions.</p>
+    <div class="note-box">Modern equivalents: <strong>Flex</strong> (replacement for Lex) and <strong>Bison</strong> (GNU replacement for Yacc).</div>
+  </div></div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q6</span>
+    <span class="q-text">Briefly state the role of a lexer. Is it possible to have a common lexer for all languages? Justify with at least 2 examples.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Role of a Lexer (Scanner)</h3>
+    <p>The lexer (lexical analyzer) is the first phase of a compiler. It reads the raw character stream of the source program and groups characters into meaningful sequences called <strong>lexemes</strong>, returning a corresponding <strong>token</strong> (a &lt;token-name, attribute-value&gt; pair) to the parser on demand. It also:</p>
+    <ul>
+      <li>Strips whitespace and comments</li>
+      <li>Manages the input buffer efficiently</li>
+      <li>Interacts with the symbol table</li>
+    </ul>
+
+    <h3>Common Lexer — Is It Possible?</h3>
+    <p><strong>No, a single common lexer for all languages is generally not possible</strong> because different languages have fundamentally different token sets, keyword lists, and lexical rules.</p>
+    <ul>
+      <li><strong>Example 1 — Keywords</strong>: In C, <code>int</code> is a keyword (type). In Python, there is no <code>int</code> keyword (it's a built-in function). A common lexer cannot know which identifiers are reserved words without being language-specific.</li>
+      <li><strong>Example 2 — String literals</strong>: In C, strings use double quotes <code>"hello"</code> and characters use single quotes <code>'a'</code>. In Python, both <code>'hello'</code> and <code>"hello"</code> are valid strings, and triple quotes <code>"""..."""</code> are also valid. The lexical rules differ significantly.</li>
+      <li><strong>Example 3 — Comments</strong>: C uses <code>/* */</code> and <code>//</code>; Python uses <code>#</code>; Haskell uses <code>--</code> and <code>{- -}</code>. These cannot be handled by a single rule set.</li>
+    </ul>
+    <div class="warn-box">Conclusion: Each language has its own token specification, so a separate lexer (or parameterized lexer) is needed per language.</div>
+  </div></div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card" data-topic="intro">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q7</span>
+    <span class="q-text">Provide an example where the lexer requires help from other phases to identify the correct token name of a currently matched lexeme.</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Lexer–Parser Interaction</h3>
+    <p>In most languages the lexer can identify tokens independently, but there are cases where context from the parser is needed:</p>
+    <p><strong>Example — typedef in C</strong>: Consider the following C code:</p>
+    <pre>
+typedef int MyInt;
+MyInt x;</pre>
+    <p>When the lexer encounters <code>MyInt</code> in the second line, it matches as an <em>identifier</em> lexeme. However, it should be treated as a <em>type name</em> (like <code>int</code>) — this is only known after the parser has processed the <code>typedef</code> declaration and updated the symbol table. So the lexer needs to consult the symbol table (fed by the parser/semantic phase) to return the correct token <code>TYPE_NAME</code> instead of <code>ID</code>.</p>
+    <p><strong>Another example — Fortran</strong>: In older Fortran, whitespace is insignificant. The statement <code>DO 5 I = 1,25</code> is a loop, but <code>DO 5 I = 1.25</code> is an assignment to variable <code>DO5I</code>. The lexer cannot distinguish them without parser context.</p>
+  </div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SECTION 2 – LEXICAL ANALYSIS                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">Lexical Analysis</div>
+
+<!-- Q8 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q8</span>
+    <span class="q-text">Why is buffering used in lexical analysis? What are the commonly used buffering methods?</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Why Buffering?</h3>
+    <p>Reading source code one character at a time with a system call per character is extremely slow. Buffering loads a large block of characters into memory at once, making character access an in-memory operation. Additionally, lexical analysis requires <strong>lookahead</strong> — the scanner must peek at the next character(s) to decide whether a token has ended (e.g., <code>&gt;=</code> vs <code>&gt;</code>), so a buffer that supports both forward reading and retraction is needed.</p>
+
+    <h3>Buffering Methods</h3>
+    <p><strong>1. One-Buffer Scheme</strong>: A single buffer of size <em>N</em> (e.g., 4096 bytes) is filled from the input. Two pointers — <code>lexemeBegin</code> (start of current token) and <code>forward</code> (current scan position) — traverse the buffer. On exhaustion, the buffer is refilled. Problem: a token cannot span a buffer boundary easily.</p>
+
+    <p><strong>2. Two-Buffer (Pair of Buffers) Scheme</strong>: Two buffers of equal size <em>N</em> are used alternately. When <code>forward</code> reaches the end of the first buffer, the second is loaded and scanning continues seamlessly. This allows tokens to span the boundary between fills.</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 420 100" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <!-- Buffer 1 -->
+  <rect x="10" y="20" width="180" height="40" rx="4" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="100" y="44" text-anchor="middle" fill="#4f9eff">Buffer 1 (N chars)</text>
+  <!-- Sentinel -->
+  <rect x="188" y="20" width="14" height="40" rx="2" fill="#f59e0b" fill-opacity="0.3" stroke="#f59e0b"/>
+  <text x="195" y="44" text-anchor="middle" fill="#f59e0b" font-size="9">eof</text>
+  <!-- Buffer 2 -->
+  <rect x="215" y="20" width="180" height="40" rx="4" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <text x="305" y="44" text-anchor="middle" fill="#34d399">Buffer 2 (N chars)</text>
+  <rect x="393" y="20" width="14" height="40" rx="2" fill="#f59e0b" fill-opacity="0.3" stroke="#f59e0b"/>
+  <text x="400" y="44" text-anchor="middle" fill="#f59e0b" font-size="9">eof</text>
+
+  <!-- Pointer arrows -->
+  <line x1="60" y1="60" x2="60" y2="78" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrP)"/>
+  <text x="60" y="90" text-anchor="middle" fill="#a78bfa" font-size="10">lexemeBegin</text>
+  <line x1="120" y1="60" x2="120" y2="78" stroke="#f87171" stroke-width="1.2" marker-end="url(#arrP)"/>
+  <text x="120" y="90" text-anchor="middle" fill="#f87171" font-size="10">forward</text>
+  <defs>
+    <marker id="arrP" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#a78bfa"/></marker>
+  </defs>
+</svg>
+    </div>
+
+    <h3>Sentinels</h3>
+    <p>A special character <code>eof</code> is placed at the end of each buffer half. When <code>forward</code> encounters <code>eof</code>, the scanner knows the buffer is exhausted and loads the next half. This eliminates the need for an explicit bounds check on every character read — only the <code>eof</code> check is needed. <strong>Advantage</strong>: reduces the number of tests from 2 per character (end-of-buffer + special-character) to just 1 (check for eof/special char only).</p>
+  </div></div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q9</span>
+    <span class="q-text">What is input buffering and why is it necessary during lexical analysis? Explain briefly the advantage of having sentinels at the end of each buffer half in buffer pairs.</span>
+    <div class="q-meta"><span class="marks-badge">5 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Input Buffering</h3>
+    <p>Input buffering is a technique where instead of reading one character at a time from the source file (which requires a system call per character — very slow), a large block of characters is loaded into an in-memory buffer at once. The lexer then reads from this fast memory buffer.</p>
+
+    <h3>Why Necessary</h3>
+    <ol>
+      <li><strong>Performance</strong>: System calls are expensive; buffering amortizes the cost across many character reads.</li>
+      <li><strong>Lookahead</strong>: The scanner needs to look ahead (sometimes several characters) to determine if the current lexeme has ended. For example, to recognize <code>!=</code> vs <code>!</code>, or to distinguish <code>while</code> (keyword) from <code>whileloop</code> (identifier).</li>
+      <li><strong>Retraction</strong>: After reading one character too far (to confirm end of a token), the scanner must "put back" the character. Buffers support this via a pointer decrement.</li>
+    </ol>
+
+    <h3>Advantage of Sentinels</h3>
+    <p>Without sentinels, for each character read we need <strong>two checks</strong>:</p>
+    <ol>
+      <li>Is <code>forward</code> at the end of the buffer? (buffer boundary check)</li>
+      <li>Is the character a special character (e.g., newline, whitespace)?</li>
+    </ol>
+    <p>With a <strong>sentinel</strong> (the special character <code>eof</code> placed at position N+1 of each half), both checks reduce to <strong>one check</strong>: test if the current character is <code>eof</code>. If it is, we decide whether it is genuine end-of-input or just end-of-buffer-half and reload. This halves the number of conditional tests during lexical scanning, significantly improving performance for large programs.</p>
+    <pre>
+Without sentinel: if (forward == end_of_buf || isSpecial(ch)) ...  // 2 checks
+With sentinel:    if (ch == EOF) ...                               // 1 check</pre>
+  </div></div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q10</span>
+    <span class="q-text">What are Lexical Errors? Write down the sequence of lexemes for: while(i &lt;= 10) { printf("%d",i); i++; }</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Lexical Errors</h3>
+    <p>A <strong>lexical error</strong> occurs when the scanner cannot match the current sequence of characters to any valid token pattern for the language. Examples:</p>
+    <ul>
+      <li>An illegal character in the source: <code>@</code> in C</li>
+      <li>An unterminated string literal: <code>"hello</code> without closing quote</li>
+      <li>An invalid numeric literal: <code>1.2.3</code></li>
+      <li>Excessively long identifier (beyond symbol table limit)</li>
+    </ul>
+    <p>Recovery strategies: <strong>delete</strong> the offending character, <strong>insert</strong> a missing character, <strong>replace</strong> a character, or <strong>transpose</strong> adjacent characters.</p>
+
+    <h3>Lexeme Sequence</h3>
+    <p>For: <code>while(i &lt;= 10) { printf("%d",i); i++; }</code></p>
+    <table>
+      <tr><th>Lexeme</th><th>Token</th></tr>
+      <tr><td><code>while</code></td><td>keyword</td></tr>
+      <tr><td><code>(</code></td><td>punctuation / LPAREN</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>&lt;=</code></td><td>relational operator</td></tr>
+      <tr><td><code>10</code></td><td>integer literal / NUM</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>{</code></td><td>LBRACE</td></tr>
+      <tr><td><code>printf</code></td><td>identifier</td></tr>
+      <tr><td><code>(</code></td><td>LPAREN</td></tr>
+      <tr><td><code>"%d"</code></td><td>string literal</td></tr>
+      <tr><td><code>,</code></td><td>comma</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>++</code></td><td>increment operator</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>}</code></td><td>RBRACE</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q11 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q11</span>
+    <span class="q-text">What are Lexical Errors? Write down the sequence of lexemes for: for(i=0; i &lt;= 10; i++) { printf("%d",i);}</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Lexical Errors</h3>
+    <p>Same definition as Q10 (see above).</p>
+    <h3>Lexeme Sequence for <code>for(i=0; i &lt;= 10; i++) { printf("%d",i);}</code></h3>
+    <table>
+      <tr><th>Lexeme</th><th>Token</th></tr>
+      <tr><td><code>for</code></td><td>keyword</td></tr>
+      <tr><td><code>(</code></td><td>LPAREN</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>=</code></td><td>assignment operator</td></tr>
+      <tr><td><code>0</code></td><td>integer literal</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>&lt;=</code></td><td>relational operator (LE)</td></tr>
+      <tr><td><code>10</code></td><td>integer literal</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>++</code></td><td>increment operator</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>{</code></td><td>LBRACE</td></tr>
+      <tr><td><code>printf</code></td><td>identifier</td></tr>
+      <tr><td><code>(</code></td><td>LPAREN</td></tr>
+      <tr><td><code>"%d"</code></td><td>string literal</td></tr>
+      <tr><td><code>,</code></td><td>comma</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>}</code></td><td>RBRACE</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q12 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q12</span>
+    <span class="q-text">What are Lexical Errors? Write down the sequence of lexemes for: do { printf("%d",i); i++; } while(i &lt;= 10);</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Lexical Errors (brief)</h3>
+    <p>Occur when no valid token pattern matches the current characters. Recovery: delete, insert, replace, or transpose characters.</p>
+    <h3>Lexeme Sequence</h3>
+    <table>
+      <tr><th>Lexeme</th><th>Token</th></tr>
+      <tr><td><code>do</code></td><td>keyword</td></tr>
+      <tr><td><code>{</code></td><td>LBRACE</td></tr>
+      <tr><td><code>printf</code></td><td>identifier</td></tr>
+      <tr><td><code>(</code></td><td>LPAREN</td></tr>
+      <tr><td><code>"%d"</code></td><td>string literal</td></tr>
+      <tr><td><code>,</code></td><td>comma</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>++</code></td><td>increment operator</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+      <tr><td><code>}</code></td><td>RBRACE</td></tr>
+      <tr><td><code>while</code></td><td>keyword</td></tr>
+      <tr><td><code>(</code></td><td>LPAREN</td></tr>
+      <tr><td><code>i</code></td><td>identifier</td></tr>
+      <tr><td><code>&lt;=</code></td><td>relational operator</td></tr>
+      <tr><td><code>10</code></td><td>integer literal</td></tr>
+      <tr><td><code>)</code></td><td>RPAREN</td></tr>
+      <tr><td><code>;</code></td><td>semicolon</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q13 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q13</span>
+    <span class="q-text">Construct transition diagrams for whitespaces and identifiers.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Transition Diagram — Identifiers</h3>
+    <p>An identifier starts with a letter or underscore, followed by zero or more letters, digits, or underscores.</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="12">
+  <!-- State 0 -->
+  <circle cx="50" cy="45" r="20" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="50" y="49" text-anchor="middle" fill="#4f9eff">0</text>
+  <!-- Arrow from start -->
+  <line x1="10" y1="45" x2="28" y2="45" stroke="#8892a4" stroke-width="1.2" marker-end="url(#arrI)"/>
+
+  <!-- State 1 -->
+  <circle cx="180" cy="45" r="20" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="180" y="49" text-anchor="middle" fill="#4f9eff">1</text>
+
+  <!-- State 2 (accepting) -->
+  <circle cx="320" cy="45" r="20" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="320" cy="45" r="15" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="320" y="49" text-anchor="middle" fill="#34d399">2*</text>
+
+  <!-- 0→1: letter or _ -->
+  <line x1="70" y1="45" x2="158" y2="45" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrI2)"/>
+  <text x="114" y="38" text-anchor="middle" fill="#a78bfa">letter | _</text>
+
+  <!-- 1→1 loop: letter | digit | _ -->
+  <path d="M170 25 Q180 5 190 25" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrI2)"/>
+  <text x="180" y="12" text-anchor="middle" fill="#a78bfa">letter|digit|_</text>
+
+  <!-- 1→2: other (retract) -->
+  <line x1="200" y1="45" x2="298" y2="45" stroke="#34d399" stroke-width="1.2" marker-end="url(#arrI3)"/>
+  <text x="249" y="38" text-anchor="middle" fill="#34d399">other*</text>
+
+  <text x="320" y="75" text-anchor="middle" fill="#8892a4" font-size="10">* retract forward</text>
+  <text x="320" y="85" text-anchor="middle" fill="#8892a4" font-size="10">return gettoken(id)</text>
+
+  <defs>
+    <marker id="arrI" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8892a4"/></marker>
+    <marker id="arrI2" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#a78bfa"/></marker>
+    <marker id="arrI3" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#34d399"/></marker>
+  </defs>
+</svg>
+    </div>
+
+    <h3>Transition Diagram — Whitespace</h3>
+    <p>Whitespace tokens (spaces, tabs, newlines) are typically consumed and discarded.</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 380 90" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="12">
+  <circle cx="50" cy="45" r="20" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="50" y="49" text-anchor="middle" fill="#4f9eff">10</text>
+  <line x1="10" y1="45" x2="28" y2="45" stroke="#8892a4" stroke-width="1.2" marker-end="url(#arrW)"/>
+
+  <circle cx="180" cy="45" r="20" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="180" y="49" text-anchor="middle" fill="#4f9eff">11</text>
+
+  <circle cx="310" cy="45" r="20" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="310" cy="45" r="15" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="310" y="49" text-anchor="middle" fill="#34d399">12*</text>
+
+  <line x1="70" y1="45" x2="158" y2="45" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrW2)"/>
+  <text x="114" y="38" text-anchor="middle" fill="#a78bfa">blank|tab|\n</text>
+
+  <path d="M170 25 Q180 5 190 25" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrW2)"/>
+  <text x="180" y="12" text-anchor="middle" fill="#a78bfa">blank|tab|\n</text>
+
+  <line x1="200" y1="45" x2="288" y2="45" stroke="#34d399" stroke-width="1.2" marker-end="url(#arrW3)"/>
+  <text x="244" y="38" text-anchor="middle" fill="#34d399">other*</text>
+
+  <text x="310" y="75" text-anchor="middle" fill="#8892a4" font-size="10">* retract &amp; discard</text>
+
+  <defs>
+    <marker id="arrW" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8892a4"/></marker>
+    <marker id="arrW2" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#a78bfa"/></marker>
+    <marker id="arrW3" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#34d399"/></marker>
+  </defs>
+</svg>
+    </div>
+    <p>State 12 is an accepting state with retraction. The lexer returns no token (whitespace is discarded) and resumes scanning.</p>
+  </div></div>
+</div>
+
+<!-- Q14 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q14</span>
+    <span class="q-text">Construct a transition diagram for: (1) Relational Operators, (2) Identifiers, (3) White Spaces.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>1. Relational Operators</h3>
+    <p>Relational operators: <code>&lt;</code>, <code>&lt;=</code>, <code>=</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;&gt;</code></p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <!-- State 0 (start) -->
+  <circle cx="50" cy="130" r="18" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="50" y="134" text-anchor="middle" fill="#4f9eff">0</text>
+  <line x1="10" y1="130" x2="30" y2="130" stroke="#8892a4" stroke-width="1" marker-end="url(#aR)"/>
+
+  <!-- State 1: after < -->
+  <circle cx="180" cy="60" r="18" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="180" y="64" text-anchor="middle" fill="#4f9eff">1</text>
+
+  <!-- State 2: < alone accept -->
+  <circle cx="340" cy="30" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="340" cy="30" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="340" y="34" text-anchor="middle" fill="#34d399">2*</text>
+  <text x="340" y="52" text-anchor="middle" fill="#8892a4" font-size="9">return LT</text>
+
+  <!-- State 3: <= accept -->
+  <circle cx="340" cy="80" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="340" cy="80" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="340" y="84" text-anchor="middle" fill="#34d399">3*</text>
+  <text x="340" y="100" text-anchor="middle" fill="#8892a4" font-size="9">return LE</text>
+
+  <!-- State 4: <> accept -->
+  <circle cx="450" cy="60" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="450" cy="60" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="450" y="64" text-anchor="middle" fill="#34d399">4*</text>
+  <text x="450" y="80" text-anchor="middle" fill="#8892a4" font-size="9">return NE</text>
+
+  <!-- 0→1: < -->
+  <line x1="68" y1="120" x2="162" y2="70" stroke="#a78bfa" stroke-width="1.1" marker-end="url(#aR2)"/>
+  <text x="105" y="85" fill="#a78bfa">&lt;</text>
+
+  <!-- 1→2: other (retract) -->
+  <line x1="196" y1="50" x2="320" y2="32" stroke="#34d399" stroke-width="1.1" marker-end="url(#aR3)"/>
+  <text x="258" y="36" fill="#34d399" font-size="10">other*</text>
+
+  <!-- 1→3: = -->
+  <line x1="197" y1="67" x2="320" y2="78" stroke="#34d399" stroke-width="1.1" marker-end="url(#aR3)"/>
+  <text x="258" y="68" fill="#34d399" font-size="10">=</text>
+
+  <!-- 1→4: > -->
+  <line x1="196" y1="62" x2="430" y2="62" stroke="#34d399" stroke-width="1.1" marker-end="url(#aR3)"/>
+  <text x="370" y="56" fill="#34d399" font-size="10">&gt;</text>
+
+  <!-- State 5: after = -->
+  <circle cx="180" cy="150" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="180" cy="150" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="180" y="154" text-anchor="middle" fill="#34d399">5*</text>
+  <text x="180" y="172" text-anchor="middle" fill="#8892a4" font-size="9">return EQ</text>
+
+  <!-- 0→5: = -->
+  <line x1="65" y1="135" x2="160" y2="148" stroke="#a78bfa" stroke-width="1.1" marker-end="url(#aR2)"/>
+  <text x="110" y="137" fill="#a78bfa">=</text>
+
+  <!-- State 6: after > -->
+  <circle cx="180" cy="210" r="18" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="180" y="214" text-anchor="middle" fill="#4f9eff">6</text>
+
+  <!-- 0→6: > -->
+  <line x1="65" y1="142" x2="162" y2="202" stroke="#a78bfa" stroke-width="1.1" marker-end="url(#aR2)"/>
+  <text x="108" y="180" fill="#a78bfa">&gt;</text>
+
+  <!-- State 7: >= accept -->
+  <circle cx="340" cy="200" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="340" cy="200" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="340" y="204" text-anchor="middle" fill="#34d399">7*</text>
+  <text x="340" y="222" text-anchor="middle" fill="#8892a4" font-size="9">return GE</text>
+
+  <!-- State 8: > alone accept -->
+  <circle cx="340" cy="248" r="18" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="340" cy="248" r="13" fill="none" stroke="#34d399" stroke-width="1"/>
+  <text x="340" y="252" text-anchor="middle" fill="#34d399">8*</text>
+  <text x="450" y="248" text-anchor="middle" fill="#8892a4" font-size="9">return GT (retract)</text>
+
+  <!-- 6→7: = -->
+  <line x1="196" y1="205" x2="320" y2="203" stroke="#34d399" stroke-width="1.1" marker-end="url(#aR3)"/>
+  <text x="258" y="198" fill="#34d399" font-size="10">=</text>
+
+  <!-- 6→8: other -->
+  <line x1="196" y1="216" x2="320" y2="245" stroke="#34d399" stroke-width="1.1" marker-end="url(#aR3)"/>
+  <text x="260" y="238" fill="#34d399" font-size="10">other*</text>
+
+  <defs>
+    <marker id="aR" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8892a4"/></marker>
+    <marker id="aR2" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#a78bfa"/></marker>
+    <marker id="aR3" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#34d399"/></marker>
+  </defs>
+</svg>
+    </div>
+    <h3>2. Identifiers — see Q13</h3>
+    <h3>3. Whitespace — see Q13</h3>
+  </div></div>
+</div>
+
+<!-- Q15 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q15</span>
+    <span class="q-text">What is the purpose of a Transition Diagram in the design of a lexer?</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>A <strong>transition diagram</strong> is a visual representation of a finite automaton used to specify how the scanner recognizes tokens. Each <strong>node</strong> represents a <em>state</em> (stage of token recognition), <strong>edges</strong> (arrows) represent <em>transitions</em> triggered by input characters, and <strong>accepting states</strong> (double circles) indicate successful token recognition.</p>
+    <p><strong>Purpose</strong>:</p>
+    <ul>
+      <li>Provides a clear blueprint for implementing the scanner as a set of if/switch statements or a table-driven DFA.</li>
+      <li>Directly derived from the regular expressions for each token class — regex → NFA → DFA → transition diagram.</li>
+      <li>Handles lookahead and retraction explicitly (marked on transitions).</li>
+      <li>Multiple transition diagrams (one per token class) are composed into a single lexer that tries each in sequence.</li>
+    </ul>
+  </div></div>
+</div>
+
+<!-- Q16 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q16</span>
+    <span class="q-text">What is a regular definition? Explain with an example. What is the purpose of using a regular definition?</span>
+    <div class="q-meta"><span class="marks-badge">3 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Regular Definition</h3>
+    <p>A <strong>regular definition</strong> is a way to give names to regular expressions so they can be referenced in subsequent regular expressions, making complex patterns more readable and modular. The form is:</p>
+    <pre>
+d₁ → r₁
+d₂ → r₂
+...
+dₙ → rₙ</pre>
+    <p>where each <code>dᵢ</code> is a distinct name and <code>rᵢ</code> is a regular expression over the alphabet <em>plus</em> the previously defined names <code>d₁, …, dᵢ₋₁</code>.</p>
+
+    <h3>Example — C Identifiers and Integer Literals</h3>
+    <pre>
+letter_  → [A-Za-z_]
+digit    → [0-9]
+id       → letter_ (letter_ | digit)*
+integer  → digit+</pre>
+    <p>Here <code>id</code> is defined using the previously defined names <code>letter_</code> and <code>digit</code>.</p>
+
+    <h3>Purpose</h3>
+    <ul>
+      <li><strong>Readability</strong>: Breaking a complex regex into named parts is much easier to understand.</li>
+      <li><strong>Reuse</strong>: Sub-patterns like <code>digit</code> can be referenced multiple times without repeating <code>[0-9]</code>.</li>
+      <li><strong>Maintainability</strong>: Changing a sub-pattern in one place updates all references.</li>
+    </ul>
+  </div></div>
+</div>
+
+<!-- Q17 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q17</span>
+    <span class="q-text">Explain the design of a Lexical Analyzer with a neat diagram.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Design Overview</h3>
+    <p>A lexical analyzer can be designed in two main ways: <strong>hand-coded</strong> (writing a DFA manually) or <strong>generated</strong> (using a tool like Lex). The diagram below shows the interaction between a lexer and parser.</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <!-- Source file -->
+  <rect x="5" y="65" width="80" height="40" rx="5" fill="#161a23" stroke="#4f9eff" stroke-width="1.2"/>
+  <text x="45" y="88" text-anchor="middle" fill="#4f9eff">Source</text>
+  <text x="45" y="100" text-anchor="middle" fill="#4f9eff">Program</text>
+
+  <!-- Input buffer -->
+  <rect x="110" y="55" width="100" height="60" rx="5" fill="#161a23" stroke="#a78bfa" stroke-width="1.2"/>
+  <text x="160" y="80" text-anchor="middle" fill="#a78bfa">Input</text>
+  <text x="160" y="92" text-anchor="middle" fill="#a78bfa">Buffer</text>
+  <text x="160" y="106" text-anchor="middle" fill="#8892a4" font-size="9">(two halves)</text>
+
+  <!-- Lexer -->
+  <rect x="240" y="55" width="100" height="60" rx="5" fill="#161a23" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="290" y="80" text-anchor="middle" fill="#f59e0b">Lexical</text>
+  <text x="290" y="92" text-anchor="middle" fill="#f59e0b">Analyzer</text>
+  <text x="290" y="106" text-anchor="middle" fill="#8892a4" font-size="9">(DFA / NFA sim)</text>
+
+  <!-- Parser -->
+  <rect x="370" y="55" width="100" height="60" rx="5" fill="#161a23" stroke="#34d399" stroke-width="1.2"/>
+  <text x="420" y="80" text-anchor="middle" fill="#34d399">Parser</text>
+  <text x="420" y="92" text-anchor="middle" fill="#34d399">(Syntax</text>
+  <text x="420" y="106" text-anchor="middle" fill="#34d399">Analyzer)</text>
+
+  <!-- Symbol Table -->
+  <rect x="240" y="140" width="100" height="34" rx="5" fill="#161a23" stroke="#f87171" stroke-width="1.2"/>
+  <text x="290" y="162" text-anchor="middle" fill="#f87171">Symbol Table</text>
+
+  <!-- Arrows -->
+  <line x1="85" y1="85" x2="108" y2="85" stroke="#4f9eff" stroke-width="1.1" marker-end="url(#aD)"/>
+  <line x1="210" y1="85" x2="238" y2="85" stroke="#a78bfa" stroke-width="1.1" marker-end="url(#aD2)"/>
+  <!-- bidirectional lexer-parser -->
+  <line x1="340" y1="80" x2="368" y2="80" stroke="#f59e0b" stroke-width="1.1" marker-end="url(#aD3)"/>
+  <text x="354" y="74" text-anchor="middle" fill="#f59e0b" font-size="9">token</text>
+  <line x1="368" y1="92" x2="340" y2="92" stroke="#34d399" stroke-width="1.1" marker-end="url(#aD4)"/>
+  <text x="354" y="104" text-anchor="middle" fill="#34d399" font-size="9">getNextToken()</text>
+  <!-- lexer-symtable -->
+  <line x1="290" y1="115" x2="290" y2="138" stroke="#f87171" stroke-width="1.1" marker-end="url(#aD5)"/>
+  <text x="298" y="130" fill="#f87171" font-size="9">insert/lookup</text>
+
+  <defs>
+    <marker id="aD" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#4f9eff"/></marker>
+    <marker id="aD2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#a78bfa"/></marker>
+    <marker id="aD3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#f59e0b"/></marker>
+    <marker id="aD4" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#34d399"/></marker>
+    <marker id="aD5" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#f87171"/></marker>
+  </defs>
+</svg>
+    </div>
+    <h3>How It Works</h3>
+    <ol>
+      <li>Source code is loaded into the <strong>input buffer</strong> (two-buffer scheme).</li>
+      <li>The lexer uses a <strong>DFA</strong> (or simulated NFA) driven by transition tables/diagrams to recognize patterns.</li>
+      <li>When a pattern is matched, the lexer returns a <strong>token</strong> to the parser and inserts the lexeme into the <strong>symbol table</strong> if it is an identifier or literal.</li>
+      <li>The parser calls <code>getNextToken()</code> whenever it needs the next token.</li>
+    </ol>
+  </div></div>
+</div>
+
+<!-- Q18 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q18</span>
+    <span class="q-text">Design of a Lexical Analyzer Generator — Show how a lexical analyzer tool internally simulates the action of an NFA/DFA to identify parts of input string "abbca" that match: ab? → printf("1"); ab?b* → printf("2"); bc → printf("3"). Highlight ambiguities and how they are resolved.</span>
+    <div class="q-meta"><span class="marks-badge">5 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Pattern Meanings</h3>
+    <ul>
+      <li><code>ab?</code> matches: <code>a</code> or <code>ab</code></li>
+      <li><code>ab?b*</code> matches: <code>a</code>, <code>ab</code>, <code>abb</code>, <code>abbb</code>, …</li>
+      <li><code>bc</code> matches: <code>bc</code></li>
+    </ul>
+
+    <h3>Lex Ambiguity Resolution Rules</h3>
+    <ol>
+      <li><strong>Longest match (maximal munch)</strong>: Among all patterns that match a prefix of the remaining input, choose the one that matches the <em>longest</em> string.</li>
+      <li><strong>Rule priority</strong>: If two patterns match the same longest string, choose the pattern listed <em>first</em> in the specification.</li>
+    </ol>
+
+    <h3>Scanning "abbca"</h3>
+    <table>
+      <tr><th>Position</th><th>Remaining input</th><th>Patterns tried</th><th>Winner</th><th>Action</th></tr>
+      <tr><td>1</td><td><code>abbca</code></td><td><code>ab?</code> matches "a" or "ab"; <code>ab?b*</code> matches "a", "ab", "abb"</td><td><code>ab?b*</code> matches "abb" (longest)</td><td>printf("2")</td></tr>
+      <tr><td>2</td><td><code>ca</code></td><td><code>bc</code> doesn't start with c; <code>ab?</code> doesn't match; none match</td><td>No match for 'c' alone → lex prints it or reports error</td><td>Output 'c' (or error)</td></tr>
+      <tr><td>3</td><td><code>a</code></td><td><code>ab?</code> matches "a"; <code>ab?b*</code> matches "a"</td><td>Both match "a"; <code>ab?</code> listed first → priority</td><td>printf("1")</td></tr>
+    </table>
+
+    <h3>Ambiguity Discussion</h3>
+    <p>At position 1: both <code>ab?</code> and <code>ab?b*</code> could match "ab". Longest match gives "abb" to <code>ab?b*</code> → ambiguity resolved by longest match rule.</p>
+    <p>At position 3 (just "a"): both match the same length; rule priority (first rule wins) resolves ambiguity → <code>ab?</code> fires (printf "1").</p>
+    <p><strong>Final output</strong>: <code>2</code> (for "abb"), then 'c' unmatched or error, then <code>1</code> (for "a").</p>
+  </div></div>
+</div>
+
+<!-- Q19 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q19</span>
+    <span class="q-text">Consider the Lex specification: a*b → printf("1"); (a|b)*b → printf("2"); c* → printf("3"). Explain how lex tokenizes "cbbbbac". Also tokenize "cbabc".</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Pattern Meanings</h3>
+    <ul>
+      <li><code>a*b</code>: zero or more a's followed by b → e.g., b, ab, aab</li>
+      <li><code>(a|b)*b</code>: any string of a's and b's ending in b → e.g., b, ab, bb, aab, bab</li>
+      <li><code>c*</code>: zero or more c's → matches ε (empty), c, cc, ccc…</li>
+    </ul>
+    <div class="note-box">Lex rules: <strong>Longest match</strong>, then <strong>first rule</strong> on tie.</div>
+
+    <h3>Tokenizing "cbbbbac"</h3>
+    <table>
+      <tr><th>Step</th><th>Remaining</th><th>Longest match</th><th>Rule fires</th><th>Output</th></tr>
+      <tr><td>1</td><td>cbbbbac</td><td>"c" matches <code>c*</code> (1 char)</td><td>Rule 3</td><td>printf("3")</td></tr>
+      <tr><td>2</td><td>bbbbac</td><td>"bbbba" could match <code>(a|b)*b</code>? No — "bbbba" ends in 'a'. "bbbb" matches <code>(a|b)*b</code> (4 chars). Also "b" matches <code>a*b</code>. Longest is "bbbb" via rule 2</td><td>Rule 2</td><td>printf("2")</td></tr>
+      <tr><td>3</td><td>ac</td><td>"a" alone: <code>c*</code> matches ε or 0 chars, <code>a*b</code> needs b at end — "a" alone doesn't match. <code>(a|b)*b</code> needs to end in b. No rule matches "a" with positive length except if we accept ε for c*. Lex would match "a" as no-rule → pass through character or lex reports error. Actually "a" is output as itself.</td><td>No rule (error/pass)</td><td>'a' passed</td></tr>
+      <tr><td>4</td><td>c</td><td>"c" matches <code>c*</code></td><td>Rule 3</td><td>printf("3")</td></tr>
+    </table>
+    <p><strong>Output for "cbbbbac"</strong>: <code>3</code> (c), <code>2</code> (bbbb), a (unmatched), <code>3</code> (c)</p>
+
+    <h3>Tokenizing "cbabc"</h3>
+    <table>
+      <tr><th>Step</th><th>Remaining</th><th>Match</th><th>Output</th></tr>
+      <tr><td>1</td><td>cbabc</td><td>"c" → <code>c*</code></td><td>printf("3")</td></tr>
+      <tr><td>2</td><td>babc</td><td>"bab" matches <code>(a|b)*b</code>? "bab" ends in b ✓. Also "b" matches <code>a*b</code>. Longest = "bab" (3 chars) by rule 2.</td><td>printf("2")</td></tr>
+      <tr><td>3</td><td>c</td><td>"c" → <code>c*</code></td><td>printf("3")</td></tr>
+    </table>
+    <p><strong>Output for "cbabc"</strong>: <code>3</code>, <code>2</code>, <code>3</code></p>
+  </div></div>
+</div>
+
+<!-- Q20 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q20</span>
+    <span class="q-text">Consider the Lex spec: a*b → printf(" 1 "); (a|b)*b → printf(" 2 "); c* → printf(" 3 "). Explain tokenization of "cbbbbac".</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>This is the same specification as Q19. See Q19 for the full detailed solution.</p>
+    <p><strong>Summary for "cbbbbac"</strong>: Output is <code> 3 </code> (for c), <code> 2 </code> (for bbbb), unmatched 'a', <code> 3 </code> (for c).</p>
+  </div></div>
+</div>
+
+<!-- Q21 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q21</span>
+    <span class="q-text">Lex spec: a*b → printf("Jai "); ca → printf("Sita "); a*ca* → printf("Ram "). What does the lexer print for input: abcaacacaaa?</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Pattern Analysis</h3>
+    <ul>
+      <li><code>a*b</code>: zero+ a's then b (e.g., b, ab, aab)</li>
+      <li><code>ca</code>: exactly "ca"</li>
+      <li><code>a*ca*</code>: zero+ a's, then c, then zero+ a's (e.g., c, ca, ac, aca, aaca)</li>
+    </ul>
+    <p>Input: <code>a b c a a c a c a a a</code></p>
+    <table>
+      <tr><th>Step</th><th>Remaining</th><th>Candidates &amp; longest</th><th>Winner</th><th>Output</th></tr>
+      <tr><td>1</td><td>abcaacacaaa</td><td>"ab" matches <code>a*b</code> (2). "abcaa" or similar for rule 3? Rule 3 needs to end pattern differently. Longest for rule 1: "ab". Rule 2: no. Rule 3: starts a*ca* — "abcaa" would need b between but rule 3 is a*ca*. No b in rule 3. So rule 3 can't match "ab". Longest = "ab" by rule 1.</td><td>a*b</td><td>Jai</td></tr>
+      <tr><td>2</td><td>caacacaaa</td><td>"ca" rule 2 (2 chars); "caa" rule 3 = a*ca* matches c + aa = "caa" (3 chars). Longest = "caa" by rule 3.</td><td>a*ca*</td><td>Ram</td></tr>
+      <tr><td>3</td><td>cacaaa</td><td>"ca" rule 2 (2); "ca" rule 3 c+a = (2). Tie at 2 chars. Rule 2 listed first.</td><td>ca</td><td>Sita</td></tr>
+      <tr><td>4</td><td>caaa</td><td>"ca" (rule 2, 2); "caaa" rule 3 = c+aaa = 4 chars. Longest = "caaa" by rule 3.</td><td>a*ca*</td><td>Ram</td></tr>
+    </table>
+    <p><strong>Output</strong>: <code>Jai Sita Ram</code> — Wait, let me redo carefully: "abcaacacaaa"</p>
+    <pre>
+Pos 0: "ab" → a*b ✓ (Jai), consume "ab"
+Pos 2: remaining "caacacaaa"
+  "caa" → a*ca* (c + aa = 3) vs "ca" → ca (2) → longest "caa" wins (Ram), consume "caa"
+Pos 5: remaining "cacaaa"
+  "ca" → ca (2) vs "ca" a*ca* (2) → tie, rule 2 first → ca wins (Sita), consume "ca"
+Pos 7: remaining "caaa"
+  "caaa" → a*ca* (4) vs "ca" → ca (2) → "caaa" wins (Ram), consume "caaa"</pre>
+    <p><strong>Final output</strong>: <code>Jai Ram Sita Ram</code></p>
+  </div></div>
+</div>
+
+<!-- Q22 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q22</span>
+    <span class="q-text">Lex spec: aa → printf("No shortcut"); b?a+b? → printf(" to "); b?a*b? → printf("Success"). Input: bbbaabb. What does the lexer print?</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Pattern Analysis</h3>
+    <ul>
+      <li><code>aa</code>: exactly "aa"</li>
+      <li><code>b?a+b?</code>: optional b, one+ a's, optional b (e.g., a, aa, ab, ba, bab, aab...)</li>
+      <li><code>b?a*b?</code>: optional b, zero+ a's, optional b (matches everything above plus b, bb)</li>
+    </ul>
+    <p>Input: <code>b b b a a b b</code></p>
+    <pre>
+Pos 0: remaining "bbbaabb"
+  Rule 2 b?a+b?: b? matches "b", then a+ needs at least one 'a' → "b" alone: b? matches one b, a+ needs a — "b" can't match if next is 'b'. Try "bbb": b?(one b) + a+ ... next is b not a. Rule 2 can't start here.
+  Rule 3 b?a*b?: b? matches "b", a* matches ε, b? matches "b" → "bb" (2 chars). Or b?(b), a*(ε), b?(b) = "bb". Then again "bb" → match for next "b" too.
+  Longest: "bbb" → b?(b) + a*(ε) + b?(b)? No — b? matches at most ONE b. So rule 3 on "bbb": b?=b, a*=ε, b?=b → "bb" (2 chars). Cannot match 3 b's with rule 3.
+  Actually rule 3: b? matches 0 or 1 b. So at pos 0 ("bbb..."), b?=b(1), a*=ε(0), b?=b(1) = "bb".
+  Rule 1 "aa": doesn't start with b.
+  So best at pos 0: rule 3 matching "bb" → "Success"</pre>
+    <pre>
+Pos 2: remaining "baabb"
+  Rule 2: b?=b, a+=aa, b?=b → "baab" (4). 
+  Rule 3: b?=b, a*=aa, b?=b → "baab" (4). Tie → rule 2 wins (listed first).
+  Output: " to " consuming "baab"
+Pos 6: remaining "b"
+  Rule 3: b?=b, a*=ε, b?=ε → "b" (1)
+  Output: "Success"</pre>
+    <p><strong>Final output</strong>: <code>SuccessSuccess to Success</code> — Let me correct:</p>
+    <pre>
+bbbaabb:
+Step 1: pos 0, "bb" → rule 3 → "Success", consume "bb"
+Step 2: pos 2, "baabb" → rule 2 "baab" or rule 3 "baab" (tie, rule 2 wins) → " to ", consume "baab"  
+Step 3: pos 6, "b" → rule 3 "b" → "Success", consume "b"
+Output: "Success to Success"</pre>
+  </div></div>
+</div>
+
+<!-- Q23 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q23</span>
+    <span class="q-text">Lex spec: ab(b)? / aab / aba — Show working of lexer on NFA for input "abaabb".</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Patterns</h3>
+    <ul>
+      <li><code>ab(b)?</code>: matches "ab" or "abb"</li>
+      <li><code>aab</code>: matches exactly "aab"</li>
+      <li><code>aba</code>: matches exactly "aba"</li>
+    </ul>
+    <h3>Combined NFA Simulation on "abaabb"</h3>
+    <p>Lex builds a combined NFA with start states for all three patterns. At each position it simulates the NFA and finds the longest match.</p>
+    <table>
+      <tr><th>Position</th><th>Substring tried</th><th>Matching rule</th><th>Action</th></tr>
+      <tr><td>0</td><td>"aba" (3 chars) → matches rule 3 <code>aba</code>; "ab" (2 chars) → matches rule 1 <code>ab(b)?</code>. Longest = "aba" (3).</td><td>aba</td><td>action for aba, consume "aba"</td></tr>
+      <tr><td>3</td><td>remaining "abb". "ab" matches rule 1; "abb" matches rule 1 (ab + b). Longest = "abb" (3).</td><td>ab(b)?</td><td>action for ab(b)?, consume "abb"</td></tr>
+    </table>
+    <p>Both tokens consumed. Entire input matched in 2 tokens: <code>"aba"</code> (rule 3) and <code>"abb"</code> (rule 1).</p>
+    <div class="note-box">At pos 0: <code>aab</code> doesn't match (starts with 'a', 'b' is second char in input is 'b' not 'a'). <code>ab(b)?</code> matches "ab" (2). <code>aba</code> matches "aba" (3). Longest match = "aba" wins.</div>
+  </div></div>
+</div>
+
+<!-- Q24 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q24</span>
+    <span class="q-text">Methods to separate keywords and identifiers when the scanner reads lexemes — mention the methods.</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Method 1: Install Keywords in Symbol Table Initially</h3>
+    <p>All keywords are pre-loaded into the symbol table before scanning begins. When the lexer matches a lexeme as an identifier pattern, it looks it up in the symbol table. If found as a keyword, it returns the keyword token; otherwise it returns an ID token.</p>
+    <pre>
+// Pre-load
+symtable.insert("while", WHILE);
+symtable.insert("for",   FOR);
+// During scanning:
+lexeme = matchIdentifier();
+token = symtable.lookup(lexeme);
+if (token == null) return ID;
+else return token;</pre>
+
+    <h3>Method 2: Separate Patterns for Keywords</h3>
+    <p>Each keyword is given its own pattern in the Lex specification, listed <em>before</em> the general identifier pattern. Due to the first-rule-wins tie-breaking rule, <code>while</code> will match the keyword pattern (not the identifier pattern) because keywords are listed first.</p>
+    <pre>
+%%
+while    { return WHILE; }
+for      { return FOR; }
+[a-zA-Z][a-zA-Z0-9]*  { return ID; }  /* listed last */</pre>
+    <div class="note-box">Method 1 is preferred in practice as it requires only one pattern for all identifiers and keywords.</div>
+  </div></div>
+</div>
+
+<!-- Q25 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q25</span>
+    <span class="q-text">Lex spec: a*b / ca / a*ca*. What does the lexer print for "abcaacacaaabbaaabcaaca"?</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>This is the same spec as Q21 (rules: <code>a*b</code>→"1", <code>ca</code>→"2", <code>a*ca*</code>→"3") with a longer input.</p>
+    <pre>
+Input: a b c a a c a c a a a b b a a a b c a a c a
+       a b | c a a | c a | c a a a | b b | a a a b | c a a | c a
+
+Step 1: "ab" → a*b (Jai/1)
+Step 2: "caa" → a*ca* (Ram/3) [longer than "ca"]
+Step 3: "ca" → ca vs a*ca*(c=1,a=1) tie → ca wins (Sita/2)
+Step 4: "caaa" → a*ca* (Ram/3)
+Step 5: "bb" → a*b? "bb" = ε*a + b? Rule 1 a*b: "b" (1 char). Then "b" again (1 char). → Two "1" outputs
+Step 6: "aaab" → a*b (1) matches "aaab" (4 chars)
+Step 7: "caa" → a*ca* (3)
+Step 8: "ca" → ca/a*ca* tie → rule 2 first (2/Sita)</pre>
+    <p><strong>Output (using rule numbering)</strong>: <code>1 3 2 3 1 1 1 3 2</code></p>
+    <p>If the actual strings are "Jai/Sita/Ram": <code>Jai Ram Sita Ram Jai Jai Jai Ram Sita</code></p>
+  </div></div>
+</div>
+
+<!-- Q26 -->
+<div class="q-card" data-topic="lexical">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q26</span>
+    <span class="q-text">Is the Lexer implementation language-dependent? Justify with at least 2 simple examples. (Same as Q6 but phrased differently)</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>Yes, the lexer is <strong>language-dependent</strong>. See Q6 for full justification. Summary:</p>
+    <ul>
+      <li><strong>Keywords differ</strong>: Python uses <code>def</code>, C uses none; C++ uses <code>nullptr</code> which doesn't exist in C.</li>
+      <li><strong>Token rules differ</strong>: In C, <code>0x1F</code> is a valid hex literal. In Python 2, <code>1L</code> was a long literal — that doesn't exist in C.</li>
+      <li><strong>Comment syntax</strong>: C <code>/* */</code> vs Python <code>#</code>.</li>
+    </ul>
+    <p>Therefore, a language-specific lexer (with its own regular definitions and token patterns) must be written for each language.</p>
+  </div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SECTION 3 – SYNTAX ERROR HANDLING                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">Syntax Error Handling &amp; Recovery</div>
+
+<!-- Q27 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q27</span>
+    <span class="q-text">What is the function of an Error Handling routine? What are the different ways in which error handling can be implemented (error recovery methods)?</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Function of Error Handler</h3>
+    <p>When a parser encounters an error (input doesn't match the expected grammar), the error handler must:</p>
+    <ol>
+      <li><strong>Report</strong> the error with a clear, useful message (location, nature).</li>
+      <li><strong>Recover</strong> from the error so parsing can continue and detect subsequent errors.</li>
+      <li><strong>Not slow down</strong> processing of correct programs.</li>
+    </ol>
+
+    <h3>Error Recovery Strategies</h3>
+    <p><strong>1. Panic Mode</strong>: The parser discards input tokens one at a time until it finds a token from a designated set of <em>synchronizing tokens</em> (e.g., statement terminators like <code>;</code>, block delimiters like <code>}</code>). Then parsing resumes from that point. Simple and guaranteed to terminate but may skip large portions of input.</p>
+
+    <p><strong>2. Phrase-Level (Statement Mode) Recovery</strong>: The parser makes a <em>local correction</em> — inserting, deleting, or replacing a token — to fix the error at the point where it was detected. For example, if a semicolon is expected but not found, insert one. Risk: may introduce infinite loops if the correction doesn't advance the input.</p>
+
+    <p><strong>3. Error Productions</strong>: Common erroneous constructs are added to the grammar as <em>error productions</em>. When such a production is used, a diagnostic is issued. This anticipates common mistakes (e.g., <code>5 + * 3</code> as a common typo).</p>
+
+    <p><strong>4. Global Correction</strong>: The parser finds the theoretically <em>minimum number of changes</em> (insertions, deletions, replacements) to the input to make it syntactically correct. Computationally expensive; rarely used in practice.</p>
+  </div></div>
+</div>
+
+<!-- Q28 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q28</span>
+    <span class="q-text">Explain in detail Panic-Mode and Phrase-Level Error-Recovery Strategies.</span>
+    <div class="q-meta"><span class="marks-badge">4–6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Panic Mode Recovery</h3>
+    <p><strong>Idea</strong>: On encountering an error, the parser <em>panics</em> and discards symbols from the input stream (or pops stack symbols) until it finds a token that can begin a valid phrase — a <em>synchronizing token</em>.</p>
+    <p><strong>Synchronizing tokens</strong> are typically: <code>;</code>, <code>}</code>, <code>begin</code>, <code>end</code>, <code>if</code>, <code>else</code> — tokens that clearly delimit statements or blocks.</p>
+    <p><strong>Algorithm</strong>:</p>
+    <ol>
+      <li>Detect error (no valid production for current input token).</li>
+      <li>Report error message.</li>
+      <li>Discard input tokens until a synchronizing token is found.</li>
+      <li>Resume parsing from that token.</li>
+    </ol>
+    <p><strong>Example</strong>: In <code>{ a = 1  b = 2; }</code> (missing semicolon after first statement), on error the parser discards tokens until <code>;</code> or <code>}</code>, skipping <code>b = 2</code> but correctly parsing the rest.</p>
+    <p><strong>Pros</strong>: Simple, always terminates. <strong>Cons</strong>: May miss detecting further errors in the skipped input.</p>
+
+    <h3>Phrase-Level Recovery</h3>
+    <p><strong>Idea</strong>: Make the smallest local change to the input to allow parsing to continue. Common corrections include:</p>
+    <ul>
+      <li><strong>Insert</strong> a missing token (e.g., insert <code>;</code> when expected)</li>
+      <li><strong>Delete</strong> an erroneous token (e.g., delete extra <code>)</code>)</li>
+      <li><strong>Replace</strong> one token with another</li>
+    </ul>
+    <p><strong>Example</strong>: Parser expects <code>)</code> but finds <code>;</code>. Phrase-level: replace <code>;</code> with <code>)</code> and continue.</p>
+    <p><strong>Implementation in LL parsers</strong>: When <code>M[A, a]</code> is <code>error</code>, the routine for A's error entry either pops A from the stack (deleting a nonterminal), skips the current token, or pushes a new token.</p>
+    <p><strong>Pros</strong>: Can detect more errors per parse. <strong>Cons</strong>: Risk of entering infinite loop if correction doesn't consume input; requires careful design.</p>
+  </div></div>
+</div>
+
+<!-- Q29 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q29</span>
+    <span class="q-text">Explain in brief any two Error-Recovery Strategies.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q27 and Q28 for full details. Brief summary of two strategies:</p>
+    <h3>1. Panic Mode</h3>
+    <p>Parser discards input tokens until a synchronizing token (e.g., <code>;</code>, <code>}</code>) is found. Simple, guaranteed to terminate, but may skip valid code. Best for recovering from serious errors like missing delimiters.</p>
+
+    <h3>2. Error Productions</h3>
+    <p>The grammar is augmented with extra productions that recognize common erroneous constructs. When such a production reduces during parsing, a warning/error message is printed. For example, adding a production <code>expr → expr + + term</code> to catch the common mistake of typing <code>++</code> between operands.</p>
+    <p><strong>Advantage</strong>: Provides very targeted, informative error messages for known mistakes. <strong>Disadvantage</strong>: Requires advance knowledge of common errors; grammar becomes larger.</p>
+  </div></div>
+</div>
+
+<!-- Q30 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q30</span>
+    <span class="q-text">With simple examples explain: (i) Left-recursive grammar (ii) Leftmost derivation (iii) Ambiguous grammar (iv) LR(0) item.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>(i) Left-Recursive Grammar</h3>
+    <p>A grammar is <strong>left-recursive</strong> if there exists a nonterminal A such that A ⇒<sup>+</sup> Aα for some string α. Direct left recursion example:</p>
+    <pre>E → E + T | T</pre>
+    <p>Here E → E + T is left-recursive because E appears as the leftmost symbol on the RHS. Left recursion causes top-down parsers (like LL) to loop infinitely.</p>
+
+    <h3>(ii) Leftmost Derivation</h3>
+    <p>In a <strong>leftmost derivation</strong>, at each step the <em>leftmost</em> nonterminal in the sentential form is replaced. Example with grammar E → E+T | T, T → id:</p>
+    <pre>E ⇒ E+T ⇒ T+T ⇒ id+T ⇒ id+id</pre>
+    <p>Each step replaces the leftmost nonterminal. Top-down parsers generate leftmost derivations.</p>
+
+    <h3>(iii) Ambiguous Grammar</h3>
+    <p>A grammar is <strong>ambiguous</strong> if there exists a string that has more than one parse tree (or equivalently, more than one leftmost derivation). Example:</p>
+    <pre>E → E + E | E * E | id</pre>
+    <p>The string <code>id + id * id</code> has two parse trees: one where <code>+</code> is the root, another where <code>*</code> is the root. Ambiguous grammars are problematic for compilers as the meaning of a program would be undefined.</p>
+
+    <h3>(iv) LR(0) Item</h3>
+    <p>An <strong>LR(0) item</strong> is a production with a dot (•) at some position in the right-hand side, indicating how much of the production has been seen so far. Example for production A → XYZ:</p>
+    <pre>
+A → •XYZ   (nothing seen yet)
+A → X•YZ   (X has been seen)
+A → XY•Z   (XY seen)
+A → XYZ•   (complete: ready to reduce)</pre>
+    <p>Items are used to construct the LR(0) automaton (collection of canonical LR(0) items) which drives the LR parser.</p>
+  </div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SECTION 4 – TOP-DOWN PARSING / LL(1)                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">Top-Down Parsing — LL(1)</div>
+
+<!-- Q31 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q31</span>
+    <span class="q-text">Grammar: S → +SS | *SS | a. Calculate FIRST and FOLLOW, construct LL(1) table, and show parsing of "+aa".</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Grammar</h3>
+    <pre>
+S → +SS
+S → *SS
+S → a</pre>
+
+    <h3>FIRST Sets</h3>
+    <p>FIRST(α) = set of terminals that can appear as the first character of any string derived from α.</p>
+    <ul>
+      <li><code>FIRST(S) = {+, *, a}</code></li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <p>FOLLOW(A) = set of terminals that can appear immediately to the right of A in some sentential form.</p>
+    <ul>
+      <li>S is the start symbol: <code>FOLLOW(S) = {$}</code></li>
+      <li>From S → +SS: the first S can be followed by S's FIRST, and the second S is followed by FOLLOW(S). So FOLLOW(S) += FIRST(S) ∪ FOLLOW(S) = {+, *, a, $}</li>
+    </ul>
+    <p><strong>FOLLOW(S) = {+, *, a, $}</strong></p>
+
+    <h3>LL(1) Parsing Table M[S, a]</h3>
+    <table>
+      <tr><th>Non-terminal</th><th>+</th><th>*</th><th>a</th><th>$</th></tr>
+      <tr><td>S</td><td>S → +SS</td><td>S → *SS</td><td>S → a</td><td>error</td></tr>
+    </table>
+    <p>No cell has two entries → grammar is LL(1). ✓</p>
+
+    <h3>Parsing "+aa"</h3>
+    <table>
+      <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+      <tr><td>$S</td><td>+aa$</td><td>M[S,+] = S→+SS; output S→+SS</td></tr>
+      <tr><td>$SS+</td><td>+aa$</td><td>Match '+', pop '+', advance input</td></tr>
+      <tr><td>$SS</td><td>aa$</td><td>M[S,a] = S→a; output S→a</td></tr>
+      <tr><td>$Sa</td><td>aa$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$S</td><td>a$</td><td>M[S,a] = S→a; output S→a</td></tr>
+      <tr><td>$a</td><td>a$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$</td><td>$</td><td>Accept ✓</td></tr>
+    </table>
+    <p><strong>Derivation</strong>: S ⇒ +SS ⇒ +aS ⇒ +aa ✓</p>
+  </div></div>
+</div>
+
+<!-- Q32 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q32</span>
+    <span class="q-text">Grammar: S → +SS | *SS | a. Calculate FIRST and FOLLOW, construct LL(1) table, and parse "+*aaa".</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>FIRST and FOLLOW same as Q31. Table same as Q31.</p>
+    <h3>Parsing "+*aaa"</h3>
+    <table>
+      <tr><th>Stack (top right)</th><th>Input</th><th>Action</th></tr>
+      <tr><td>$S</td><td>+*aaa$</td><td>M[S,+] = S→+SS</td></tr>
+      <tr><td>$SS+</td><td>+*aaa$</td><td>Match '+', advance</td></tr>
+      <tr><td>$SS</td><td>*aaa$</td><td>M[S,*] = S→*SS</td></tr>
+      <tr><td>$SSS*</td><td>*aaa$</td><td>Match '*', advance</td></tr>
+      <tr><td>$SSS</td><td>aaa$</td><td>M[S,a] = S→a</td></tr>
+      <tr><td>$SSa</td><td>aaa$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$SS</td><td>aa$</td><td>M[S,a] = S→a</td></tr>
+      <tr><td>$Sa</td><td>aa$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$S</td><td>a$</td><td>M[S,a] = S→a</td></tr>
+      <tr><td>$a</td><td>a$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$</td><td>$</td><td>Accept ✓</td></tr>
+    </table>
+    <p><strong>Derivation</strong>: S ⇒ +SS ⇒ +*SSS ⇒ +*aSS ⇒ +*aaS ⇒ +*aaa ✓</p>
+  </div></div>
+</div>
+
+<!-- Q33 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q33</span>
+    <span class="q-text">Grammar: S → AaAb | BbBa; A → ε; B → ε. Construct FIRST/FOLLOW, LL(1) table, and parse "ba".</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Grammar</h3>
+    <pre>
+S → AaAb | BbBa
+A → ε
+B → ε</pre>
+    <h3>FIRST Sets</h3>
+    <ul>
+      <li>FIRST(A) = {ε}</li>
+      <li>FIRST(B) = {ε}</li>
+      <li>FIRST(AaAb): FIRST(A)=ε, so include 'a'. FIRST(AaAb) = {a}</li>
+      <li>FIRST(BbBa): FIRST(B)=ε, so include 'b'. FIRST(BbBa) = {b}</li>
+      <li>FIRST(S) = {a, b}</li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(S) = {$}</li>
+      <li>FOLLOW(A): A appears in AaAb. First A is followed by 'a' → FOLLOW(A) includes 'a'. Second A is followed by 'b' → FOLLOW(A) includes 'b'. Also FOLLOW(S) if S derives A in tail position: not applicable here. <strong>FOLLOW(A) = {a, b}</strong></li>
+      <li>FOLLOW(B): B appears in BbBa. First B followed by 'b', second B followed by 'a'. <strong>FOLLOW(B) = {a, b}</strong></li>
+    </ul>
+
+    <h3>LL(1) Table</h3>
+    <p>For A → ε: add to M[A, x] for all x in FOLLOW(A) = {a, b}</p>
+    <p>For B → ε: add to M[B, x] for all x in FOLLOW(B) = {a, b}</p>
+    <table>
+      <tr><th></th><th>a</th><th>b</th><th>$</th></tr>
+      <tr><td>S</td><td>S → AaAb</td><td>S → BbBa</td><td></td></tr>
+      <tr><td>A</td><td>A → ε</td><td>A → ε</td><td></td></tr>
+      <tr><td>B</td><td>B → ε</td><td>B → ε</td><td></td></tr>
+    </table>
+    <p>No conflict → grammar is LL(1).</p>
+
+    <h3>Parsing "ba"</h3>
+    <table>
+      <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+      <tr><td>$S</td><td>ba$</td><td>M[S,b] = S→BbBa</td></tr>
+      <tr><td>$aBbB</td><td>ba$</td><td>M[B,b] = B→ε, pop B</td></tr>
+      <tr><td>$abb</td><td>ba$</td><td>Match 'b', advance</td></tr>
+      <tr><td>$aB</td><td>a$</td><td>M[B,a] = B→ε, pop B</td></tr>
+      <tr><td>$a</td><td>a$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$</td><td>$</td><td>Accept ✓</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q34 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q34</span>
+    <span class="q-text">Grammar: S→W; W→ZXY|XY; Y→c|ε; Z→a|d; X→Xb|ε. Construct FIRST/FOLLOW and LL(1) table. Is the grammar LL(1)?</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Grammar</h3>
+    <pre>
+S → W
+W → ZXY | XY
+Y → c | ε
+Z → a | d
+X → Xb | ε</pre>
+
+    <h3>FIRST Sets</h3>
+    <ul>
+      <li>FIRST(Y) = {c, ε}</li>
+      <li>FIRST(Z) = {a, d}</li>
+      <li>FIRST(X) = {b, ε}  (X→Xb: since X can derive ε, FIRST(Xb)=FIRST(X)∪{b}; base case X→ε gives ε; so FIRST(X) = {b, ε})</li>
+      <li>FIRST(ZXY): Z doesn't derive ε → FIRST(ZXY) = FIRST(Z) = {a, d}</li>
+      <li>FIRST(XY): X can derive ε, so FIRST(XY) = FIRST(X)\{ε} ∪ FIRST(Y) = {b} ∪ {c, ε} = {b, c, ε}</li>
+      <li>FIRST(W) = FIRST(ZXY) ∪ FIRST(XY) = {a, d, b, c, ε}</li>
+      <li>FIRST(S) = FIRST(W) = {a, b, c, d, ε}</li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(S) = {$}</li>
+      <li>FOLLOW(W) = FOLLOW(S) = {$}</li>
+      <li>FOLLOW(Z): Z appears in ZXY. Z is followed by XY. Since X can → ε, followed by Y. FOLLOW(Z) = FIRST(X)\{ε} ∪ FIRST(Y)\{ε} ∪ FOLLOW(W) = {b, c, $}</li>
+      <li>FOLLOW(X): X appears in ZXY (followed by Y) and XY (followed by Y) and X→Xb (X followed by b). FOLLOW(X) = FIRST(Y)\{ε} ∪ FOLLOW(W) ∪ {b} = {c, $, b}</li>
+      <li>FOLLOW(Y): Y appears at end of both W productions → FOLLOW(Y) = FOLLOW(W) = {$}</li>
+    </ul>
+
+    <h3>Eliminate Left Recursion in X</h3>
+    <p>X → Xb | ε is left-recursive. Eliminate:</p>
+    <pre>
+X  → X'         (new: X derives X')
+X' → bX' | ε</pre>
+    <p>Now FIRST(X') = {b, ε}, FIRST(X) = FIRST(X') = {b, ε}</p>
+
+    <h3>LL(1) Table (after left recursion removal)</h3>
+    <table>
+      <tr><th></th><th>a</th><th>b</th><th>c</th><th>d</th><th>$</th></tr>
+      <tr><td>S</td><td>S→W</td><td>S→W</td><td>S→W</td><td>S→W</td><td>S→W</td></tr>
+      <tr><td>W</td><td>W→ZXY</td><td>W→XY</td><td>W→XY</td><td>W→ZXY</td><td>W→XY (via ε)</td></tr>
+      <tr><td>Z</td><td>Z→a</td><td></td><td></td><td>Z→d</td><td></td></tr>
+      <tr><td>X'</td><td></td><td>X'→bX'</td><td>X'→ε</td><td></td><td>X'→ε</td></tr>
+      <tr><td>Y</td><td></td><td></td><td>Y→c</td><td></td><td>Y→ε</td></tr>
+    </table>
+    <p>No cell has two entries → <strong>grammar is LL(1)</strong> (after left recursion removal).</p>
+  </div></div>
+</div>
+
+<!-- Q35 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q35</span>
+    <span class="q-text">Grammar: S → a | ^ | (L); L → SA; A → ,SA | ε. Construct FIRST/FOLLOW, LL(1) table, and parse "(a,a)".</span>
+    <div class="q-meta"><span class="marks-badge">7 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Grammar</h3>
+    <pre>
+S → a | ^ | (L)
+L → S A
+A → ,SA | ε</pre>
+
+    <h3>FIRST Sets</h3>
+    <ul>
+      <li>FIRST(S) = {a, ^, (}</li>
+      <li>FIRST(L) = FIRST(S) = {a, ^, (}</li>
+      <li>FIRST(A) = {,, ε}</li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(S) = {$}: S is start. S also appears in L→SA (followed by A; FIRST(A)={,}) and in A→,SA (followed by A). Plus if A→ε, FOLLOW(S) gets FOLLOW(A) and FOLLOW(L). FOLLOW(S) = {,, ), $}</li>
+      <li>FOLLOW(L): L appears in S→(L) → followed by ')'. FOLLOW(L) = {)}</li>
+      <li>FOLLOW(A): A appears at end of L→SA → FOLLOW(A) = FOLLOW(L) = {)}. Also A at end of A→,SA → FOLLOW(A) same = {)}</li>
+    </ul>
+
+    <h3>LL(1) Table</h3>
+    <table>
+      <tr><th></th><th>a</th><th>^</th><th>(</th><th>)</th><th>,</th><th>$</th></tr>
+      <tr><td>S</td><td>S→a</td><td>S→^</td><td>S→(L)</td><td></td><td></td><td></td></tr>
+      <tr><td>L</td><td>L→SA</td><td>L→SA</td><td>L→SA</td><td></td><td></td><td></td></tr>
+      <tr><td>A</td><td></td><td></td><td></td><td>A→ε</td><td>A→,SA</td><td></td></tr>
+    </table>
+    <p>No conflict → grammar is LL(1) ✓</p>
+
+    <h3>Parsing "(a,a)"</h3>
+    <table>
+      <tr><th>Stack (top→right)</th><th>Input</th><th>Action</th></tr>
+      <tr><td>$S</td><td>(a,a)$</td><td>M[S,(] = S→(L), replace S with )L(</td></tr>
+      <tr><td>$)L(</td><td>(a,a)$</td><td>Match '(', advance</td></tr>
+      <tr><td>$)L</td><td>a,a)$</td><td>M[L,a] = L→SA</td></tr>
+      <tr><td>$)AS</td><td>a,a)$</td><td>M[S,a] = S→a</td></tr>
+      <tr><td>$)Aa</td><td>a,a)$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$)A</td><td>,a)$</td><td>M[A,,] = A→,SA</td></tr>
+      <tr><td>$)AS,</td><td>,a)$</td><td>Match ',', advance</td></tr>
+      <tr><td>$)AS</td><td>a)$</td><td>M[S,a] = S→a</td></tr>
+      <tr><td>$)Aa</td><td>a)$</td><td>Match 'a', advance</td></tr>
+      <tr><td>$)A</td><td>)$</td><td>M[A,)] = A→ε, pop A</td></tr>
+      <tr><td>$)</td><td>)$</td><td>Match ')', advance</td></tr>
+      <tr><td>$</td><td>$</td><td>Accept ✓</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q36 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q36</span>
+    <span class="q-text">Is the following grammar LL(1)? Construct its LL(1) table: S → aSA | λ; A → abS | c. Parse if LL(1).</span>
+    <div class="q-meta"><span class="marks-badge">5 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Grammar</h3>
+    <pre>
+S → aSA | ε
+A → abS | c</pre>
+
+    <h3>FIRST Sets</h3>
+    <ul>
+      <li>FIRST(S) = {a, ε}  (from S→aSA: 'a'; from S→ε: ε)</li>
+      <li>FIRST(A) = {a, c}  (from A→abS: 'a'; from A→c: 'c')</li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(S) = {$}: S is start. S in S→aSA: second S is followed by A then FOLLOW(S). FIRST(A)={a,c} (no ε). So FOLLOW(S) includes {a,c} and FOLLOW(S)={$}. Final: FOLLOW(S) = {a, c, $}</li>
+      <li>FOLLOW(A): A at end of S→aSA → FOLLOW(A) = FOLLOW(S) = {a, c, $}</li>
+    </ul>
+
+    <h3>LL(1) Table</h3>
+    <table>
+      <tr><th></th><th>a</th><th>b</th><th>c</th><th>$</th></tr>
+      <tr><td>S</td><td>S→aSA</td><td>S→ε</td><td>S→ε</td><td>S→ε</td></tr>
+      <tr><td>A</td><td>A→abS</td><td></td><td>A→c</td><td></td></tr>
+    </table>
+    <div class="note-box">The M[S,a] entry has only S→aSA (no conflict). The grammar <strong>is LL(1)</strong>.</div>
+
+    <h3>Checking for LL(1) Condition</h3>
+    <p>For S: FIRST(aSA) ∩ FIRST(ε) ∪ FOLLOW(S) = {a} ∩ ({ε} ∪ {a,c,$}) = {a} ∩ {a,c,$} = {a}? Wait — for S→ε, we add to FOLLOW(S). FIRST(aSA)={a}, FOLLOW(S)={a,c,$}. Since 'a' ∈ FIRST(aSA) and 'a' ∈ FOLLOW(S), there could be a conflict at M[S,a]... Let me recheck: M[S,a]: both S→aSA (because a ∈ FIRST(aSA)) and S→ε (because a ∈ FOLLOW(S))? → <strong>CONFLICT at M[S,a]</strong>!</p>
+    <p>Therefore the grammar is <strong>NOT LL(1)</strong> due to this conflict.</p>
+  </div></div>
+</div>
+
+<!-- Q37 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q37</span>
+    <span class="q-text">Left-factor and remove immediate left recursion in: S → cA | cBe | cBd | Sc | SA; A → e; B → f.</span>
+    <div class="q-meta"><span class="marks-badge">5 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Step 1: Remove Left Recursion from S</h3>
+    <p>S has direct left recursion: S → Sc | SA</p>
+    <p>Let α = c | A (suffixes after the left-recursive S), β = cA | cBe | cBd (non-left-recursive alternatives)</p>
+    <pre>
+Original left-recursive: S → S(c | A) | cA | cBe | cBd
+After elimination:
+  S  → cA S' | cBe S' | cBd S'
+  S' → c S' | A S' | ε</pre>
+
+    <h3>Step 2: Left Factor S</h3>
+    <p>S now has: S → cA S' | cBe S' | cBd S'. Common prefix 'c':</p>
+    <pre>
+S  → c S''
+S'' → A S' | Be S' | Bd S'</pre>
+    <p>S'' still has common prefix 'B' in alternatives Be S' and Bd S':</p>
+    <pre>
+S''  → A S' | B S'''
+S''' → e S' | d S'</pre>
+
+    <h3>Final Grammar</h3>
+    <pre>
+S    → c S''
+S''  → A S' | B S'''
+S''' → e S' | d S'
+S'   → c S' | A S' | ε
+A    → e
+B    → f</pre>
+  </div></div>
+</div>
+
+<!-- Q38 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q38</span>
+    <span class="q-text">Eliminate left recursion from the grammar (indirect): A → Bxy | x; B → CD; C → A | c; D → d.</span>
+    <div class="q-meta"><span class="marks-badge">3 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Detecting Indirect Left Recursion</h3>
+    <p>A → Bxy and B → CD and C → A creates the cycle: A ⇒ Bxy ⇒ CDxy ⇒ Adxy. So A ⇒<sup>+</sup> A..., which is indirect left recursion.</p>
+
+    <h3>Algorithm (substitute and simplify)</h3>
+    <p>Order nonterminals: A, B, C, D. Substitute to find all rules in terms of terminals/later nonterminals.</p>
+    <pre>
+Step 1: Substitute C → A into B → CD
+  B → CD → (A|c)D → AD | cD
+Step 2: Substitute B → AD | cD into A → Bxy
+  A → (AD | cD)xy | x
+  A → ADxy | cDxy | x
+Step 3: A → ADxy | cDxy | x has left recursion A → ADxy.
+  Remove: let β = Dxy (suffix), β_non = cDxy | x
+  A  → cDxy A' | x A'
+  A' → Dxy A' | ε
+Step 4: B update:
+  B → AD | cD (still valid; A now non-left-recursive)
+Final grammar:
+  A  → cDxy A' | x A'
+  A' → Dxy A' | ε
+  B  → AD | cD
+  C  → A | c
+  D  → d</pre>
+  </div></div>
+</div>
+
+<!-- Q39 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q39</span>
+    <span class="q-text">Left-factor: A → aAB | aBc | aAc.</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Original</h3>
+    <pre>A → aAB | aBc | aAc</pre>
+    <h3>Step 1: Factor out common prefix 'a'</h3>
+    <pre>
+A  → a A'
+A' → AB | Bc | Ac</pre>
+    <h3>Step 2: Factor A' (common prefix 'A' in AB and Ac, prefix 'B' in Bc)</h3>
+    <pre>
+A' → A A'' | Bc
+A''→ B | c</pre>
+    <h3>Final Grammar</h3>
+    <pre>
+A   → a A'
+A'  → A A'' | Bc
+A'' → B | c</pre>
+  </div></div>
+</div>
+
+<!-- Q40 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q40</span>
+    <span class="q-text">Explain Recursive-Descent Parsing (RDP) in brief.</span>
+    <div class="q-meta"><span class="marks-badge">2 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Recursive-Descent Parsing</h3>
+    <p>RDP is a top-down parsing technique where we write a set of <em>mutually recursive procedures</em>, one per nonterminal. Each procedure tries to match its corresponding grammar production against the current input.</p>
+    <pre>
+// For production S → +SS | *SS | a
+void S() {
+  if (current_token == '+') {
+    match('+'); S(); S();
+  } else if (current_token == '*') {
+    match('*'); S(); S();
+  } else if (current_token == 'a') {
+    match('a');
+  } else error();
+}</pre>
+    <p><strong>Key points</strong>:</p>
+    <ul>
+      <li>Works directly on LL(1) grammars (or those that can be made LL(1)).</li>
+      <li>When there is a choice (alternative productions), it uses the lookahead token to decide which alternative to take.</li>
+      <li>Simple to implement by hand but requires the grammar to have no left recursion and no common prefixes.</li>
+      <li>Backtracking RDP can handle more grammars but is less efficient.</li>
+    </ul>
+  </div></div>
+</div>
+
+<!-- Q41 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q41</span>
+    <span class="q-text">Grammar: E→BB; B→cB|d. Construct LR(0) automata and LR(0) parsing table. Is it LR(0)? Parse "ccdd".</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <div class="note-box">This grammar appears in Unit 1 exams in the context of bottom-up parsing comparisons alongside LL(1). Full LR(0) construction is detailed in Unit 2. Summary here.</div>
+    <h3>Augmented Grammar</h3>
+    <pre>
+E' → E
+E  → BB
+B  → cB | d</pre>
+
+    <h3>LR(0) Items and States</h3>
+    <pre>
+I0: E'→•E, E→•BB, B→•cB, B→•d
+  on E → I1; on B → I2; on c → I3; on d → I4
+
+I1: E'→E•   [accept]
+
+I2: E→B•B, B→•cB, B→•d
+  on B → I5; on c → I3; on d → I4
+
+I3: B→c•B, B→•cB, B→•d
+  on B → I6; on c → I3; on d → I4
+
+I4: B→d•   [reduce B→d]
+
+I5: E→BB•  [reduce E→BB]
+
+I6: B→cB•  [reduce B→cB]</pre>
+
+    <h3>Parsing Table</h3>
+    <table>
+      <tr><th>State</th><th>c</th><th>d</th><th>$</th><th>E</th><th>B</th></tr>
+      <tr><td>0</td><td>s3</td><td>s4</td><td></td><td>1</td><td>2</td></tr>
+      <tr><td>1</td><td></td><td></td><td>acc</td><td></td><td></td></tr>
+      <tr><td>2</td><td>s3</td><td>s4</td><td></td><td></td><td>5</td></tr>
+      <tr><td>3</td><td>s3</td><td>s4</td><td></td><td></td><td>6</td></tr>
+      <tr><td>4</td><td>r(B→d)</td><td>r(B→d)</td><td>r(B→d)</td><td></td><td></td></tr>
+      <tr><td>5</td><td>r(E→BB)</td><td>r(E→BB)</td><td>r(E→BB)</td><td></td><td></td></tr>
+      <tr><td>6</td><td>r(B→cB)</td><td>r(B→cB)</td><td>r(B→cB)</td><td></td><td></td></tr>
+    </table>
+    <p>No conflicts → grammar is <strong>LR(0)</strong>.</p>
+
+    <h3>Parsing "ccdd"</h3>
+    <table>
+      <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+      <tr><td>0</td><td>ccdd$</td><td>s3</td></tr>
+      <tr><td>0 3</td><td>cdd$</td><td>s3</td></tr>
+      <tr><td>0 3 3</td><td>dd$</td><td>s4</td></tr>
+      <tr><td>0 3 3 4</td><td>d$</td><td>r B→d; pop 1 state</td></tr>
+      <tr><td>0 3 3 B</td><td>d$</td><td>goto[3,B]=6</td></tr>
+      <tr><td>0 3 6</td><td>d$</td><td>r B→cB; pop 2 states</td></tr>
+      <tr><td>0 3 B</td><td>d$</td><td>goto[3,B]=6</td></tr>
+      <tr><td>0 B</td><td>d$</td><td>goto[0,B]=2, s4</td></tr>
+      <tr><td>0 2 4</td><td>$</td><td>r B→d; goto[2,B]=5</td></tr>
+      <tr><td>0 2 5</td><td>$</td><td>r E→BB; goto[0,E]=1</td></tr>
+      <tr><td>0 1</td><td>$</td><td>accept ✓</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q42 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q42</span>
+    <span class="q-text">Compare all table-driven bottom-up parsers based on: number of states, reduce move placement, and parsing power.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Bottom-Up Parser Comparison</h3>
+    <table>
+      <tr><th>Parser</th><th>States</th><th>Reduce placement</th><th>Parsing power</th></tr>
+      <tr><td><strong>LR(0)</strong></td><td>Fewest (most merged)</td><td>Reduce in entire row (all lookaheads) — no lookahead used</td><td>Weakest: requires grammar with no reduce-reduce or shift-reduce conflicts without lookahead</td></tr>
+      <tr><td><strong>SLR(1)</strong></td><td>Same as LR(0) (identical automaton)</td><td>Reduce only in FOLLOW columns — uses FOLLOW set as lookahead</td><td>Stronger than LR(0); resolves some conflicts using FOLLOW</td></tr>
+      <tr><td><strong>LALR(1)</strong></td><td>Same as LR(0)/SLR (merges LR(1) states with same core)</td><td>Reduce only for specific lookahead symbols computed from merged LR(1) items</td><td>Stronger than SLR; handles many practical grammars (used in Yacc/Bison)</td></tr>
+      <tr><td><strong>CLR(1) / Canonical LR(1)</strong></td><td>Most states (distinct per lookahead context)</td><td>Reduce only in precise lookahead columns from item construction</td><td>Most powerful: handles all LR(1) grammars; subsumes all others</td></tr>
+    </table>
+    <h3>Hierarchy</h3>
+    <pre>LR(0) ⊂ SLR(1) ⊂ LALR(1) ⊂ CLR(1)</pre>
+    <p>Every grammar accepted by a less powerful parser is also accepted by a more powerful one, but not vice versa.</p>
+    <div class="note-box">In practice, LALR(1) (used by Yacc) is the sweet spot — nearly as powerful as CLR(1) but with far fewer states.</div>
+  </div></div>
+</div>
+
+<!-- Q43 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q43</span>
+    <span class="q-text">Grammar: S → Ae | AB | dB; A → d | f; B → g. Is it LR(0)? Is it SLR(1)? Justify. Draw LR(0) automata.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Augmented Grammar</h3>
+    <pre>
+0: S' → S
+1: S  → Ae | AB | dB
+2: A  → d | f
+3: B  → g</pre>
+
+    <h3>LR(0) Item Sets</h3>
+    <pre>
+I0: S'→•S, S→•Ae, S→•AB, S→•dB, A→•d, A→•f
+  on S→I1; on A→I2; on d→I3; on f→I4
+
+I1: S'→S•   [accept]
+
+I2: S→A•e, S→A•B, B→•g
+  on e→I5; on B→I6; on g→I7
+
+I3: S→d•B, A→d•, B→•g
+  on B→I8; on g→I7
+
+I4: A→f•   [reduce A→f]
+
+I5: S→Ae•  [reduce S→Ae]
+
+I6: S→AB•  [reduce S→AB]
+
+I7: B→g•   [reduce B→g]
+
+I8: S→dB•  [reduce S→dB]</pre>
+
+    <h3>LR(0) Conflict Check</h3>
+    <p>In I3: we have both a shift item (S→d•B, B→•g) and a reduce item (A→d•). This means on input 'g' we can shift AND reduce → <strong>shift-reduce conflict</strong>. Therefore the grammar is <strong>NOT LR(0)</strong>.</p>
+
+    <h3>SLR(1) Check for I3</h3>
+    <p>FOLLOW(A): A appears in S→Ae and S→AB. FOLLOW(A) = {e, FIRST(B)} = {e, g}.</p>
+    <p>The reduce A→d should apply only when lookahead ∈ FOLLOW(A) = {e, g}.</p>
+    <p>The shift on 'g' (for B→•g) also triggers on 'g'.</p>
+    <p>Since 'g' ∈ FOLLOW(A) and 'g' is also a shift action → <strong>shift-reduce conflict persists in SLR(1)</strong> too.</p>
+    <p>Therefore grammar is <strong>neither LR(0) nor SLR(1)</strong>.</p>
+  </div></div>
+</div>
+
+<!-- Q44 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q44</span>
+    <span class="q-text">Explain in brief Canonical LR(1) Items. Why is LR(1)/CLR(1) parser so powerful?</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Canonical LR(1) Items</h3>
+    <p>An <strong>LR(1) item</strong> is an LR(0) item augmented with a <em>lookahead symbol</em>: a pair [A→α•β, a] where 'a' is a terminal (the lookahead). The lookahead 'a' indicates that a reduction A→αβ should be made only when the next input symbol is 'a'.</p>
+    <pre>
+Example: [S → A • B, c]
+  Meaning: we've seen A, expecting to see B; 
+  if β is empty and next input is 'c', reduce.
+</pre>
+    <p>The <strong>CLOSURE</strong> of LR(1) items: if [A→α•Bβ, a] is in the set and B→γ is a production, then add [B→•γ, b] for each b ∈ FIRST(βa).</p>
+    <p>The <strong>GOTO</strong> function moves the dot past a grammar symbol.</p>
+
+    <h3>Why CLR(1) is Most Powerful</h3>
+    <ol>
+      <li><strong>Precise lookahead</strong>: Each item carries the exact set of terminals that justify a reduce action. This is more precise than SLR(1) (which uses FOLLOW) and LALR(1) (which uses merged lookaheads).</li>
+      <li><strong>Resolves more conflicts</strong>: Situations where FOLLOW or merged lookaheads create spurious conflicts are handled correctly because the lookahead is context-specific.</li>
+      <li><strong>Recognizes all LR(1) grammars</strong>: Any deterministic context-free language has an LR(1) grammar, and CLR(1) can parse all of them without conflict.</li>
+      <li><strong>Subsumes all other LR parsers</strong>: Every grammar parseable by LR(0), SLR, or LALR is also parseable by CLR(1).</li>
+    </ol>
+    <p><strong>Downside</strong>: The number of states can be very large (exponentially more than LALR). Yacc uses LALR as the practical compromise.</p>
+  </div></div>
+</div>
+
+<!-- Q45 – Remaining Q45 through Q69 are the remaining questions that appeared in the papers -->
+
+<!-- Q45 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q45</span>
+    <span class="q-text">Grammar: S → AB | a; A → a; B → b. Construct LR(0) automata and SLR table. Is the grammar SLR?</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Augmented Grammar</h3>
+    <pre>
+0: S' → S
+1: S  → AB
+2: S  → a
+3: A  → a
+4: B  → b</pre>
+
+    <h3>LR(0) Item Sets</h3>
+    <pre>
+I0: S'→•S, S→•AB, S→•a, A→•a
+  on S→I1; on A→I2; on a→I3
+
+I1: S'→S•   [accept]
+
+I2: S→A•B, B→•b
+  on B→I4; on b→I5
+
+I3: S→a•  [reduce S→a]   AND   A→a•  [reduce A→a]
+  ← CONFLICT in LR(0)!
+
+I4: S→AB•  [reduce S→AB]
+
+I5: B→b•   [reduce B→b]</pre>
+
+    <h3>LR(0) Conflict in I3</h3>
+    <p>I3 has two reduce items: S→a• and A→a•. This is a <strong>reduce-reduce conflict</strong> → grammar is <strong>NOT LR(0)</strong>.</p>
+
+    <h3>SLR(1) Check for I3</h3>
+    <ul>
+      <li>FOLLOW(S) = {$}</li>
+      <li>FOLLOW(A): A appears in S→AB, followed by B. FOLLOW(A) = FIRST(B) = {b}.</li>
+    </ul>
+    <p>Reduce S→a when lookahead ∈ FOLLOW(S) = {$}. Reduce A→a when lookahead ∈ FOLLOW(A) = {b}. Since {$} ∩ {b} = ∅, no conflict → <strong>grammar IS SLR(1)</strong>.</p>
+
+    <h3>SLR(1) Table</h3>
+    <table>
+      <tr><th>State</th><th>a</th><th>b</th><th>$</th><th>S</th><th>A</th><th>B</th></tr>
+      <tr><td>0</td><td>s3</td><td></td><td></td><td>1</td><td>2</td><td></td></tr>
+      <tr><td>1</td><td></td><td></td><td>acc</td><td></td><td></td><td></td></tr>
+      <tr><td>2</td><td></td><td>s5</td><td></td><td></td><td></td><td>4</td></tr>
+      <tr><td>3</td><td></td><td>r(A→a)</td><td>r(S→a)</td><td></td><td></td><td></td></tr>
+      <tr><td>4</td><td></td><td></td><td>r(S→AB)</td><td></td><td></td><td></td></tr>
+      <tr><td>5</td><td></td><td></td><td>r(B→b)</td><td></td><td></td><td></td></tr>
+    </table>
+    <p>No conflicts → <strong>grammar is SLR(1)</strong> ✓</p>
+  </div></div>
+</div>
+
+<!-- Q46 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q46</span>
+    <span class="q-text">With the help of a diagram explain how the different parsers studied in Compiler Design compare against each other.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Parser Comparison Hierarchy</h3>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 440 280" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <!-- Concentric ovals showing hierarchy -->
+  <!-- Outermost: All CFGs -->
+  <ellipse cx="220" cy="140" rx="210" ry="125" fill="none" stroke="#4f9eff" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="50" y="30" fill="#4f9eff" font-size="10">All Unambiguous CFGs</text>
+
+  <!-- CLR(1) -->
+  <ellipse cx="220" cy="150" rx="180" ry="105" fill="#0d1520" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="60" y="58" fill="#a78bfa" font-size="10">CLR(1) / Canonical LR(1)</text>
+
+  <!-- LALR(1) -->
+  <ellipse cx="220" cy="160" rx="145" ry="82" fill="#0f1825" stroke="#34d399" stroke-width="1.5"/>
+  <text x="88" y="90" fill="#34d399" font-size="10">LALR(1) (used by Yacc/Bison)</text>
+
+  <!-- SLR(1) -->
+  <ellipse cx="220" cy="170" rx="110" ry="58" fill="#111c2a" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="120" y="123" fill="#f59e0b" font-size="10">SLR(1)</text>
+
+  <!-- LR(0) -->
+  <ellipse cx="220" cy="180" rx="75" ry="35" fill="#131f30" stroke="#f87171" stroke-width="1.5"/>
+  <text x="185" y="184" fill="#f87171" font-size="10">LR(0)</text>
+
+  <!-- LL(1) shown separately overlapping -->
+  <ellipse cx="100" cy="210" rx="65" ry="30" fill="#0f1825" stroke="#4f9eff" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="60" y="214" fill="#4f9eff" font-size="10">LL(1) ⊂ LALR(1)</text>
+
+  <!-- Notes -->
+  <text x="290" y="248" fill="#8892a4" font-size="9">Grammars that CLR can parse</text>
+  <text x="290" y="260" fill="#8892a4" font-size="9">but LALR cannot: extremely rare</text>
+</svg>
+    </div>
+    <table>
+      <tr><th>Parser</th><th>Method</th><th>Lookahead</th><th>Typical use</th></tr>
+      <tr><td>LL(1)</td><td>Top-down, predictive</td><td>1 token (FIRST/FOLLOW)</td><td>Hand-written parsers, simple languages</td></tr>
+      <tr><td>LR(0)</td><td>Bottom-up, shift-reduce</td><td>None</td><td>Only toy grammars</td></tr>
+      <tr><td>SLR(1)</td><td>Bottom-up</td><td>FOLLOW sets</td><td>Simple grammars</td></tr>
+      <tr><td>LALR(1)</td><td>Bottom-up</td><td>Merged LR(1) lookaheads</td><td>Yacc, Bison — practical choice</td></tr>
+      <tr><td>CLR(1)</td><td>Bottom-up</td><td>Full LR(1) lookaheads</td><td>Most powerful; large tables</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q47 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q47</span>
+    <span class="q-text">Model of an LR Parser — explain with a diagram.</span>
+    <div class="q-meta"><span class="marks-badge">3 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>LR Parser Model</h3>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 460 160" xmlns="http://www.w3.org/2000/svg" font-family="Sora,sans-serif" font-size="11">
+  <!-- Stack -->
+  <rect x="5" y="20" width="90" height="120" rx="5" fill="#161a23" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="50" y="42" text-anchor="middle" fill="#a78bfa" font-weight="600">Stack</text>
+  <text x="50" y="60" text-anchor="middle" fill="#8892a4">s₀</text>
+  <text x="50" y="76" text-anchor="middle" fill="#8892a4">s₁</text>
+  <text x="50" y="92" text-anchor="middle" fill="#8892a4">s₂</text>
+  <text x="50" y="108" text-anchor="middle" fill="#f59e0b">sₖ ← top</text>
+  <line x1="10" y1="114" x2="90" y2="114" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <!-- Input buffer -->
+  <rect x="150" y="50" width="160" height="40" rx="5" fill="#161a23" stroke="#4f9eff" stroke-width="1.5"/>
+  <text x="230" y="68" text-anchor="middle" fill="#4f9eff">Input Buffer</text>
+  <text x="230" y="82" text-anchor="middle" fill="#8892a4">a₁ a₂ ... aₙ $</text>
+
+  <!-- LR Parsing Program -->
+  <rect x="150" y="110" width="160" height="40" rx="5" fill="#161a23" stroke="#34d399" stroke-width="1.5"/>
+  <text x="230" y="130" text-anchor="middle" fill="#34d399">LR Parsing</text>
+  <text x="230" y="143" text-anchor="middle" fill="#34d399">Program</text>
+
+  <!-- Action/Goto Tables -->
+  <rect x="340" y="20" width="115" height="120" rx="5" fill="#161a23" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="397" y="42" text-anchor="middle" fill="#f59e0b" font-weight="600">Tables</text>
+  <line x1="345" y1="80" x2="450" y2="80" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <text x="397" y="66" text-anchor="middle" fill="#8892a4">ACTION</text>
+  <text x="397" y="100" text-anchor="middle" fill="#8892a4">GOTO</text>
+
+  <!-- Arrows -->
+  <line x1="95" y1="80" x2="148" y2="130" stroke="#a78bfa" stroke-width="1" marker-end="url(#aM)"/>
+  <line x1="230" y1="90" x2="230" y2="108" stroke="#4f9eff" stroke-width="1" marker-end="url(#aM2)"/>
+  <line x1="310" y1="130" x2="338" y2="100" stroke="#34d399" stroke-width="1" marker-end="url(#aM3)"/>
+  <text x="325" y="115" fill="#34d399" font-size="9">lookup</text>
+
+  <!-- Output -->
+  <text x="160" y="170" fill="#8892a4" font-size="10">Actions: shift, reduce, accept, error</text>
+
+  <defs>
+    <marker id="aM" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#a78bfa"/></marker>
+    <marker id="aM2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#4f9eff"/></marker>
+    <marker id="aM3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#34d399"/></marker>
+  </defs>
+</svg>
+    </div>
+    <p>The LR parser uses a <strong>stack</strong> of states, an <strong>input buffer</strong>, an <strong>ACTION</strong> table, and a <strong>GOTO</strong> table. The parsing program reads the top-of-stack state and current input token, looks up the ACTION table, and performs: <strong>shift</strong> (push new state), <strong>reduce</strong> (pop states, apply production, use GOTO), <strong>accept</strong>, or <strong>error</strong>.</p>
+  </div></div>
+</div>
+
+<!-- Q48 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q48</span>
+    <span class="q-text">Grammar (CFG): E→id | id(A) | id[E]; A→E | E;A. Left-factor the grammar, write FIRST/FOLLOW, construct LL(1) table, and parse "id(id[id]; id)".</span>
+    <div class="q-meta"><span class="marks-badge">10 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Original Grammar</h3>
+    <pre>
+E → id | id(A) | id[E]
+A → E | E ; A</pre>
+
+    <h3>Step 1: Left-Factor E (common prefix 'id')</h3>
+    <pre>
+E  → id E'
+E' → ε | (A) | [E]</pre>
+
+    <h3>Step 2: Left-Factor A (common prefix E)</h3>
+    <pre>
+A  → E A'
+A' → ε | ; A</pre>
+
+    <h3>Left-Factored Grammar</h3>
+    <pre>
+E  → id E'
+E' → ε | (A) | [E]
+A  → E A'
+A' → ε | ;A</pre>
+
+    <h3>FIRST Sets</h3>
+    <ul>
+      <li>FIRST(E) = {id}</li>
+      <li>FIRST(E') = {ε, (, [}</li>
+      <li>FIRST(A) = FIRST(E) = {id}</li>
+      <li>FIRST(A') = {ε, ;}</li>
+    </ul>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(E): start symbol → {$}. E in E'→[E] followed by ']'. E in A→EA' and FIRST(A')={;,ε}: includes ';' and FOLLOW(A). So FOLLOW(E) = {$, ], ;, )}</li>
+      <li>FOLLOW(E') = FOLLOW(E) = {$, ], ;, )}</li>
+      <li>FOLLOW(A): A in E'→(A) followed by ')'. A in A'→;A followed by FOLLOW(A'). FOLLOW(A) = {)}</li>
+      <li>FOLLOW(A') = FOLLOW(A) = {)}</li>
+    </ul>
+
+    <h3>LL(1) Table</h3>
+    <table>
+      <tr><th></th><th>id</th><th>(</th><th>)</th><th>[</th><th>]</th><th>;</th><th>$</th></tr>
+      <tr><td>E</td><td>E→id E'</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>E'</td><td></td><td>E'→(A)</td><td>E'→ε</td><td>E'→[E]</td><td>E'→ε</td><td>E'→ε</td><td>E'→ε</td></tr>
+      <tr><td>A</td><td>A→EA'</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>A'</td><td></td><td></td><td>A'→ε</td><td></td><td></td><td>A'→;A</td><td></td></tr>
+    </table>
+
+    <h3>Parsing "id(id[id];id)"</h3>
+    <table>
+      <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+      <tr><td>$E</td><td>id(id[id];id)$</td><td>E→idE'</td></tr>
+      <tr><td>$E'id</td><td>id...</td><td>match id</td></tr>
+      <tr><td>$E'</td><td>(id[id];id)$</td><td>E'→(A)</td></tr>
+      <tr><td>$)A(</td><td>(id[id];id)$</td><td>match (</td></tr>
+      <tr><td>$)A</td><td>id[id];id)$</td><td>A→EA'</td></tr>
+      <tr><td>$)A'E</td><td>id[id];id)$</td><td>E→idE'</td></tr>
+      <tr><td>$)A'E'id</td><td>id...</td><td>match id</td></tr>
+      <tr><td>$)A'E'</td><td>[id];id)$</td><td>E'→[E]</td></tr>
+      <tr><td>$)A']E[</td><td>[id];id)$</td><td>match [</td></tr>
+      <tr><td>$)A']E</td><td>id];id)$</td><td>E→idE'</td></tr>
+      <tr><td>$)A']E'id</td><td>id...]</td><td>match id</td></tr>
+      <tr><td>$)A']E'</td><td>];id)$</td><td>E'→ε (]∈FOLLOW)</td></tr>
+      <tr><td>$)A']</td><td>];id)$</td><td>match ]</td></tr>
+      <tr><td>$)A'</td><td>;id)$</td><td>A'→;A</td></tr>
+      <tr><td>$)A;</td><td>;id)$</td><td>match ;</td></tr>
+      <tr><td>$)A</td><td>id)$</td><td>A→EA'</td></tr>
+      <tr><td>$)A'E</td><td>id)$</td><td>E→idE'</td></tr>
+      <tr><td>$)A'E'id</td><td>id)$</td><td>match id</td></tr>
+      <tr><td>$)A'E'</td><td>)$</td><td>E'→ε</td></tr>
+      <tr><td>$)A'</td><td>)$</td><td>A'→ε</td></tr>
+      <tr><td>$)</td><td>)$</td><td>match )</td></tr>
+      <tr><td>$</td><td>$</td><td>Accept ✓</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q49 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q49</span>
+    <span class="q-text">Grammar: E→T+E | T; T→int*T | int | ε. Construct SLR automaton and SLR parsing table.</span>
+    <div class="q-meta"><span class="marks-badge">7 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Augmented Grammar</h3>
+    <pre>
+0: E' → E
+1: E  → T + E
+2: E  → T
+3: T  → int * T
+4: T  → int
+5: T  → ε</pre>
+
+    <h3>FOLLOW Sets (for SLR reduces)</h3>
+    <ul>
+      <li>FOLLOW(E') = {$}</li>
+      <li>FOLLOW(E) = {$}</li>
+      <li>FOLLOW(T): T in E→T+E: followed by '+'. T in E→T: followed by FOLLOW(E)={$}. T in T→int*T: followed by FOLLOW(T). FOLLOW(T) = {+, $}</li>
+    </ul>
+
+    <h3>LR(0) Items (key states)</h3>
+    <pre>
+I0: E'→•E, E→•T+E, E→•T, T→•int*T, T→•int, T→•ε
+  on E→I1; on T→I2; on int→I3; T→ε reduce immediately (FOLLOW(T)={+,$})
+
+I1: E'→E•   [accept]
+
+I2: E→T•+E, E→T•   
+  On '+': shift (for E→T•+E) vs reduce E→T on lookahead ∈ FOLLOW(E)={$}: no conflict
+  On $: reduce E→T
+
+I3: T→int•*T, T→int•
+  On '*': shift; on + or $: reduce T→int
+
+I4 (after int *): T→int*•T, same as I0 w.r.t T
+  ...
+  </pre>
+    <p>The table is complex but follows standard SLR construction. See Q41 pattern for the style. The grammar has no SLR conflicts and is SLR(1).</p>
+
+    <h3>Key Table Entries</h3>
+    <table>
+      <tr><th>State</th><th>int</th><th>*</th><th>+</th><th>$</th><th>E</th><th>T</th></tr>
+      <tr><td>0</td><td>s3</td><td></td><td></td><td>r(T→ε)</td><td>1</td><td>2</td></tr>
+      <tr><td>1</td><td></td><td></td><td></td><td>acc</td><td></td><td></td></tr>
+      <tr><td>2</td><td></td><td></td><td>s4</td><td>r(E→T)</td><td></td><td></td></tr>
+      <tr><td>3</td><td></td><td>s5</td><td>r(T→int)</td><td>r(T→int)</td><td></td><td></td></tr>
+      <tr><td>4</td><td>s3</td><td></td><td></td><td>r(T→ε)</td><td>6</td><td>2</td></tr>
+      <tr><td>5</td><td>s3</td><td></td><td></td><td>r(T→ε)</td><td></td><td>7</td></tr>
+      <tr><td>6</td><td></td><td></td><td></td><td>r(E→T+E)</td><td></td><td></td></tr>
+      <tr><td>7</td><td></td><td></td><td>r(T→int*T)</td><td>r(T→int*T)</td><td></td><td></td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q50 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q50</span>
+    <span class="q-text">Grammar: S → SS+ | SS* | a. Construct LR(0) automata, SLR table. Is the grammar SLR? Parse "aa+".</span>
+    <div class="q-meta"><span class="marks-badge">9 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Augmented Grammar</h3>
+    <pre>
+0: S' → S
+1: S  → SS+
+2: S  → SS*
+3: S  → a</pre>
+
+    <h3>LR(0) Item Sets</h3>
+    <pre>
+I0: S'→•S, S→•SS+, S→•SS*, S→•a
+  on S→I1; on a→I2
+
+I1: S'→S•, S→S•S+, S→S•S*
+  on S→I3; on a→I2
+  [S'→S• is accept; S→S•S+ is shift]
+
+I2: S→a•   [reduce S→a]
+
+I3: S→SS•+, S→SS•*, S→S•S+, S→S•S*
+  on +→I4; on *→I5; on S→I3; on a→I2
+
+I4: S→SS+•  [reduce S→SS+]
+
+I5: S→SS*•  [reduce S→SS*]</pre>
+
+    <h3>FOLLOW Sets</h3>
+    <ul>
+      <li>FOLLOW(S') = {$}</li>
+      <li>FOLLOW(S): S is start → {$}. S in S→SS+: first S followed by S (FIRST(S)={a}), second S followed by '+'. So FOLLOW(S) = {a, +, *, $}</li>
+    </ul>
+
+    <h3>SLR Table</h3>
+    <table>
+      <tr><th>State</th><th>a</th><th>+</th><th>*</th><th>$</th><th>S</th></tr>
+      <tr><td>0</td><td>s2</td><td></td><td></td><td></td><td>1</td></tr>
+      <tr><td>1</td><td>s2</td><td></td><td></td><td>acc</td><td>3</td></tr>
+      <tr><td>2</td><td>r3</td><td>r3</td><td>r3</td><td>r3</td><td></td></tr>
+      <tr><td>3</td><td>s2</td><td>s4</td><td>s5</td><td>r? </td><td>3</td></tr>
+      <tr><td>4</td><td>r1</td><td>r1</td><td>r1</td><td>r1</td><td></td></tr>
+      <tr><td>5</td><td>r2</td><td>r2</td><td>r2</td><td>r2</td><td></td></tr>
+    </table>
+    <p>In state 3 on '$': S'→S• (accept) vs S→SS•+ needs + so no reduce on $. Check: S→SS+ and S→SS* have reduces only on FOLLOW(S)={a,+,*,$}. On '$' in state 3: reduce S→SS+ or S→SS*? State 3 has S→SS•+ (shift on +) and S→SS•* (shift on *). Reduces only come from I4 and I5. No conflict. <strong>Grammar is SLR(1)</strong>.</p>
+
+    <h3>Parsing "aa+"</h3>
+    <table>
+      <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+      <tr><td>0</td><td>aa+$</td><td>s2</td></tr>
+      <tr><td>0 2</td><td>a+$</td><td>r(S→a): goto[0,S]=1</td></tr>
+      <tr><td>0 1</td><td>a+$</td><td>s2</td></tr>
+      <tr><td>0 1 2</td><td>+$</td><td>r(S→a): goto[1,S]=3</td></tr>
+      <tr><td>0 1 3</td><td>+$</td><td>s4</td></tr>
+      <tr><td>0 1 3 4</td><td>$</td><td>r(S→SS+): pop 3, goto[0,S]=1</td></tr>
+      <tr><td>0 1</td><td>$</td><td>accept ✓</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- Q51 through Q69 — remaining questions -->
+<!-- Q51 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q51</span>
+    <span class="q-text">Grammar: S → AaAb | BbBa; A → ε; B → ε. Construct LR(0) automata and SLR table. Is it SLR?</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Augmented Grammar</h3>
+    <pre>
+0: S' → S
+1: S  → AaAb
+2: S  → BbBa
+3: A  → ε
+4: B  → ε</pre>
+
+    <h3>Key LR(0) Item Sets</h3>
+    <pre>
+I0: S'→•S, S→•AaAb, S→•BbBa, A→•ε, B→•ε
+  A→ε and B→ε reduce immediately (no symbol to shift for A/B)
+  Actually: A→• (dot at end = reduce immediately for A→ε)
+  Similarly B→ε.
+  But we also have S→•AaAb — need to decide: shift to get A, or reduce A→ε?
+
+FOLLOW(A) = {a, b} (from AaAb: first A followed by 'a', second A followed by 'b')
+FOLLOW(B) = {b, a} (from BbBa: first B followed by 'b', second B followed by 'a')
+
+In I0: we can reduce A→ε when lookahead ∈ FOLLOW(A)={a,b}
+        and reduce B→ε when lookahead ∈ FOLLOW(B)={a,b}
+  Both have the same lookahead set! → reduce-reduce conflict in SLR ← grammar NOT SLR(1)</pre>
+
+    <h3>SLR Conflict Analysis</h3>
+    <p>Both A→ε and B→ε are placed in M[X, 'a'] and M[X, 'b'] causing a <strong>reduce-reduce conflict</strong>. Therefore the grammar is <strong>NOT SLR(1)</strong>.</p>
+    <div class="note-box">This grammar is actually LL(1) (as shown in Q33) but not SLR(1) — a rare case where LL and LR parsers disagree.</div>
+  </div></div>
+</div>
+
+<!-- Q52 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q52</span>
+    <span class="q-text">Explain in brief Canonical LR(1) Items and why LR(1)/CLR(1) is powerful. Also explain Inherited Attributes and L-attributed SDT.</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <h3>Canonical LR(1) Items</h3>
+    <p>See Q44 for full explanation. An LR(1) item = [A→α•β, a] where 'a' is the lookahead. More precise than SLR; resolves more shift-reduce/reduce-reduce conflicts.</p>
+
+    <h3>Why CLR(1) is Powerful</h3>
+    <p>See Q44. Key: context-specific lookahead means no spurious conflicts; handles all LR(1) grammars.</p>
+
+    <h3>Inherited Attributes</h3>
+    <p>An attribute is <strong>inherited</strong> if its value at a node in the parse tree is computed from the attribute values of the node's <em>parent</em> or <em>siblings</em> (i.e., passed down the tree). Example:</p>
+    <pre>
+D → T L       { L.type = T.type }
+T → int       { T.type = integer }
+L → L₁ , id  { L₁.type = L.type; addtype(id, L.type) }
+L → id        { addtype(id, L.type) }</pre>
+    <p>Here <code>L.type</code> is an inherited attribute — its value flows from the parent D down to the children L.</p>
+
+    <h3>L-attributed SDT</h3>
+    <p>An SDD is <strong>L-attributed</strong> if each inherited attribute of a symbol on the right-hand side of a production depends only on:</p>
+    <ol>
+      <li>Inherited attributes of the nonterminal on the <em>left</em>-hand side, OR</li>
+      <li>Inherited or synthesized attributes of symbols to the <em>left</em> of that symbol in the production.</li>
+    </ol>
+    <p>L-attributed SDDs can be evaluated in a single left-to-right traversal, making them suitable for top-down (LL) parsers.</p>
+  </div></div>
+</div>
+
+<!-- Q53 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q53</span>
+    <span class="q-text">Grammar: S→aSA|λ; A→abS|c. Is this LL(1)? Construct LL(1) table. (Same as Q36 rephrased)</span>
+    <div class="q-meta"><span class="marks-badge">5 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>This is Q36. The grammar has a conflict at M[S,a] — both S→aSA (FIRST includes 'a') and S→ε (FOLLOW(S) includes 'a'). <strong>NOT LL(1)</strong>. See Q36 for full working.</p>
+  </div></div>
+</div>
+
+<!-- Q54 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q54</span>
+    <span class="q-text">Grammar: S→+SS | *SS | a. Calculate FIRST and FOLLOW, LL(1) table, and parse "+aa". (Repeat from different exam)</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>This is the same as Q31. Please see Q31 for the complete solution including FIRST, FOLLOW, table, and parsing trace.</p>
+  </div></div>
+</div>
+
+<!-- Q55 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q55</span>
+    <span class="q-text">For grammar S→+SS | *SS | a — FIRST, FOLLOW, LL(1) table, parse "+aa" (Dec 2023 version). Same as Q31.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>Same as Q31. FIRST(S)={+,*,a}. FOLLOW(S)={+,*,a,$}. Table: M[S,+]=S→+SS; M[S,*]=S→*SS; M[S,a]=S→a. Parsing "+aa": Accept. See Q31 for full detail.</p>
+  </div></div>
+</div>
+
+<!-- Q56 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q56</span>
+    <span class="q-text">Grammar: S→SS+ | SS* | a. Construct LR(0) automata, SLR table, and parse "aa+" (Dec 2023 version). Same as Q50.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>Same as Q50. See Q50 for full LR(0) automata, SLR table, and parsing trace of "aa+".</p>
+  </div></div>
+</div>
+
+<!-- Q57 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q57</span>
+    <span class="q-text">Grammar: S→SS+ | SS* | a. (July 2023) — same LR(0)/SLR question.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>Same as Q50. See Q50 for full solution.</p>
+  </div></div>
+</div>
+
+<!-- Q58 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q58</span>
+    <span class="q-text">Grammar: S → +SS | *SS | a. Parse "+aa" (May 2023 set 1, 2.b). Same as Q31.</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q31 for complete solution.</p>
+  </div></div>
+</div>
+
+<!-- Q59 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q59</span>
+    <span class="q-text">Grammar: S→SS+ | SS* | a. Construct LR(0) automata, SLR table, parse "aa+" (May 2023 set 1, 2.c). Same as Q50.</span>
+    <div class="q-meta"><span class="marks-badge">10 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q50 for complete solution with detailed automata, SLR table, and parsing trace.</p>
+  </div></div>
+</div>
+
+<!-- Q60 – Jan-May 2024 UE18CS351 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q60</span>
+    <span class="q-text">Grammar: S → +SS | *SS | a. FIRST, FOLLOW, predictive parsing table, parse "+aa" (Jan-May 2024 UE18).</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q31 for complete solution. The answer is identical across all exam variants of this grammar.</p>
+  </div></div>
+</div>
+
+<!-- Q61 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q61</span>
+    <span class="q-text">Grammar: S → AaAb | BbBa; A → ε; B → ε. LR(0) and SLR for Jan-May 2024 UE18.</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q51 for the complete solution. Grammar is NOT SLR(1) due to reduce-reduce conflict.</p>
+  </div></div>
+</div>
+
+<!-- Q62 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q62</span>
+    <span class="q-text">Explain in brief Canonical LR(1) Items and why LR(1)/CLR(1) is so powerful. (Jan-May 2024 UE18 2.d)</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q44 for complete explanation of CLR(1) items and their power.</p>
+  </div></div>
+</div>
+
+<!-- Q63 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q63</span>
+    <span class="q-text">Grammar: S → AB | a; A → a; B → b. LR(0) automata and SLR table (Jan-May 2024 UE20).</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q45 for complete solution. Grammar IS SLR(1).</p>
+  </div></div>
+</div>
+
+<!-- Q64 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q64</span>
+    <span class="q-text">Explain in brief Canonical LR(1) Items and why CLR(1) is powerful. (Jan-May 2024 UE20 2.d)</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q44 for complete explanation.</p>
+  </div></div>
+</div>
+
+<!-- Q65 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q65</span>
+    <span class="q-text">Grammar: S → a | ^ | (L); L → SA; A → ,SA | ε. Construct FIRST/FOLLOW, LL(1) table, and parse "(a,a)" (Jan-May 2024 UE21).</span>
+    <div class="q-meta"><span class="marks-badge">7 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q35 for complete solution.</p>
+  </div></div>
+</div>
+
+<!-- Q66 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q66</span>
+    <span class="q-text">Grammar: S→SS+ | SS* | a. Construct LR(0), SLR table. Is grammar SLR? Parse "aa+" (Jan-May 2024 UE21 2.b).</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q50 for complete solution with automata, SLR table, and parsing trace.</p>
+  </div></div>
+</div>
+
+<!-- Q67 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q67</span>
+    <span class="q-text">Compare bottom-up parsers: LR(0), SLR, LALR, CLR (Dec 2024 2.b).</span>
+    <div class="q-meta"><span class="marks-badge">4 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q42 for complete comparison table and hierarchy diagram.</p>
+  </div></div>
+</div>
+
+<!-- Q68 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q68</span>
+    <span class="q-text">Grammar: S→W; W→ZXY|XY; Y→c|ε; Z→a|d; X→Xb|ε. FIRST/FOLLOW, LL(1) table. Is it LL(1)? (Dec 2024 1.d)</span>
+    <div class="q-meta"><span class="marks-badge">6 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q34 for complete solution with FIRST, FOLLOW, table construction, and LL(1) verification.</p>
+  </div></div>
+</div>
+
+<!-- Q69 -->
+<div class="q-card" data-topic="topdwn">
+  <button class="q-btn" onclick="toggle(this)">
+    <span class="q-num">Q69</span>
+    <span class="q-text">Grammar: E→BB; B→cB|d. Construct LR(0) automata, LR(0) table, and parse "ccdd" using LR(0) parser (Dec 2024 2.a).</span>
+    <div class="q-meta"><span class="marks-badge">8 Marks</span><div class="chevron">▼</div></div>
+  </button>
+  <div class="answer"><div class="answer-inner">
+    <p>See Q41 for complete solution with full automata, parsing table, and trace for "ccdd".</p>
+  </div></div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function toggle(btn) {
+  const card = btn.closest('.q-card');
+  card.classList.toggle('open');
+}
+
+function filterCards(topic, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.q-card').forEach(card => {
+    if (topic === 'all' || card.dataset.topic === topic) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('.section-header').forEach(h => h.style.display = topic === 'all' ? '' : 'none');
+}
+</script>
+</body>
+</html>
