@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 4 – Compiler Design | PES University</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #f78166;
+    --accent3: #3fb950;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --tag-bg: #1f2937;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .stat span { color: var(--accent3); font-weight: 600; }
+
+  .filter-bar {
+    padding: 16px 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .filter-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0d1117;
+    font-weight: 600;
+  }
+
+  main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+  .section-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin: 36px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .q-card:hover { border-color: #484f58; }
+  .q-card.open { border-color: var(--accent); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .q-header:hover { background: var(--surface2); }
+
+  .q-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .q-text { flex: 1; font-size: 0.92rem; line-height: 1.55; font-weight: 400; }
+  .q-text code { font-family: 'IBM Plex Mono', monospace; font-size: 0.82em; background: var(--surface2); padding: 1px 5px; border-radius: 3px; color: var(--accent3); }
+
+  .q-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .marks-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #f0883e;
+    background: rgba(240,136,62,0.1);
+    border: 1px solid rgba(240,136,62,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .chevron {
+    width: 18px; height: 18px;
+    color: var(--muted);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .q-card.open .chevron { transform: rotate(180deg); }
+
+  .q-answer {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .q-card.open .q-answer { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ans-section { margin-top: 18px; }
+  .ans-section h3 { font-size: 0.82rem; font-family: 'IBM Plex Mono', monospace; color: var(--accent); margin-bottom: 10px; letter-spacing: 0.05em; }
+  .ans-section p { font-size: 0.9rem; line-height: 1.7; color: #c9d1d9; margin-bottom: 10px; }
+  .ans-section ul, .ans-section ol { padding-left: 20px; margin-bottom: 10px; }
+  .ans-section li { font-size: 0.9rem; line-height: 1.65; color: #c9d1d9; margin-bottom: 4px; }
+  .ans-section strong { color: var(--text); }
+
+  pre.code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: #a5d6ff;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin: 10px 0;
+    white-space: pre;
+  }
+
+  .diagram-wrap {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 14px 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  svg text { font-family: 'IBM Plex Mono', monospace; }
+
+  table.ans-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.83rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  table.ans-table th {
+    background: var(--surface2);
+    color: var(--accent);
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  table.ans-table td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    color: #c9d1d9;
+    vertical-align: top;
+  }
+
+  table.ans-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .highlight-box {
+    background: rgba(88,166,255,0.06);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 10px 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #c9d1d9;
+  }
+
+  .warn-box {
+    background: rgba(247,129,102,0.07);
+    border-left: 3px solid var(--accent2);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 10px 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #c9d1d9;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin: 0 3px 3px 0;
+    background: var(--tag-bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .expand-all-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    float: right;
+    margin-top: -2px;
+  }
+
+  .expand-all-btn:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>// UNIT 4 — Compiler Design</h1>
+  <p>PES University · UE19CS351 / UE20CS353 / UE21CS341B · ESA Question Bank</p>
+  <div class="stats">
+    <div class="stat">Topics: <span>Code Optimization · Code Generation · Runtime Env</span></div>
+    <div class="stat">Questions: <span>82</span></div>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterAll()">All (82)</button>
+  <button class="filter-btn" onclick="filterTopic('opt')">Optimization</button>
+  <button class="filter-btn" onclick="filterTopic('lva')">Live Variable Analysis</button>
+  <button class="filter-btn" onclick="filterTopic('cfg')">CFG</button>
+  <button class="filter-btn" onclick="filterTopic('ssa')">SSA / IR</button>
+  <button class="filter-btn" onclick="filterTopic('codegen')">Code Generation</button>
+  <button class="filter-btn" onclick="filterTopic('runtime')">Runtime / Activation</button>
+  <button class="filter-btn" onclick="filterTopic('target')">Target Code</button>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.1 — Intermediate Representations: Quadruples, Triples, SSA
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q1 -->
+<div class="q-card" data-topics="ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.1</span>
+    <span class="q-text">Write short notes on: (i) Quadruples and (ii) Static Single Assignment (SSA)</span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>i) QUADRUPLES</h3>
+      <p>A <strong>quadruple</strong> is a four-field record used to represent three-address code. Each instruction has the form: <code>(op, arg1, arg2, result)</code>.</p>
+      <table class="ans-table">
+        <tr><th>Field</th><th>Meaning</th></tr>
+        <tr><td>op</td><td>The operator (e.g., +, *, uminus, =, param, call, if)</td></tr>
+        <tr><td>arg1</td><td>First operand (or the only operand for unary ops)</td></tr>
+        <tr><td>arg2</td><td>Second operand (empty for unary ops)</td></tr>
+        <tr><td>result</td><td>Where the result is stored (temp variable or variable)</td></tr>
+      </table>
+      <p><strong>Example</strong>: For <code>a = b * -c + b * -c</code>:</p>
+      <pre class="code-block">
+  #   op       arg1   arg2   result
+  0   uminus   c             t1
+  1   *        b      t1     t2
+  2   uminus   c             t3
+  3   *        b      t3     t4
+  4   +        t2     t4     t5
+  5   =        t5            a</pre>
+      <p><strong>Disadvantage</strong>: Quadruples use a large number of temporary variables. Renaming temporaries is expensive. Every three-address instruction requires a separate record.</p>
+    </div>
+    <div class="ans-section">
+      <h3>ii) STATIC SINGLE ASSIGNMENT (SSA)</h3>
+      <p>SSA is an intermediate representation in which <strong>every variable is defined (assigned) exactly once</strong>. When a variable is assigned multiple times in the original code, it is renamed to a new version (subscript) each time.</p>
+      <div class="highlight-box">
+        <strong>Key Property:</strong> Each use of a variable refers to exactly one definition. This simplifies many data-flow analyses.
+      </div>
+      <p><strong>φ-function (Phi function)</strong>: At control-flow merge points (e.g., after if-else), a special φ-function merges versions:</p>
+      <pre class="code-block">
+  Original code:           SSA form:
+  x = 1                    x₁ = 1
+  if (cond) x = 2          if (cond) x₂ = 2
+  y = x + 1                x₃ = φ(x₁, x₂)
+                           y = x₃ + 1</pre>
+      <p><strong>Benefits of SSA</strong>:</p>
+      <ul>
+        <li>Simplifies constant propagation and dead code elimination</li>
+        <li>Makes def-use chains explicit and compact</li>
+        <li>Enables efficient register allocation</li>
+        <li>Facilitates common subexpression elimination</li>
+      </ul>
+      <p>SSA is widely used in modern compilers (GCC, LLVM).</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card" data-topics="ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.2</span>
+    <span class="q-text">Write short notes on: (i) Triples and (ii) Static Single Assignment (SSA) <em>[Dec 2023 / Jul 2023]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>i) TRIPLES</h3>
+      <p>A <strong>triple</strong> is a three-field record <code>(op, arg1, arg2)</code>. Unlike quadruples, there is no explicit result field; instead, the result is implicitly the <em>position (index)</em> of the instruction in the array.</p>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>0</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>1</td><td>*</td><td>b</td><td>(0)</td></tr>
+        <tr><td>2</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>3</td><td>*</td><td>b</td><td>(2)</td></tr>
+        <tr><td>4</td><td>+</td><td>(1)</td><td>(3)</td></tr>
+        <tr><td>5</td><td>=</td><td>a</td><td>(4)</td></tr>
+      </table>
+      <p><strong>Advantage over Quadruples</strong>: No need to create temporary variable names; saves memory.</p>
+      <p><strong>Disadvantage</strong>: References are by position. If instructions are reordered (e.g., during optimization), all position references must be updated. This makes code movement difficult.</p>
+      <p><strong>Indirect Triples</strong>: To overcome the reordering problem, an auxiliary array of pointers to triples is used. Reordering the auxiliary array doesn't require changing the triples themselves.</p>
+    </div>
+    <div class="ans-section">
+      <h3>ii) SSA — See Q4.1 above for full explanation</h3>
+      <p>SSA assigns unique names to each definition of a variable, enabling cleaner data-flow analysis. φ-functions handle merges at join points in the control-flow graph.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card" data-topics="ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.3</span>
+    <span class="q-text">Convert the following to SSA form: <code>x = u-t; y = x*v; if(y>100) x=y+w; else x=y-w; y=t-z; y=x*y;</code></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>STEP 1: Original Code</h3>
+      <pre class="code-block">
+  x = u - t
+  y = x * v
+  if (y > 100)
+      x = y + w
+  else
+      x = y - w
+  y = t - z
+  y = x * y</pre>
+      <h3>STEP 2: SSA Form</h3>
+      <p>Rename each assignment to a fresh version. At the merge point after the if-else, use a φ-function for <code>x</code> since it is defined in both branches.</p>
+      <pre class="code-block">
+  x₁ = u - t
+  y₁ = x₁ * v
+  if (y₁ > 100)
+  [then branch]:  x₂ = y₁ + w
+  [else branch]:  x₃ = y₁ - w
+
+  x₄ = φ(x₂, x₃)   ← merge point: x from then or else
+
+  y₂ = t - z
+  y₃ = x₄ * y₂</pre>
+      <div class="highlight-box">
+        <strong>Notes:</strong>
+        <ul>
+          <li><code>x</code> is defined in both branches → needs φ-function after the if-else</li>
+          <li><code>y</code> after the if-else: the last assignment is <code>y = t-z</code> (not affected by the branch), then <code>y = x*y</code> uses that</li>
+          <li>Variables <code>u, t, v, w, z</code> are assumed to be defined before this block (as <code>u₁, t₁,</code> etc.)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card" data-topics="ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.4</span>
+    <span class="q-text">What is the disadvantage of using Quadruple format? Express the following three-address code statements in Quadruple format: <code>param x; param y; t1 = call add, 2; sum = t1</code></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>DISADVANTAGE OF QUADRUPLES</h3>
+      <p>The main disadvantage is that quadruples require a large number of <strong>temporary variable names</strong>. This increases the size of the symbol table, consumes more memory, and adds overhead in managing all these temporaries during subsequent phases.</p>
+    </div>
+    <div class="ans-section">
+      <h3>QUADRUPLE REPRESENTATION</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>param</td><td>x</td><td>—</td><td>—</td></tr>
+        <tr><td>1</td><td>param</td><td>y</td><td>—</td><td>—</td></tr>
+        <tr><td>2</td><td>call</td><td>add</td><td>2</td><td>t1</td></tr>
+        <tr><td>3</td><td>=</td><td>t1</td><td>—</td><td>sum</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card" data-topics="ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.5</span>
+    <span class="q-text">Write the Quadruple, Triple and Indirect Triples representation for: <code>t1=-c; t2=b*t1; t3=-c; t4=b*t3; t5=t2+t4; a=t5</code> <em>[Dec 2024]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>QUADRUPLES</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>uminus</td><td>c</td><td>—</td><td>t1</td></tr>
+        <tr><td>1</td><td>*</td><td>b</td><td>t1</td><td>t2</td></tr>
+        <tr><td>2</td><td>uminus</td><td>c</td><td>—</td><td>t3</td></tr>
+        <tr><td>3</td><td>*</td><td>b</td><td>t3</td><td>t4</td></tr>
+        <tr><td>4</td><td>+</td><td>t2</td><td>t4</td><td>t5</td></tr>
+        <tr><td>5</td><td>=</td><td>t5</td><td>—</td><td>a</td></tr>
+      </table>
+      <h3>TRIPLES</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>0</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>1</td><td>*</td><td>b</td><td>(0)</td></tr>
+        <tr><td>2</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>3</td><td>*</td><td>b</td><td>(2)</td></tr>
+        <tr><td>4</td><td>+</td><td>(1)</td><td>(3)</td></tr>
+        <tr><td>5</td><td>=</td><td>a</td><td>(4)</td></tr>
+      </table>
+      <h3>INDIRECT TRIPLES</h3>
+      <p>An auxiliary array of pointers (instruction order) pointing into the triples table:</p>
+      <table class="ans-table">
+        <tr><th>Instruction Order</th><th>Pointer</th></tr>
+        <tr><td>[0]</td><td>→ (0)</td></tr>
+        <tr><td>[1]</td><td>→ (1)</td></tr>
+        <tr><td>[2]</td><td>→ (2)</td></tr>
+        <tr><td>[3]</td><td>→ (3)</td></tr>
+        <tr><td>[4]</td><td>→ (4)</td></tr>
+        <tr><td>[5]</td><td>→ (5)</td></tr>
+      </table>
+      <p><strong>Advantage of Indirect Triples</strong>: Reordering instructions only requires changing the auxiliary pointer array, not the triples themselves, making optimization moves efficient.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.2 — Control Flow Graphs (CFG) and Basic Blocks
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q6 -->
+<div class="q-card" data-topics="cfg">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.6</span>
+    <span class="q-text">Construct control-flow graph (CFG) for the three-address code: <code>s=0; a=4; i=0; ifFalse k==0 goto L1; b=1; goto L2; L1:b=2; L2:ifFalse i&lt;n goto L3; t1=a*b; t2=s+t1; s=t2; t3=i+1; i=t3; goto L2; L3:return s</code></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>STEP 1: IDENTIFY BASIC BLOCK LEADERS</h3>
+      <p>A leader is: (1) first instruction, (2) target of any jump, (3) instruction following a jump.</p>
+      <ul>
+        <li><strong>B1</strong>: s=0; a=4; i=0; <code>ifFalse k==0 goto L1</code></li>
+        <li><strong>B2</strong>: b=1; <code>goto L2</code></li>
+        <li><strong>B3</strong> (L1): b=2</li>
+        <li><strong>B4</strong> (L2): <code>ifFalse i&lt;n goto L3</code></li>
+        <li><strong>B5</strong>: t1=a*b; t2=s+t1; s=t2; t3=i+1; i=t3; <code>goto L2</code></li>
+        <li><strong>B6</strong> (L3): return s</li>
+      </ul>
+      <h3>STEP 2: CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 500 540" width="480" height="540" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#58a6ff"/>
+            </marker>
+          </defs>
+          <!-- B1 -->
+          <rect x="150" y="20" width="200" height="70" rx="6" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="250" y="38" fill="#58a6ff" text-anchor="middle" font-weight="bold">B1</text>
+          <text x="250" y="55" fill="#c9d1d9" text-anchor="middle">s=0; a=4; i=0</text>
+          <text x="250" y="72" fill="#c9d1d9" text-anchor="middle">ifFalse k==0 goto L1</text>
+
+          <!-- B2 -->
+          <rect x="40" y="140" width="140" height="50" rx="6" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="110" y="160" fill="#3fb950" text-anchor="middle" font-weight="bold">B2 (k==0 True)</text>
+          <text x="110" y="178" fill="#c9d1d9" text-anchor="middle">b=1; goto L2</text>
+
+          <!-- B3 -->
+          <rect x="320" y="140" width="140" height="50" rx="6" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="390" y="160" fill="#f78166" text-anchor="middle" font-weight="bold">B3: L1 (k≠0)</text>
+          <text x="390" y="178" fill="#c9d1d9" text-anchor="middle">b=2</text>
+
+          <!-- B4 -->
+          <rect x="150" y="240" width="200" height="50" rx="6" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="250" y="260" fill="#58a6ff" text-anchor="middle" font-weight="bold">B4: L2</text>
+          <text x="250" y="278" fill="#c9d1d9" text-anchor="middle">ifFalse i&lt;n goto L3</text>
+
+          <!-- B5 -->
+          <rect x="150" y="340" width="200" height="80" rx="6" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="250" y="358" fill="#3fb950" text-anchor="middle" font-weight="bold">B5 (i&lt;n True)</text>
+          <text x="250" y="375" fill="#c9d1d9" text-anchor="middle">t1=a*b; t2=s+t1</text>
+          <text x="250" y="392" fill="#c9d1d9" text-anchor="middle">s=t2; t3=i+1</text>
+          <text x="250" y="409" fill="#c9d1d9" text-anchor="middle">i=t3; goto L2</text>
+
+          <!-- B6 -->
+          <rect x="150" y="470" width="200" height="45" rx="6" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="250" y="490" fill="#f78166" text-anchor="middle" font-weight="bold">B6: L3 (i≥n)</text>
+          <text x="250" y="507" fill="#c9d1d9" text-anchor="middle">return s</text>
+
+          <!-- Arrows -->
+          <!-- B1 → B2 (k==0) -->
+          <line x1="200" y1="90" x2="150" y2="140" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="160" y="125" fill="#3fb950" font-size="10">k==0</text>
+
+          <!-- B1 → B3 (k!=0) -->
+          <line x1="300" y1="90" x2="350" y2="140" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="320" y="125" fill="#f78166" font-size="10">k≠0</text>
+
+          <!-- B2 → B4 -->
+          <line x1="150" y1="190" x2="210" y2="240" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- B3 → B4 -->
+          <line x1="350" y1="190" x2="295" y2="240" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- B4 → B5 (i<n) -->
+          <line x1="250" y1="290" x2="250" y2="340" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="255" y="320" fill="#3fb950" font-size="10">i&lt;n</text>
+
+          <!-- B4 → B6 (i>=n) -->
+          <line x1="320" y1="265" x2="460" y2="265" stroke="#f78166" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="460" y1="265" x2="460" y2="490" stroke="#f78166" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="460" y1="490" x2="352" y2="490" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="4"/>
+          <text x="465" y="380" fill="#f78166" font-size="10">i≥n</text>
+
+          <!-- B5 → B4 (loop back) -->
+          <line x1="150" y1="380" x2="40" y2="380" stroke="#3fb950" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="40" y1="380" x2="40" y2="265" stroke="#3fb950" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="40" y1="265" x2="150" y2="265" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="4"/>
+          <text x="10" y="325" fill="#3fb950" font-size="10">back</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card" data-topics="cfg">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.7</span>
+    <span class="q-text">Construct CFG for: <code>x=n; y=m; ifFalse x&lt;y goto L1; t1=x+1; x=t1; t2=y-1; y=t2; goto L2; L1: y=x+2; L2: z=x*y; return z</code></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>BASIC BLOCKS</h3>
+      <ul>
+        <li><strong>B1</strong>: x=n; y=m; ifFalse x&lt;y goto L1</li>
+        <li><strong>B2</strong>: t1=x+1; x=t1; t2=y-1; y=t2; goto L2</li>
+        <li><strong>B3 (L1)</strong>: y=x+2</li>
+        <li><strong>B4 (L2)</strong>: z=x*y; return z</li>
+      </ul>
+      <h3>CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 380" width="380" height="380" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#58a6ff"/>
+            </marker>
+          </defs>
+          <!-- B1 -->
+          <rect x="110" y="20" width="200" height="65" rx="6" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="210" y="40" fill="#58a6ff" text-anchor="middle" font-weight="bold">B1</text>
+          <text x="210" y="57" fill="#c9d1d9" text-anchor="middle">x=n; y=m</text>
+          <text x="210" y="74" fill="#c9d1d9" text-anchor="middle">ifFalse x&lt;y goto L1</text>
+
+          <!-- B2 -->
+          <rect x="10" y="140" width="170" height="80" rx="6" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="95" y="160" fill="#3fb950" text-anchor="middle" font-weight="bold">B2 (x&lt;y)</text>
+          <text x="95" y="177" fill="#c9d1d9" text-anchor="middle">t1=x+1; x=t1</text>
+          <text x="95" y="194" fill="#c9d1d9" text-anchor="middle">t2=y-1; y=t2</text>
+          <text x="95" y="211" fill="#c9d1d9" text-anchor="middle">goto L2</text>
+
+          <!-- B3 -->
+          <rect x="240" y="140" width="150" height="50" rx="6" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="315" y="160" fill="#f78166" text-anchor="middle" font-weight="bold">B3: L1 (x≥y)</text>
+          <text x="315" y="178" fill="#c9d1d9" text-anchor="middle">y = x+2</text>
+
+          <!-- B4 -->
+          <rect x="110" y="290" width="200" height="60" rx="6" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="210" y="310" fill="#58a6ff" text-anchor="middle" font-weight="bold">B4: L2</text>
+          <text x="210" y="327" fill="#c9d1d9" text-anchor="middle">z = x*y</text>
+          <text x="210" y="344" fill="#c9d1d9" text-anchor="middle">return z</text>
+
+          <!-- B1 → B2 -->
+          <line x1="160" y1="85" x2="120" y2="140" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="118" y="120" fill="#3fb950" font-size="10">x&lt;y</text>
+
+          <!-- B1 → B3 -->
+          <line x1="265" y1="85" x2="300" y2="140" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="275" y="120" fill="#f78166" font-size="10">x≥y</text>
+
+          <!-- B2 → B4 -->
+          <line x1="130" y1="220" x2="170" y2="290" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- B3 → B4 -->
+          <line x1="290" y1="190" x2="265" y2="290" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr2)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card" data-topics="cfg">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.8</span>
+    <span class="q-text">Construct CFG for: <code>x=0; y=0; L1: ifFalse x&lt;10 goto L2; t1=y+x; y=t1; t2=x+1; x=t2; goto L1; L2: z=x*y; return z</code></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>BASIC BLOCKS</h3>
+      <ul>
+        <li><strong>B1</strong>: x=0; y=0</li>
+        <li><strong>B2 (L1)</strong>: ifFalse x&lt;10 goto L2</li>
+        <li><strong>B3</strong>: t1=y+x; y=t1; t2=x+1; x=t2; goto L1</li>
+        <li><strong>B4 (L2)</strong>: z=x*y; return z</li>
+      </ul>
+      <h3>CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 400" width="380" height="400" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <defs>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#58a6ff"/>
+            </marker>
+          </defs>
+          <!-- B1 -->
+          <rect x="130" y="20" width="160" height="50" rx="6" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="210" y="40" fill="#58a6ff" text-anchor="middle" font-weight="bold">B1</text>
+          <text x="210" y="58" fill="#c9d1d9" text-anchor="middle">x=0; y=0</text>
+
+          <!-- B2 -->
+          <rect x="110" y="120" width="200" height="50" rx="6" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="210" y="140" fill="#f0883e" text-anchor="middle" font-weight="bold">B2: L1</text>
+          <text x="210" y="158" fill="#c9d1d9" text-anchor="middle">ifFalse x&lt;10 goto L2</text>
+
+          <!-- B3 -->
+          <rect x="90" y="230" width="220" height="80" rx="6" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="200" y="250" fill="#3fb950" text-anchor="middle" font-weight="bold">B3 (x&lt;10)</text>
+          <text x="200" y="267" fill="#c9d1d9" text-anchor="middle">t1=y+x; y=t1</text>
+          <text x="200" y="284" fill="#c9d1d9" text-anchor="middle">t2=x+1; x=t2</text>
+          <text x="200" y="301" fill="#c9d1d9" text-anchor="middle">goto L1</text>
+
+          <!-- B4 -->
+          <rect x="130" y="370" width="160" height="50" rx="6" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="210" y="390" fill="#f78166" text-anchor="middle" font-weight="bold">B4: L2 (x≥10)</text>
+          <text x="210" y="408" fill="#c9d1d9" text-anchor="middle">z=x*y; return z</text>
+
+          <!-- B1 → B2 -->
+          <line x1="210" y1="70" x2="210" y2="120" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+          <!-- B2 → B3 (x<10) -->
+          <line x1="210" y1="170" x2="210" y2="230" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <text x="215" y="205" fill="#3fb950" font-size="10">x&lt;10</text>
+
+          <!-- B2 → B4 (x>=10) -->
+          <line x1="310" y1="145" x2="370" y2="145" stroke="#f78166" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="370" y1="145" x2="370" y2="390" stroke="#f78166" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="370" y1="390" x2="292" y2="390" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr3)" stroke-dasharray="4"/>
+          <text x="375" y="270" fill="#f78166" font-size="10">x≥10</text>
+
+          <!-- B3 → B2 (loop back) -->
+          <line x1="90" y1="270" x2="40" y2="270" stroke="#3fb950" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="40" y1="270" x2="40" y2="145" stroke="#3fb950" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="40" y1="145" x2="110" y2="145" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr3)" stroke-dasharray="4"/>
+          <text x="5" y="215" fill="#3fb950" font-size="10">back</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card" data-topics="cfg ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.9</span>
+    <span class="q-text">Construct CFG for the given TAC and convert to SSA form: <code>i=1; j=1; k=0; L1: ifFalse k&lt;100 goto L3; ifFalse j&lt;20 goto L2; j=i; k=k+1; goto L1; L2: j=k; k=k+1; goto L1; L3: return j</code> <em>[Dec 2024, Jan-May 2024 UE21CS341B]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>STEP 1: IDENTIFY BASIC BLOCKS</h3>
+      <ul>
+        <li><strong>B1</strong>: i=1; j=1; k=0</li>
+        <li><strong>B2 (L1)</strong>: ifFalse k&lt;100 goto L3</li>
+        <li><strong>B3</strong>: ifFalse j&lt;20 goto L2</li>
+        <li><strong>B4</strong>: j=i; k=k+1; goto L1</li>
+        <li><strong>B5 (L2)</strong>: j=k; k=k+1; goto L1</li>
+        <li><strong>B6 (L3)</strong>: return j</li>
+      </ul>
+      <h3>STEP 2: CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 500 520" width="460" height="520" xmlns="http://www.w3.org/2000/svg" style="font-size:10.5px;">
+          <defs>
+            <marker id="arr4" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#58a6ff"/>
+            </marker>
+          </defs>
+          <!-- B1 -->
+          <rect x="160" y="10" width="170" height="55" rx="5" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="245" y="28" fill="#58a6ff" text-anchor="middle" font-weight="bold">B1</text>
+          <text x="245" y="44" fill="#c9d1d9" text-anchor="middle">i=1; j=1; k=0</text>
+
+          <!-- B2 -->
+          <rect x="145" y="110" width="200" height="50" rx="5" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="245" y="130" fill="#f0883e" text-anchor="middle" font-weight="bold">B2: L1</text>
+          <text x="245" y="148" fill="#c9d1d9" text-anchor="middle">ifFalse k&lt;100 goto L3</text>
+
+          <!-- B3 -->
+          <rect x="145" y="210" width="200" height="50" rx="5" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="245" y="230" fill="#58a6ff" text-anchor="middle" font-weight="bold">B3</text>
+          <text x="245" y="248" fill="#c9d1d9" text-anchor="middle">ifFalse j&lt;20 goto L2</text>
+
+          <!-- B4 -->
+          <rect x="40" y="320" width="160" height="60" rx="5" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="120" y="340" fill="#3fb950" text-anchor="middle" font-weight="bold">B4 (j&lt;20)</text>
+          <text x="120" y="356" fill="#c9d1d9" text-anchor="middle">j=i; k=k+1</text>
+          <text x="120" y="372" fill="#c9d1d9" text-anchor="middle">goto L1</text>
+
+          <!-- B5 -->
+          <rect x="300" y="320" width="160" height="60" rx="5" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="380" y="340" fill="#f78166" text-anchor="middle" font-weight="bold">B5: L2 (j≥20)</text>
+          <text x="380" y="356" fill="#c9d1d9" text-anchor="middle">j=k; k=k+1</text>
+          <text x="380" y="372" fill="#c9d1d9" text-anchor="middle">goto L1</text>
+
+          <!-- B6 -->
+          <rect x="145" y="445" width="200" height="45" rx="5" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="245" y="465" fill="#f78166" text-anchor="middle" font-weight="bold">B6: L3 (k≥100)</text>
+          <text x="245" y="482" fill="#c9d1d9" text-anchor="middle">return j</text>
+
+          <!-- Edges -->
+          <line x1="245" y1="65" x2="245" y2="110" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <line x1="245" y1="160" x2="245" y2="210" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <text x="250" y="190" fill="#3fb950" font-size="9">k&lt;100</text>
+
+          <!-- B2 → B6 -->
+          <line x1="345" y1="135" x2="420" y2="135" stroke="#f78166" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="420" y1="135" x2="420" y2="465" stroke="#f78166" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="420" y1="465" x2="347" y2="465" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <text x="425" y="305" fill="#f78166" font-size="9">k≥100</text>
+
+          <!-- B3 → B4 (j<20) -->
+          <line x1="185" y1="260" x2="150" y2="320" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <text x="145" y="300" fill="#3fb950" font-size="9">j&lt;20</text>
+
+          <!-- B3 → B5 (j>=20) -->
+          <line x1="310" y1="260" x2="345" y2="320" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <text x="315" y="300" fill="#f78166" font-size="9">j≥20</text>
+
+          <!-- B4 → B2 loop back -->
+          <line x1="40" y1="350" x2="15" y2="350" stroke="#3fb950" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="15" y1="350" x2="15" y2="135" stroke="#3fb950" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="15" y1="135" x2="145" y2="135" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+          <!-- B5 → B2 loop back -->
+          <line x1="460" y1="350" x2="480" y2="350" stroke="#f78166" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="480" y1="350" x2="480" y2="135" stroke="#f78166" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="480" y1="135" x2="345" y2="135" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr4)"/>
+        </svg>
+      </div>
+      <h3>STEP 3: SSA FORM</h3>
+      <p>Variables <code>j</code> and <code>k</code> are modified in multiple blocks, requiring φ-functions at merge points (B2, B3).</p>
+      <pre class="code-block">
+  B1: i₁=1; j₁=1; k₁=0
+
+  B2: j₂ = φ(j₁, j₃, j₄)   ← from B1, B4, B5
+      k₂ = φ(k₁, k₃, k₄)   ← from B1, B4, B5
+      ifFalse k₂ &lt; 100 goto L3
+
+  B3: ifFalse j₂ &lt; 20 goto L2
+
+  B4: j₃ = i₁
+      k₃ = k₂ + 1
+      goto L1
+
+  B5: j₄ = k₂
+      k₄ = k₂ + 1
+      goto L1
+
+  B6: return j₂</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card" data-topics="cfg ssa">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.10</span>
+    <span class="q-text">Construct CFG for the given TAC and convert to SSA form: <code>i=1; j=1; k=0; L1: ifFalse k&lt;100 goto L3; ifFalse j&lt;20 goto L2; j=i; k=k+1; goto L1; L2: j=k; k=k+1; goto L1; L3: return j</code> <em>[Jan-May 2024 UE21CS341B Q3.b(ii)]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <p>This is the same TAC as Q4.9. Please refer to Q4.9 for the complete CFG and SSA form solution.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.3 — Code Optimization Techniques
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q11 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.11</span>
+    <span class="q-text">Optimize the code: <code>int a=30; int b=9-(a/5); int c; c=b*4; if(c&gt;10){c=c-10;} return c*(60/a);</code> using Constant Folding, Constant Propagation, and Dead Code Elimination. <em>[Appears in multiple papers]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>ORIGINAL CODE</h3>
+      <pre class="code-block">
+  int a = 30;
+  int b = 9 - (a / 5);
+  int c;
+  c = b * 4;
+  if (c > 10) {
+      c = c - 10;
+  }
+  return c * (60 / a);</pre>
+      <h3>STEP 1: CONSTANT FOLDING</h3>
+      <p>Evaluate constant sub-expressions at compile time:</p>
+      <ul>
+        <li><code>a / 5</code> → <code>30 / 5 = 6</code></li>
+        <li><code>9 - 6 = 3</code> → <code>b = 3</code></li>
+        <li><code>60 / a = 60 / 30 = 2</code></li>
+      </ul>
+      <pre class="code-block">
+  int a = 30;
+  int b = 3;        // folded: 9-(30/5) = 3
+  int c;
+  c = b * 4;
+  if (c > 10) {
+      c = c - 10;
+  }
+  return c * 2;     // folded: 60/30 = 2</pre>
+      <h3>STEP 2: CONSTANT PROPAGATION</h3>
+      <p>Substitute known constant values of variables:</p>
+      <ul>
+        <li><code>b = 3</code>, so <code>b * 4 = 3 * 4 = 12</code> → <code>c = 12</code></li>
+      </ul>
+      <pre class="code-block">
+  int c;
+  c = 12;           // propagated: b=3, 3*4=12
+  if (c > 10) {     // 12 > 10 → TRUE (always)
+      c = c - 10;   // c = 12 - 10 = 2
+  }
+  return c * 2;</pre>
+      <h3>STEP 3: DEAD CODE ELIMINATION</h3>
+      <p>Since <code>c = 12 > 10</code> is <em>always true</em>, the if-branch always executes. We can eliminate the conditional:</p>
+      <ul>
+        <li><code>a</code> and <code>b</code> are no longer referenced → remove them</li>
+        <li><code>c = 12 - 10 = 2</code> can be folded</li>
+      </ul>
+      <pre class="code-block">
+  c = 2;
+  return c * 2;
+  // → return 4;</pre>
+      <h3>FINAL OPTIMIZED CODE</h3>
+      <pre class="code-block">
+  return 4;</pre>
+      <div class="highlight-box">
+        <strong>Summary:</strong> Constant folding reduced expressions; constant propagation substituted known values; dead code elimination removed the unreachable else-branch and unused variables. The result is a single <code>return 4</code>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.12</span>
+    <span class="q-text">Explain the following machine-independent code optimization techniques with examples: (1) Constant Folding and Constant Propagation, (2) Common Subexpression Elimination, (3) Dead Code Elimination <em>[Dec 2024]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>1. CONSTANT FOLDING AND CONSTANT PROPAGATION</h3>
+      <p><strong>Constant Folding</strong>: Evaluate constant expressions at compile time rather than at runtime.</p>
+      <pre class="code-block">
+  Before:  x = 3 * 4 + 2;   y = z * 0;
+  After:   x = 14;           y = 0;</pre>
+      <p><strong>Constant Propagation</strong>: If a variable is known to hold a constant value, replace its uses with that constant.</p>
+      <pre class="code-block">
+  Before:  a = 5;   b = a + 3;   c = a * b;
+  After:   a = 5;   b = 8;       c = 40;
+  // a and b can then be eliminated if unused</pre>
+    </div>
+    <div class="ans-section">
+      <h3>2. COMMON SUBEXPRESSION ELIMINATION (CSE)</h3>
+      <p>If the same expression is computed more than once and its operands haven't changed in between, the compiler avoids recomputing it by reusing the earlier result.</p>
+      <pre class="code-block">
+  Before:                   After:
+  t1 = a + b               t1 = a + b
+  t2 = c * d               t2 = c * d
+  t3 = a + b      →        t3 = t1      ← reuse t1
+  t4 = t1 + t3             t4 = t1 + t1
+  t5 = c * d               t5 = t2      ← reuse t2</pre>
+    </div>
+    <div class="ans-section">
+      <h3>3. DEAD CODE ELIMINATION</h3>
+      <p>Remove code that is never executed (unreachable) or computes values that are never used.</p>
+      <pre class="code-block">
+  // Unreachable code:
+  x = 5;
+  goto L1;
+  y = x + 1;    ← dead: never reached
+  L1: ...
+
+  // Unused variable:
+  int temp = computeExpensiveValue();
+  // temp is never read → remove the computation</pre>
+      <div class="highlight-box">
+        These three optimizations are often applied iteratively: constant propagation can expose new constant folding opportunities, which in turn can reveal dead code.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q13 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.13</span>
+    <span class="q-text">Explain with examples: (1) Constant Folding and Constant Propagation, (2) Strength Reduction, (3) Dead Code Elimination <em>[Jan-May 2024 UE20CS353 Q4.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>1. CONSTANT FOLDING AND PROPAGATION — see Q4.12</h3>
+      <h3>2. STRENGTH REDUCTION</h3>
+      <p>Replace expensive operations with cheaper equivalent ones:</p>
+      <ul>
+        <li>Replace multiplication by a power of 2 with left shift: <code>x * 4 → x &lt;&lt; 2</code></li>
+        <li>Replace division by a power of 2 with right shift: <code>x / 8 → x &gt;&gt; 3</code></li>
+        <li>In loops, replace multiplication by an induction variable with addition:</li>
+      </ul>
+      <pre class="code-block">
+  // Before (multiplication every iteration):
+  for (i = 0; i < n; i++)
+      a[4*i] = 0;
+
+  // After strength reduction:
+  t = 0;
+  for (i = 0; i < n; i++) {
+      a[t] = 0;
+      t = t + 4;    // cheaper: add instead of multiply
+  }</pre>
+    </div>
+    <div class="ans-section">
+      <h3>3. DEAD CODE ELIMINATION — see Q4.12</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Q14 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.14</span>
+    <span class="q-text">What is code optimization? Explain with an example any two optimization techniques. <em>[Jan-May 2024 UE19CS351 Q4.c / UE20CS353 Q4.c]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>DEFINITION</h3>
+      <p><strong>Code optimization</strong> is the process of transforming a program to make it execute more efficiently (faster, use less memory, or consume less energy) without changing the program's observable behavior (output).</p>
+      <div class="highlight-box">
+        <strong>Classification:</strong>
+        <ul>
+          <li><strong>Machine-independent</strong>: Applied to intermediate code (e.g., constant folding, CSE, loop invariant code motion)</li>
+          <li><strong>Machine-dependent</strong>: Target-specific (e.g., register allocation, peephole optimization)</li>
+        </ul>
+      </div>
+      <h3>EXAMPLE 1: LOOP INVARIANT CODE MOTION</h3>
+      <p>Move computations that don't change inside a loop to outside the loop:</p>
+      <pre class="code-block">
+  Before:
+  for (i = 0; i < n; i++)
+      a[i] = b + c * 10;   // b+c*10 is loop-invariant
+
+  After:
+  t = b + c * 10;          // computed once
+  for (i = 0; i < n; i++)
+      a[i] = t;</pre>
+      <h3>EXAMPLE 2: CONSTANT FOLDING</h3>
+      <pre class="code-block">
+  Before:  x = 2 * 3.14 * 5;
+  After:   x = 31.4;           // computed at compile time</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q15 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.15</span>
+    <span class="q-text">Apply loop strength reduction by induction variables, constant folding and dead code elimination to: <code>i=0; L: i=i+1; t1=4*i; t2=a[t1]; if t2&lt;v goto L</code> <em>[Jan-May 2024 UE21CS341B Q3.c]</em></span>
+    <div class="q-meta"><span class="marks-badge">3 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>ORIGINAL CODE</h3>
+      <pre class="code-block">
+  i = 0
+  L: i = i + 1
+     t1 = 4 * i
+     t2 = a[t1]
+     if t2 &lt; v goto L</pre>
+      <h3>STEP 1: STRENGTH REDUCTION ON INDUCTION VARIABLE</h3>
+      <p>Introduce <code>t1</code> as an induction variable. Since <code>t1 = 4*i</code> and <code>i</code> increases by 1 each iteration, <code>t1</code> increases by 4 each iteration:</p>
+      <pre class="code-block">
+  t1 = 4 * 0  → t1 = 0   (initial value, before loop)
+  L: i = i + 1
+     t1 = t1 + 4    ← strength reduced (add instead of multiply)
+     t2 = a[t1]
+     if t2 &lt; v goto L</pre>
+      <h3>STEP 2: DEAD CODE ELIMINATION</h3>
+      <p>Since <code>i</code> is only used to compute <code>t1</code> and is not used elsewhere, <code>i</code> is now a dead variable. Remove it:</p>
+      <pre class="code-block">
+  t1 = 0
+  L: t1 = t1 + 4
+     t2 = a[t1]
+     if t2 &lt; v goto L</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q16 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.16</span>
+    <span class="q-text">Reduce loop overhead from 100% to 50%: <code>for(i=0; i&lt;100; i++) g();</code> <em>[Jan-May 2024 UE21CS341B Q3.c(i)]</em></span>
+    <div class="q-meta"><span class="marks-badge">2 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>LOOP UNROLLING</h3>
+      <p>The technique is called <strong>loop unrolling</strong>. By unrolling the loop body twice, we halve the number of loop control operations (increment, compare, branch):</p>
+      <pre class="code-block">
+  // Original: 100 iterations, 100 conditional branches
+  for (i = 0; i &lt; 100; i++)
+      g();
+
+  // After 2x unrolling: 50 iterations, 50 conditional branches
+  for (i = 0; i &lt; 100; i += 2) {
+      g();
+      g();
+  }</pre>
+      <div class="highlight-box">
+        Loop overhead reduced from 100 jumps/comparisons to 50 — a 50% reduction. The body is duplicated, so no calls are skipped. This increases code size but reduces loop control overhead.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.4 — Live Variable Analysis
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q17 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.17</span>
+    <span class="q-text">Calculate use[B], def[B] and find IN[B], OUT[B] by applying Live-variable Analysis on the flow graph with blocks: B1(x:=2), B2(y:=4), B3(x:=1), B4(if y&gt;x), B5(z:=y), B6(z:=y*y), B7(x:=z) <em>[Appears in multiple papers]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>CFG STRUCTURE</h3>
+      <p>B1→B2→B3→B4; B4→B5(T), B4→B6(F); B5→B7; B6→B7 (B7 is exit)</p>
+      <h3>STEP 1: COMPUTE use[B] AND def[B]</h3>
+      <p><strong>def[B]</strong>: variables defined (assigned) in B before any use in B.<br>
+      <strong>use[B]</strong>: variables used in B before any definition in B.</p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>Statements</th><th>def[B]</th><th>use[B]</th></tr>
+        <tr><td>B1</td><td>x:=2</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B2</td><td>y:=4</td><td>{y}</td><td>{}</td></tr>
+        <tr><td>B3</td><td>x:=1</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B4</td><td>if(y>x)</td><td>{}</td><td>{y, x}</td></tr>
+        <tr><td>B5</td><td>z:=y</td><td>{z}</td><td>{y}</td></tr>
+        <tr><td>B6</td><td>z:=y*y</td><td>{z}</td><td>{y}</td></tr>
+        <tr><td>B7</td><td>x:=z</td><td>{x}</td><td>{z}</td></tr>
+      </table>
+      <h3>STEP 2: LIVE-VARIABLE EQUATIONS</h3>
+      <p>IN[B] = use[B] ∪ (OUT[B] − def[B])<br>
+      OUT[B] = ∪ IN[S] for all successors S of B</p>
+      <h3>STEP 3: BACKWARD ITERATION (start from exit B7)</h3>
+      <p>Initialize all IN = {}, OUT = {}</p>
+      <p><strong>Iteration 1 (backward: B7 → B6 → B5 → B4 → B3 → B2 → B1):</strong></p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>Successors</th><th>OUT[B]</th><th>IN[B] = use ∪ (OUT−def)</th></tr>
+        <tr><td>B7</td><td>(exit)</td><td>{}</td><td>use={z}, def={x} → IN={z}</td></tr>
+        <tr><td>B5</td><td>B7</td><td>IN[B7]={z}</td><td>use={y}, def={z} → IN={y} ∪ ({z}−{z}) = {y}</td></tr>
+        <tr><td>B6</td><td>B7</td><td>IN[B7]={z}</td><td>use={y}, def={z} → IN={y} ∪ ({z}−{z}) = {y}</td></tr>
+        <tr><td>B4</td><td>B5, B6</td><td>IN[B5]∪IN[B6]={y}</td><td>use={y,x}, def={} → IN={y,x} ∪ {y} = {x,y}</td></tr>
+        <tr><td>B3</td><td>B4</td><td>IN[B4]={x,y}</td><td>use={}, def={x} → IN={} ∪ ({x,y}−{x}) = {y}</td></tr>
+        <tr><td>B2</td><td>B3</td><td>IN[B3]={y}</td><td>use={}, def={y} → IN={} ∪ ({y}−{y}) = {}</td></tr>
+        <tr><td>B1</td><td>B2</td><td>IN[B2]={}</td><td>use={}, def={x} → IN={}</td></tr>
+      </table>
+      <p><strong>Iteration 2</strong>: Re-check. B5 and B6 both feed into B7. No changes occur. Converged.</p>
+      <h3>FINAL RESULTS</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>IN[B]</th><th>OUT[B]</th></tr>
+        <tr><td>B1</td><td>{}</td><td>{}</td></tr>
+        <tr><td>B2</td><td>{}</td><td>{y}</td></tr>
+        <tr><td>B3</td><td>{y}</td><td>{x,y}</td></tr>
+        <tr><td>B4</td><td>{x,y}</td><td>{y}</td></tr>
+        <tr><td>B5</td><td>{y}</td><td>{z}</td></tr>
+        <tr><td>B6</td><td>{y}</td><td>{z}</td></tr>
+        <tr><td>B7</td><td>{z}</td><td>{}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Q18 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.18</span>
+    <span class="q-text">Perform Live-Variable Analysis on the CFG with: B1(a=1;b=2;c=3;n=6), B2(if a≤n), B3(a=a+1)→B2, B4(if a≤11), B5(t1=a+b; a=t1+c; print"Hello"), B6(print"Hi") <em>[May 2023 UE20CS353]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>CFG STRUCTURE</h3>
+      <p>B1→B2; B2→B3(T:a≤n), B2→B4(F:a>n); B3→B2(loop); B4→B5(T:a≤11), B4→B6(F:a>11); B5 and B6 are exits.</p>
+      <h3>def AND use SETS</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>Statements</th><th>def[B]</th><th>use[B]</th></tr>
+        <tr><td>B1</td><td>a=1;b=2;c=3;n=6</td><td>{a,b,c,n}</td><td>{}</td></tr>
+        <tr><td>B2</td><td>if a≤n</td><td>{}</td><td>{a,n}</td></tr>
+        <tr><td>B3</td><td>a=a+1</td><td>{a}</td><td>{a}</td></tr>
+        <tr><td>B4</td><td>if a≤11</td><td>{}</td><td>{a}</td></tr>
+        <tr><td>B5</td><td>t1=a+b; a=t1+c; print"Hello"</td><td>{t1,a}</td><td>{a,b,c} (a,b in t1=a+b; t1,c in a=t1+c)</td></tr>
+        <tr><td>B6</td><td>print "Hi"</td><td>{}</td><td>{}</td></tr>
+      </table>
+      <h3>LIVE VARIABLE ANALYSIS (backward)</h3>
+      <p>B5 and B6 are exits: OUT[B5]=OUT[B6]={}</p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>IN[B]</th><th>OUT[B]</th></tr>
+        <tr><td>B6</td><td>{}</td><td>{}</td></tr>
+        <tr><td>B5</td><td>{a,b,c}</td><td>{}</td></tr>
+        <tr><td>B4</td><td>{a,b,c}</td><td>{a,b,c}</td></tr>
+        <tr><td>B3</td><td>{a,b,c,n}</td><td>{a,b,c,n}</td></tr>
+        <tr><td>B2</td><td>{a,b,c,n}</td><td>{a,b,c,n}</td></tr>
+        <tr><td>B1</td><td>{}</td><td>{a,b,c,n}</td></tr>
+      </table>
+      <div class="highlight-box">
+        <strong>Key observations:</strong> Variable <code>t1</code> is defined and used only within B5, so it's not live across blocks. Variables <code>a, b, c, n</code> flow backward through the loop.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q19 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.19</span>
+    <span class="q-text">Perform Live-Variable Analysis on the CFG: Entry→(i=m-1; j=n; a=u1)→(i=i+1; j=j-1)→(i=a+j)→exit, with a=u2 branch <em>[Dec 2024 Q4.c]</em></span>
+    <div class="q-meta"><span class="marks-badge">8 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>BLOCK STRUCTURE</h3>
+      <p>From the diagram: Entry → B1 → B2 ↔ (loop back); B2 → B3(a=u2) and B2 → B4(i=a+j) → exit</p>
+      <ul>
+        <li><strong>B1</strong>: i=m-1; j=n; a=u1</li>
+        <li><strong>B2</strong>: i=i+1; j=j-1 (loop header with back-edge from B4)</li>
+        <li><strong>B3</strong>: a=u2 (branch from B2)</li>
+        <li><strong>B4</strong>: i=a+j → exit</li>
+      </ul>
+      <h3>def AND use</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>def[B]</th><th>use[B]</th></tr>
+        <tr><td>B1</td><td>{i,j,a}</td><td>{m,n,u1}</td></tr>
+        <tr><td>B2</td><td>{i,j}</td><td>{i,j}</td></tr>
+        <tr><td>B3</td><td>{a}</td><td>{u2}</td></tr>
+        <tr><td>B4</td><td>{i}</td><td>{a,j}</td></tr>
+      </table>
+      <h3>BACKWARD ANALYSIS</h3>
+      <p>OUT[B4]={} (exit). Successors: B4→exit; B2→B3,B4; B3→B2; B1→B2</p>
+      <p><strong>Iteration 1:</strong></p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>OUT</th><th>IN = use ∪ (OUT−def)</th></tr>
+        <tr><td>B4</td><td>{}</td><td>{a,j} ∪ {}={a,j}</td></tr>
+        <tr><td>B3</td><td>IN[B2]=? (need iter)</td><td>→ iterate</td></tr>
+        <tr><td>B2</td><td>IN[B3]∪IN[B4]</td><td>→ iterate</td></tr>
+        <tr><td>B1</td><td>IN[B2]</td><td>→ iterate</td></tr>
+      </table>
+      <p><strong>Working backward, converged values:</strong></p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>IN[B]</th><th>OUT[B]</th></tr>
+        <tr><td>B4</td><td>{a,j}</td><td>{}</td></tr>
+        <tr><td>B3</td><td>{u2,j}</td><td>{a,j}</td></tr>
+        <tr><td>B2</td><td>{i,j,a,u2}</td><td>{i,j,a,u2}</td></tr>
+        <tr><td>B1</td><td>{m,n,u1,u2}</td><td>{i,j,a,u2}</td></tr>
+      </table>
+      <div class="highlight-box">
+        Note: Live variable analysis propagates variable liveness backwards through the CFG. At loop headers, multiple iterations may be needed until the sets stabilize (fixpoint).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q20 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.20</span>
+    <span class="q-text">Calculate use[B], def[B] for all basic blocks: B1(e=1), B2(if x>0), B3(z=e*e), B4(return x), B5(y=e*x), B6(if x&1), B7(e=z), B8(e=y) <em>[Jan-May 2024 UE20CS353 Q4.d]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>def AND use SETS</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>Statement(s)</th><th>def[B]</th><th>use[B]</th></tr>
+        <tr><td>B1</td><td>e=1</td><td>{e}</td><td>{}</td></tr>
+        <tr><td>B2</td><td>if(x>0)</td><td>{}</td><td>{x}</td></tr>
+        <tr><td>B3</td><td>z=e*e</td><td>{z}</td><td>{e}</td></tr>
+        <tr><td>B4</td><td>return x</td><td>{}</td><td>{x}</td></tr>
+        <tr><td>B5</td><td>y=e*x</td><td>{y}</td><td>{e,x}</td></tr>
+        <tr><td>B6</td><td>if x&amp;1</td><td>{}</td><td>{x}</td></tr>
+        <tr><td>B7</td><td>e=z</td><td>{e}</td><td>{z}</td></tr>
+        <tr><td>B8</td><td>e=y</td><td>{e}</td><td>{y}</td></tr>
+      </table>
+      <div class="highlight-box">
+        <strong>Recall:</strong> def[B] = set of variables assigned in B before any use in B. use[B] = variables used in B before any assignment to them in B.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q21 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.21</span>
+    <span class="q-text">Calculate use[B], def[B] and IN[B], OUT[B] on the flow graph: (B1: e=1)→(B2: if(x>0))→(B3: z=e*e)→(B5: y=e*x)→(B6: if x&amp;1)→B7(e=z)/B8(e=y); B2→B4(return x) <em>[Jan-May 2024 UE21CS341B Q4.a / Dec 2023 context]</em></span>
+    <div class="q-meta"><span class="marks-badge">7 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>STRUCTURE &amp; def/use (from Q4.20)</h3>
+      <p>CFG: B1→B2; B2→B3(x>0), B2→B4(x≤0); B3→B5; B5→B6; B6→B7(x&amp;1≠0), B6→B8(x&amp;1=0); B7→B1(loop), B8→B1(loop)</p>
+      <h3>BACKWARD ANALYSIS</h3>
+      <p>Exits: B4 (return x). Assume after B7 and B8 loop back to B1 (or converge on entry for fixpoint).</p>
+      <p>Since B7 and B8 loop back to B1, we treat B1 as having predecessors B7, B8 in addition to the entry.</p>
+      <table class="ans-table">
+        <tr><th>Block</th><th>IN[B]</th><th>OUT[B]</th></tr>
+        <tr><td>B4 (exit)</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B8</td><td>{y} ∪ (OUT[B8]−{e}) = {y, x} (after fixpoint)</td><td>IN[B1]={x,...}</td></tr>
+        <tr><td>B7</td><td>{z} ∪ (OUT[B7]−{e}) = {z, x}</td><td>IN[B1]</td></tr>
+        <tr><td>B6</td><td>{x} ∪ (IN[B7]∪IN[B8]−{}) = {x,z,y}</td><td>IN[B7]∪IN[B8]</td></tr>
+        <tr><td>B5</td><td>{e,x} ∪ (IN[B6]−{y}) = {e,x,z}</td><td>IN[B6]</td></tr>
+        <tr><td>B3</td><td>{e} ∪ (IN[B5]−{z}) = {e,x}</td><td>IN[B5]</td></tr>
+        <tr><td>B2</td><td>{x} ∪ (IN[B3]∪IN[B4]−{}) = {x,e}</td><td>IN[B3]∪IN[B4]={x,e}</td></tr>
+        <tr><td>B1</td><td>{x} (from loop successors B7/B8 after fixpoint)</td><td>IN[B2]={x,e}</td></tr>
+      </table>
+      <div class="highlight-box">
+        Complete fixpoint requires iterating until no IN/OUT sets change. The key insight is that <code>e</code> is redefined each loop iteration in B1, breaking the liveness of <code>e</code> from B7/B8 back through the loop. Variable <code>x</code> flows through unchanged.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q22 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.22</span>
+    <span class="q-text">Calculate use[B], def[B] and IN[B], OUT[B] using Live-Variable Analysis on: X:=Z-1; X>0; Z:=5; X>10; Z:=W+4; Y:=Y+1 <em>[Jan-May 2024 UE19CS351 Q4.d]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>BLOCK IDENTIFICATION (from diagram)</h3>
+      <p>From the flow graph diagram with colored (red) arrows indicating back-edges:</p>
+      <ul>
+        <li><strong>B1</strong>: X:=Z-1</li>
+        <li><strong>B2</strong>: X>0 (condition)</li>
+        <li><strong>B3</strong>: Z:=5 and X>10 (condition)</li>
+        <li><strong>B4</strong>: Z:=W+4</li>
+        <li><strong>B5</strong>: Y:=Y+1 (exit)</li>
+      </ul>
+      <h3>def AND use</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>def[B]</th><th>use[B]</th></tr>
+        <tr><td>B1</td><td>{X}</td><td>{Z}</td></tr>
+        <tr><td>B2</td><td>{}</td><td>{X}</td></tr>
+        <tr><td>B3</td><td>{Z}</td><td>{X} (for X>10; Z:=5 defines Z before it's used)</td></tr>
+        <tr><td>B4</td><td>{Z}</td><td>{W}</td></tr>
+        <tr><td>B5</td><td>{Y}</td><td>{Y}</td></tr>
+      </table>
+      <h3>LIVE VARIABLE RESULTS</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>IN[B]</th><th>OUT[B]</th></tr>
+        <tr><td>B5 (exit)</td><td>{Y}</td><td>{}</td></tr>
+        <tr><td>B4</td><td>{W,Y}</td><td>{Z,Y} (but Z feeds back)</td></tr>
+        <tr><td>B3</td><td>{X,W,Y}</td><td>{W,Y}</td></tr>
+        <tr><td>B2</td><td>{X,W,Y}</td><td>{X,W,Y}</td></tr>
+        <tr><td>B1</td><td>{Z,W,Y}</td><td>{X,W,Y}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.5 — Runtime Environments: Storage and Activation Records
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q23 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.23</span>
+    <span class="q-text">Explain with neat diagrams: (1) Activation Record and (2) Activation Tree <em>[Appears in multiple papers — 6 marks versions]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>1. ACTIVATION RECORD (Stack Frame)</h3>
+      <p>An <strong>activation record</strong> (or <em>stack frame</em>) is a block of memory allocated on the runtime stack each time a procedure is called. It contains all the information needed during one execution (activation) of the procedure.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 300 320" width="260" height="320" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <rect x="40" y="10" width="220" height="40" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="150" y="26" fill="#f78166" text-anchor="middle" font-weight="bold">Return value</text>
+          <text x="150" y="43" fill="#8b949e" text-anchor="middle" font-size="9">value returned to caller</text>
+
+          <rect x="40" y="55" width="220" height="40" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="150" y="71" fill="#58a6ff" text-anchor="middle" font-weight="bold">Actual Parameters</text>
+          <text x="150" y="88" fill="#8b949e" text-anchor="middle" font-size="9">arguments passed by caller</text>
+
+          <rect x="40" y="100" width="220" height="40" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="150" y="116" fill="#58a6ff" text-anchor="middle" font-weight="bold">Optional: Control Link</text>
+          <text x="150" y="133" fill="#8b949e" text-anchor="middle" font-size="9">pointer to caller's activation record</text>
+
+          <rect x="40" y="145" width="220" height="40" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="150" y="161" fill="#58a6ff" text-anchor="middle" font-weight="bold">Optional: Access Link</text>
+          <text x="150" y="178" fill="#8b949e" text-anchor="middle" font-size="9">for non-local data access</text>
+
+          <rect x="40" y="190" width="220" height="40" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="150" y="206" fill="#3fb950" text-anchor="middle" font-weight="bold">Saved Machine Status</text>
+          <text x="150" y="223" fill="#8b949e" text-anchor="middle" font-size="9">registers, PC before call</text>
+
+          <rect x="40" y="235" width="220" height="40" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="150" y="251" fill="#3fb950" text-anchor="middle" font-weight="bold">Local Data</text>
+          <text x="150" y="268" fill="#8b949e" text-anchor="middle" font-size="9">local variables</text>
+
+          <rect x="40" y="280" width="220" height="35" rx="4" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="150" y="296" fill="#f0883e" text-anchor="middle" font-weight="bold">Temporaries</text>
+          <text x="150" y="309" fill="#8b949e" text-anchor="middle" font-size="9">intermediate results</text>
+        </svg>
+      </div>
+      <p><strong>Fields explained:</strong></p>
+      <ul>
+        <li><strong>Return value</strong>: Where the callee places the value to be returned</li>
+        <li><strong>Actual parameters</strong>: Arguments from the caller</li>
+        <li><strong>Control link (dynamic link)</strong>: Points to the activation record of the caller</li>
+        <li><strong>Access link (static link)</strong>: Points to the enclosing scope's record (for nested procedures)</li>
+        <li><strong>Saved machine status</strong>: Return address, saved registers</li>
+        <li><strong>Local data</strong>: The procedure's local variables</li>
+        <li><strong>Temporaries</strong>: Compiler-generated temporary values</li>
+      </ul>
+    </div>
+    <div class="ans-section">
+      <h3>2. ACTIVATION TREE</h3>
+      <p>An <strong>activation tree</strong> represents all activations (calls) of all procedures during the execution of a program. Nodes are activations; a node for procedure p is a child of node for q if q called p.</p>
+      <p><strong>Example</strong>: Consider the recursive factorial <code>main→fact(3)→fact(2)→fact(1)→fact(0)</code></p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 400 220" width="380" height="220" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <!-- main -->
+          <rect x="155" y="10" width="90" height="32" rx="5" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="200" y="30" fill="#58a6ff" text-anchor="middle" font-weight="bold">main()</text>
+
+          <!-- fact(3) -->
+          <rect x="120" y="80" width="80" height="32" rx="5" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="160" y="100" fill="#3fb950" text-anchor="middle">fact(3)</text>
+
+          <!-- read() -->
+          <rect x="235" y="80" width="80" height="32" rx="5" fill="#1c2128" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="275" y="100" fill="#8b949e" text-anchor="middle">read()</text>
+
+          <!-- fact(2) -->
+          <rect x="80" y="150" width="80" height="32" rx="5" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="120" y="170" fill="#3fb950" text-anchor="middle">fact(2)</text>
+
+          <!-- fact(1) -->
+          <rect x="190" y="150" width="80" height="32" rx="5" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="230" y="170" fill="#3fb950" text-anchor="middle">fact(1) → 0</text>
+
+          <!-- Lines -->
+          <line x1="200" y1="42" x2="160" y2="80" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="200" y1="42" x2="275" y2="80" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="160" y1="112" x2="120" y2="150" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="160" y1="112" x2="230" y2="150" stroke="#3fb950" stroke-width="1.5"/>
+
+          <text x="200" y="210" fill="#8b949e" text-anchor="middle" font-size="10">The stack at any point holds the path from root to current node</text>
+        </svg>
+      </div>
+      <div class="highlight-box">
+        <strong>Key property</strong>: The call stack at any point during execution corresponds to the path from the root to the currently executing node in the activation tree.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q24 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.24</span>
+    <span class="q-text">Explain: (1) Activation Record, (2) Activation Tree, and (3) Calling Sequence <em>[Jan-May 2024 UE20CS353 Q5.b — 6 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>1 & 2. ACTIVATION RECORD AND TREE — See Q4.23</h3>
+      <h3>3. CALLING SEQUENCE</h3>
+      <p>The <strong>calling sequence</strong> is the code generated to make a procedure call. It is divided between the <em>caller</em> and the <em>callee</em>:</p>
+      <p><strong>Caller's tasks (before the call):</strong></p>
+      <ol>
+        <li>Evaluate actual parameters and push them onto the stack</li>
+        <li>Store the return address (address of instruction after the call)</li>
+        <li>Jump to the callee's code</li>
+      </ol>
+      <p><strong>Callee's tasks (on entry):</strong></p>
+      <ol>
+        <li>Save the return address and control link</li>
+        <li>Save registers and machine status</li>
+        <li>Allocate local variables and temporaries on the stack</li>
+        <li>Set the access link (if needed for nested scopes)</li>
+      </ol>
+      <p><strong>Return sequence (callee and caller after call):</strong></p>
+      <ol>
+        <li>Callee: place return value in designated location</li>
+        <li>Callee: restore machine status and pop its activation record</li>
+        <li>Callee: jump to return address</li>
+        <li>Caller: retrieve the return value</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- Q25 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.25</span>
+    <span class="q-text">What is meant by Calling Sequence and Return Sequence? Construct an Activation Tree for the program with main(), f1(), f2(int X), f3() where f2 calls f3 and itself recursively. <em>[May 2023 UE20CS353 Q5.a]</em></span>
+    <div class="q-meta"><span class="marks-badge">5+5 = 10 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>CALLING AND RETURN SEQUENCE — See Q4.24</h3>
+      <h3>ACTIVATION TREE</h3>
+      <p>Given program:</p>
+      <pre class="code-block">
+  int main()     { f1(); f2(2); f3(); return 0; }
+  int f1()       { return 1; }
+  int f2(int X)  { f3(); if(X==1) return f1(); else return (X * f2(X-1)); }
+  int f3()       { return 5; }</pre>
+      <p>Execution trace: main → f1(); main → f2(2): f2(2)→f3(); f2(2)→f2(1): f2(1)→f3(); f2(1)→f1(); main → f3();</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 560 310" width="520" height="310" xmlns="http://www.w3.org/2000/svg" style="font-size:10.5px;">
+          <!-- main -->
+          <rect x="210" y="5" width="80" height="28" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="250" y="23" fill="#58a6ff" text-anchor="middle" font-weight="bold">main()</text>
+
+          <!-- f1 under main -->
+          <rect x="40" y="70" width="65" height="28" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="73" y="88" fill="#3fb950" text-anchor="middle">f1()</text>
+
+          <!-- f2(2) under main -->
+          <rect x="195" y="70" width="65" height="28" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="228" y="88" fill="#f78166" text-anchor="middle">f2(2)</text>
+
+          <!-- f3 under main -->
+          <rect x="380" y="70" width="65" height="28" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="413" y="88" fill="#3fb950" text-anchor="middle">f3()</text>
+
+          <!-- under f2(2): f3 and f2(1) -->
+          <rect x="120" y="150" width="65" height="28" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="153" y="168" fill="#3fb950" text-anchor="middle">f3()</text>
+
+          <rect x="270" y="150" width="65" height="28" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="303" y="168" fill="#f78166" text-anchor="middle">f2(1)</text>
+
+          <!-- under f2(1): f3 and f1 -->
+          <rect x="210" y="230" width="65" height="28" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="243" y="248" fill="#3fb950" text-anchor="middle">f3()</text>
+
+          <rect x="330" y="230" width="65" height="28" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="363" y="248" fill="#3fb950" text-anchor="middle">f1()</text>
+
+          <!-- Lines -->
+          <line x1="250" y1="33" x2="73" y2="70" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="250" y1="33" x2="228" y2="70" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="250" y1="33" x2="413" y2="70" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="228" y1="98" x2="153" y2="150" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="228" y1="98" x2="303" y2="150" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="303" y1="178" x2="243" y2="230" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="303" y1="178" x2="363" y2="230" stroke="#f78166" stroke-width="1.5"/>
+
+          <text x="280" y="295" fill="#8b949e" text-anchor="middle" font-size="10">f2(1) reaches base case: X==1, so calls f1()</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q26 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.26</span>
+    <span class="q-text">Construct an Activation Tree for the program: main calls fib(5) and fib(2); fib(n) recursively calls fib(n-1)+fib(n-2) <em>[Jan-May 2024 UE21CS341B Q4.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>fib base case: fib(n) = 1 if n &lt; 3</h3>
+      <pre class="code-block">
+  Execution trace for fib(5):
+  fib(5) → fib(4) + fib(3)
+  fib(4) → fib(3) + fib(2)
+  fib(3) → fib(2) + fib(1)
+  fib(2) = 1, fib(1) = 1  [base cases]</pre>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 600 380" width="560" height="380" xmlns="http://www.w3.org/2000/svg" style="font-size:10px;">
+          <!-- main -->
+          <rect x="240" y="5" width="80" height="26" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="280" y="22" fill="#58a6ff" text-anchor="middle">main()</text>
+
+          <!-- fib(5) under main -->
+          <rect x="120" y="60" width="65" height="26" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="153" y="77" fill="#f78166" text-anchor="middle">fib(5)</text>
+
+          <!-- fib(2) under main -->
+          <rect x="380" y="60" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="413" y="77" fill="#3fb950" text-anchor="middle">fib(2)=1</text>
+
+          <!-- fib(4) fib(3) under fib(5) -->
+          <rect x="30" y="130" width="65" height="26" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="63" y="147" fill="#f78166" text-anchor="middle">fib(4)</text>
+
+          <rect x="180" y="130" width="65" height="26" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="213" y="147" fill="#f78166" text-anchor="middle">fib(3)</text>
+
+          <!-- under fib(4): fib(3) fib(2) -->
+          <rect x="-5" y="200" width="65" height="26" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="28" y="217" fill="#f78166" text-anchor="middle">fib(3)</text>
+
+          <rect x="80" y="200" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="113" y="217" fill="#3fb950" text-anchor="middle">fib(2)=1</text>
+
+          <!-- under fib(3) [from fib(5)]: fib(2) fib(1) -->
+          <rect x="155" y="200" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="188" y="217" fill="#3fb950" text-anchor="middle">fib(2)=1</text>
+
+          <rect x="240" y="200" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="273" y="217" fill="#3fb950" text-anchor="middle">fib(1)=1</text>
+
+          <!-- under fib(3) [from fib(4)]: fib(2) fib(1) -->
+          <rect x="-10" y="270" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="23" y="287" fill="#3fb950" text-anchor="middle">fib(2)=1</text>
+
+          <rect x="65" y="270" width="65" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="98" y="287" fill="#3fb950" text-anchor="middle">fib(1)=1</text>
+
+          <!-- Lines -->
+          <line x1="280" y1="31" x2="153" y2="60" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="280" y1="31" x2="413" y2="60" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="153" y1="86" x2="63" y2="130" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="153" y1="86" x2="213" y2="130" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="63" y1="156" x2="28" y2="200" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="63" y1="156" x2="113" y2="200" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="213" y1="156" x2="188" y2="200" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="213" y1="156" x2="273" y2="200" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="28" y1="226" x2="23" y2="270" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="28" y1="226" x2="98" y2="270" stroke="#f78166" stroke-width="1.5"/>
+
+          <text x="450" y="160" fill="#3fb950" text-anchor="middle" font-size="10">fib(2)=1 directly</text>
+          <text x="450" y="175" fill="#3fb950" text-anchor="middle" font-size="10">(base case, n&lt;3)</text>
+          <text x="450" y="195" fill="#f78166" text-anchor="middle" font-size="10">fib(2) under main</text>
+          <text x="450" y="210" fill="#f78166" text-anchor="middle" font-size="10">called separately</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q27 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.27</span>
+    <span class="q-text">Explain the different ways in which a procedure can access nonlocal data on a runtime stack <em>[Appears in multiple papers — 4 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">4 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>METHODS TO ACCESS NONLOCAL DATA</h3>
+      <p>When a procedure P needs data from an enclosing scope (not its own locals or globals), it uses one of these mechanisms:</p>
+      <h3>1. ACCESS LINKS (Static Links)</h3>
+      <p>Each activation record contains a pointer (the <strong>access link</strong> or <em>static link</em>) to the activation record of the <em>immediately enclosing scope</em> at the source-code level (not the caller).</p>
+      <ul>
+        <li>To access a variable d levels up the nesting, follow d access links.</li>
+        <li>Time to access: O(nesting depth)</li>
+      </ul>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 320 180" width="300" height="180" xmlns="http://www.w3.org/2000/svg" style="font-size:10px;">
+          <rect x="20" y="10" width="120" height="50" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="80" y="28" fill="#58a6ff" text-anchor="middle" font-weight="bold">proc A (top-level)</text>
+          <text x="80" y="45" fill="#8b949e" text-anchor="middle">local: x</text>
+
+          <rect x="20" y="80" width="120" height="50" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="80" y="98" fill="#3fb950" text-anchor="middle" font-weight="bold">proc B (nested in A)</text>
+          <text x="80" y="115" fill="#8b949e" text-anchor="middle">access link → A's record</text>
+
+          <rect x="20" y="145" width="120" height="35" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="80" y="163" fill="#f78166" text-anchor="middle">proc C (nested in B)</text>
+
+          <!-- access links -->
+          <line x1="160" y1="105" x2="190" y2="105" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="190" y1="105" x2="190" y2="35" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="190" y1="35" x2="160" y2="35" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="200" y="75" fill="#3fb950" font-size="9">access</text>
+          <text x="200" y="87" fill="#3fb950" font-size="9">link</text>
+
+          <line x1="160" y1="162" x2="220" y2="162" stroke="#f78166" stroke-width="1"/>
+          <line x1="220" y1="162" x2="220" y2="105" stroke="#f78166" stroke-width="1"/>
+          <line x1="220" y1="105" x2="160" y2="105" stroke="#f78166" stroke-width="1.5" marker-end="url(#arr)"/>
+        </svg>
+      </div>
+
+      <h3>2. DISPLAYS</h3>
+      <p>A <strong>display</strong> is a global array <code>d[]</code> where <code>d[i]</code> holds a pointer to the most recent activation record at nesting depth <code>i</code>.</p>
+      <ul>
+        <li>Accessing a variable at nesting depth i: look up <code>d[i]</code> — takes O(1) time</li>
+        <li>Updating the display on each call/return adds slight overhead</li>
+        <li>Faster than access links for deep nesting</li>
+      </ul>
+      <pre class="code-block">
+  d[0] → main's record
+  d[1] → most recent depth-1 procedure's record
+  d[2] → most recent depth-2 procedure's record
+  ...</pre>
+
+      <h3>3. GLOBAL VARIABLES</h3>
+      <p>Global (static) variables are stored at fixed memory addresses known at compile time. Any procedure can access them directly without any indirection through the stack.</p>
+
+      <h3>4. HEAP ALLOCATION</h3>
+      <p>For data that must outlive its creator, the data is allocated on the heap. Procedures access it through a pointer held in their activation record.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q28 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.28</span>
+    <span class="q-text">Explain in brief: (i) Access Links and (ii) Displays <em>[Jan-May 2024 UE20CS353 Q5.c — 4 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">4 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>ACCESS LINKS — covered in Q4.27 (method 1)</h3>
+      <h3>DISPLAYS — covered in Q4.27 (method 2)</h3>
+      <p>To summarize for 4 marks:</p>
+      <p><strong>Access Links</strong>: Each activation record has a static link pointer to its lexically enclosing scope's record. Traversing k links gives access to variables k levels up. Used in Pascal-style languages with nested procedures.</p>
+      <p><strong>Displays</strong>: A global array of pointers indexed by nesting depth. <code>display[i]</code> always points to the currently active record at depth <code>i</code>. O(1) access to any nesting level. On call/return, the display must be updated, but access is faster than following multiple static links.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q29 -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.29</span>
+    <span class="q-text">Explain the concepts of Calling Sequence and Return Sequence in procedure call implementation with suitable examples. <em>[Dec 2024 Q4.d — 5 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>CALLING SEQUENCE</h3>
+      <p>The calling sequence is the sequence of actions (and corresponding code) that must happen to transfer control from the caller to the callee and set up the callee's environment.</p>
+      <p><strong>Division of responsibilities:</strong></p>
+      <table class="ans-table">
+        <tr><th>Caller's code (before CALL)</th><th>Callee's prologue (on entry)</th></tr>
+        <tr><td>Evaluate actual parameters</td><td>Allocate space for locals & temps</td></tr>
+        <tr><td>Push parameters to stack/registers</td><td>Save callee-saved registers</td></tr>
+        <tr><td>Store return address</td><td>Set up access link (if needed)</td></tr>
+        <tr><td>Jump to callee's first instruction</td><td>Initialize local variables</td></tr>
+      </table>
+      <h3>RETURN SEQUENCE</h3>
+      <p>The return sequence is the code that transfers control back from the callee to the caller after the callee finishes.</p>
+      <table class="ans-table">
+        <tr><th>Callee's epilogue (on return)</th><th>Caller's code (after return)</th></tr>
+        <tr><td>Place return value in agreed location</td><td>Retrieve return value</td></tr>
+        <tr><td>Restore callee-saved registers</td><td>Pop parameters from stack</td></tr>
+        <tr><td>Restore stack pointer</td><td>Continue execution</td></tr>
+        <tr><td>Jump to return address</td><td>—</td></tr>
+      </table>
+      <h3>EXAMPLE (simplified x86-style)</h3>
+      <pre class="code-block">
+  // Calling f(a, b):
+  PUSH b          // push arg 2
+  PUSH a          // push arg 1
+  CALL f          // push return addr, jump to f
+
+  // f's prologue:
+  PUSH BP         // save base pointer
+  MOV BP, SP      // set frame pointer
+  SUB SP, 8       // allocate locals
+
+  // f's epilogue (return x):
+  MOV AX, x       // return value in AX
+  MOV SP, BP      // restore stack
+  POP BP          // restore base pointer
+  RET             // pop return addr, jump
+
+  // After call:
+  ADD SP, 8       // pop arguments (caller-cleanup)</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.6 — Issues in Code Generator Design
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q30 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.30</span>
+    <span class="q-text">Explain in brief any four issues in the design of a code generator. <em>[Appears in every paper — 4 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">4 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>ISSUES IN CODE GENERATOR DESIGN</h3>
+      <p>A code generator translates intermediate code (e.g., three-address code) into target machine code. The key design issues are:</p>
+
+      <h3>1. INPUT TO THE CODE GENERATOR</h3>
+      <p>The input is a sequence of intermediate-level instructions (three-address code, DAG, etc.) along with information from the symbol table (types, storage locations). The code generator assumes that the input is free of type errors (checked in semantic analysis).</p>
+
+      <h3>2. TARGET PROGRAMS</h3>
+      <p>The target can be absolute machine code (directly executable), relocatable machine code (requires linking), or assembly language. Assembly is easier to generate and debug; absolute code has the fastest startup.</p>
+
+      <h3>3. MEMORY MANAGEMENT</h3>
+      <p>Variables in the source program must be mapped to memory locations (or registers) in the target. The code generator uses the symbol table and the runtime environment (stack, heap, static) to do this mapping. Names in three-address code must be converted to actual addresses.</p>
+
+      <h3>4. INSTRUCTION SELECTION</h3>
+      <p>The code generator must choose instructions from the target ISA to implement each operation. A good selection produces efficient code. For example, <code>a = a + 1</code> could be <code>INC a</code> (1 instruction) rather than <code>MOV R, a; ADD R, #1; MOV a, R</code> (3 instructions).</p>
+
+      <h3>5. REGISTER ALLOCATION</h3>
+      <p>Registers are fast but limited. The code generator must decide which values to keep in registers (register allocation) and which register to use for each value (register assignment). This is NP-complete in general; graph-coloring heuristics are used.</p>
+
+      <h3>6. EVALUATION ORDER</h3>
+      <p>The order in which computations are performed can affect the number of registers needed and the number of loads/stores. Some orderings allow intermediate results to remain in registers longer.</p>
+
+      <div class="warn-box">
+        <strong>For a 4-mark answer</strong>: Pick any four from the above (Instruction Selection, Register Allocation, Memory Management, Evaluation Order are the most commonly expected).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q31 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.31</span>
+    <span class="q-text">Explain the tasks which are typically part of a sophisticated compiler's "code generation" phase. <em>[May 2023 UE20CS353 Q5.b — 5 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>CODE GENERATION PHASE TASKS</h3>
+      <p>The code generation phase of a compiler is responsible for transforming optimized intermediate code into target machine (or assembly) code. Tasks include:</p>
+      <ol>
+        <li><strong>Instruction Selection</strong>: Mapping intermediate code constructs to target machine instructions. The compiler chooses the most efficient instruction(s) for each operation.</li>
+        <li><strong>Register Allocation and Assignment</strong>: Deciding which program variables and temporaries should reside in registers. Register allocation assigns values to a set of registers; register assignment picks the specific register.</li>
+        <li><strong>Address Calculation</strong>: Computing the runtime address of each variable/array element (static, stack-relative, or heap-allocated).</li>
+        <li><strong>Instruction Scheduling</strong>: Reordering instructions to avoid pipeline stalls and to take advantage of instruction-level parallelism, without changing program semantics.</li>
+        <li><strong>Procedure Call/Return Code</strong>: Generating the calling and return sequences for function calls.</li>
+        <li><strong>Peephole Optimization</strong>: A local optimization pass that examines a small window of instructions and replaces them with more efficient equivalents (e.g., removing redundant loads/stores).</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.7 — Target Code Generation: Simple Code Generator
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q32 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.32</span>
+    <span class="q-text">Generate target code for: (1) x:=y+z, (2) z:=x*x, (3) y:=z, (4) x:=y+z. Two registers R1, R2. All variables live on exit. No temporaries. Arithmetic ops use registers only. <em>[Appears in multiple papers — 6 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>SIMPLE CODE GENERATOR ALGORITHM</h3>
+      <p>For each instruction, use getReg() to find appropriate registers. Track register descriptor (which variable is in each register) and address descriptor (where each variable is stored: register, memory, or both).</p>
+      <h3>INITIAL STATE</h3>
+      <p>All variables (x, y, z) are in memory. R1 and R2 are free.</p>
+      <h3>CODE GENERATION</h3>
+      <p><strong>Statement 1: x := y + z</strong></p>
+      <ul>
+        <li>Load y into R1: <code>LD R1, y</code></li>
+        <li>Load z into R2: <code>LD R2, z</code></li>
+        <li>Add: <code>ADD R1, R1, R2</code> → R1 holds x's value</li>
+        <li>Address descriptor: x → R1 (only)</li>
+      </ul>
+      <p><strong>Statement 2: z := x * x</strong></p>
+      <ul>
+        <li>x is in R1. z can use R2 (R2 held z but z is now dead since we're redefining it)</li>
+        <li><code>MUL R2, R1, R1</code> → R2 holds z's value</li>
+        <li>Address descriptor: z → R2 (only)</li>
+      </ul>
+      <p><strong>Statement 3: y := z</strong></p>
+      <ul>
+        <li>z is in R2. y can reuse R2 (since z will be stored before R2 is reused)</li>
+        <li>Move: R2 holds both z and y. Address descriptor: y → R2 (only); z → R2 and memory (we need to store z since it's live on exit)</li>
+        <li>Actually: <code>ST z, R2</code> first to preserve z if needed later... but y := z means y and z point to same value in R2.</li>
+        <li>Let y → R2 (R2 is the register for y). Since z is live on exit and currently only in R2, we store z: <code>ST z, R2</code>... but then we want to use R2 for y too. With only 2 registers this is tricky.</li>
+        <li>Simpler: <code>MOV R1, R2</code> (if available) or just store y from R2: since y := z just copies z to y, and R2 already has z's value, R2 now describes y.</li>
+      </ul>
+      <p><strong>Statement 4: x := y + z</strong></p>
+      <ul>
+        <li>y is in R2 (or R1), z must come from memory or a register</li>
+        <li>Load z (from memory): <code>LD R1, z</code></li>
+        <li>Compute: <code>ADD R1, R2, R1</code> → R1 holds new x</li>
+      </ul>
+      <h3>COMPLETE TARGET CODE WITH REGISTER DESCRIPTORS</h3>
+      <pre class="code-block">
+  Instruction      Code Generated         Register Desc   Address Desc
+  ─────────────────────────────────────────────────────────────────────
+  x := y + z       LD  R1, y             R1: y           y: R1,mem
+                   LD  R2, z             R2: z           z: R2,mem
+                   ADD R1, R1, R2        R1: x           x: R1
+
+  z := x * x       MUL R2, R1, R1        R1: x, R2: z    z: R2
+
+  y := z           ST  z, R2             (store z since live)
+                   MOV R1, R2            R1: y,z         y: R1; z: R1,mem
+                   (or: R2 describes y after z stored)
+
+  x := y + z       LD  R2, z             R2: z           z: R2,mem
+                   ADD R1, R1, R2        R1: x           x: R1</pre>
+      <h3>FINAL STORE (all live on exit)</h3>
+      <pre class="code-block">
+  ST  x, R1    ; store x
+  ST  y, R1    ; y was last assigned same value as x?
+               ; (actually: y:=z was before x:=y+z, so y is in old R1/R2)
+
+  Final code:
+  LD  R1, y
+  LD  R2, z
+  ADD R1, R1, R2     ; R1 = y+z = new x
+  MUL R2, R1, R1     ; R2 = x*x = new z
+  ST  z, R2          ; save z (live on exit)
+  LD  R1, z          ; reload z for y:=z (or use R2)
+  ST  y, R2          ; save y (y := z, so y = R2)
+  LD  R1, y          ; y is in memory / R2
+  ADD R1, R2, R2     ; x := y+z = z+z (since y=z now)
+  ST  x, R1          ; save x (live on exit)</pre>
+      <div class="highlight-box">
+        <strong>Cleaner version of final code sequence:</strong>
+        <pre style="margin:0; font-family: 'IBM Plex Mono', monospace; font-size:0.8rem; color:#a5d6ff;">
+  LD  R1, y
+  LD  R2, z
+  ADD R1, R1, R2   ; R1 = x := y+z
+  MUL R2, R1, R1   ; R2 = z := x*x
+  ST  z, R2        ; z is live, store it
+  ST  y, R2        ; y := z (= R2)
+  LD  R1, y        ; R1 = y (from memory or R2)
+  ADD R1, R1, R2   ; R1 = x := y+z (= R2+R2 = 2z)
+  ST  x, R1        ; x is live, store it</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q33 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.33</span>
+    <span class="q-text">Generate target code for: (1) x:=y-z, (2) z:=x*x, (3) y:=z, (4) x:=y-z. Two registers R1, R2. All variables live on exit. <em>[Jan-May 2024 UE18CS351 Q5.d / Dec 2023 UE19CS351 Q5.d / Jul 2023 Q5.d]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>NOTE</h3>
+      <p>This is the same structure as Q4.32 but with subtraction instead of addition. The code generation approach is identical.</p>
+      <pre class="code-block">
+  Statement 1: x := y - z
+  ─────────────────────────
+  LD   R1, y        ; R1 = y    (Reg desc: R1→y; Addr: y: R1,mem)
+  LD   R2, z        ; R2 = z    (Reg desc: R2→z; Addr: z: R2,mem)
+  SUB  R1, R1, R2   ; R1 = y-z  (Addr: x: R1)
+
+  Statement 2: z := x * x
+  ─────────────────────────
+  MUL  R2, R1, R1   ; R2 = x*x  (Addr: z: R2)
+  ; R1 still has x; R2 now has z
+
+  Statement 3: y := z
+  ─────────────────────────
+  ST   z, R2        ; store z (live on exit, R2 may be overwritten)
+  ; Now y := z means y gets value of R2
+  ; Addr: y: R2,mem; z: mem
+
+  Statement 4: x := y + z   (here it's y - z per this variant)
+  ─────────────────────────
+  LD   R1, z        ; reload z (or use stored value)  R1 = z
+  SUB  R2, R2, R1   ; R2 = y - z  (y is in R2, z is in R1)
+  ; Addr: x: R2
+
+  Final stores (all live on exit):
+  ST   x, R2        ; store new x
+  ST   y, R2        ; y is still same as z (y:=z was step 3)</pre>
+      <h3>COMPLETE CLEAN SEQUENCE</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>Statement</th><th>Generated Code</th><th>R1</th><th>R2</th></tr>
+        <tr><td>1</td><td>x:=y-z</td><td>LD R1,y; LD R2,z; SUB R1,R1,R2</td><td>x</td><td>z</td></tr>
+        <tr><td>2</td><td>z:=x*x</td><td>MUL R2,R1,R1</td><td>x</td><td>z(new)</td></tr>
+        <tr><td>3</td><td>y:=z</td><td>ST z,R2 (store z); (y now aliases R2)</td><td>x</td><td>y=z</td></tr>
+        <tr><td>4</td><td>x:=y-z</td><td>LD R1,z; SUB R1,R2,R1</td><td>x(new)</td><td>y</td></tr>
+        <tr><td>exit</td><td>store all</td><td>ST x,R1; ST y,R2; ST z,R2</td><td>—</td><td>—</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Q34 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.34</span>
+    <span class="q-text">Using Simple Code Generator, generate target code for: <code>d = (a - b) + (a - c) + (a - c)</code>. Three registers R1, R2, R3. All variables (a, b, c, d) live on exit. <em>[May 2023 UE20CS353 Q5.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>THREE-ADDRESS CODE DECOMPOSITION</h3>
+      <pre class="code-block">
+  t1 = a - b
+  t2 = a - c
+  t3 = t1 + t2
+  t4 = a - c       ← same as t2! CSE possible
+  t5 = t3 + t4
+  d  = t5</pre>
+      <h3>AFTER CSE</h3>
+      <pre class="code-block">
+  t1 = a - b
+  t2 = a - c       ← computed once
+  t3 = t1 + t2
+  t5 = t3 + t2     ← reuse t2
+  d  = t5</pre>
+      <h3>TARGET CODE WITH 3 REGISTERS</h3>
+      <table class="ans-table">
+        <tr><th>TAC</th><th>Target Code</th><th>R1</th><th>R2</th><th>R3</th></tr>
+        <tr><td>t1=a-b</td><td>LD R1,a; LD R2,b; SUB R1,R1,R2</td><td>t1</td><td>b(used)</td><td>—</td></tr>
+        <tr><td>t2=a-c</td><td>LD R2,a; LD R3,c; SUB R2,R2,R3</td><td>t1</td><td>t2</td><td>c(used)</td></tr>
+        <tr><td>t3=t1+t2</td><td>ADD R3,R1,R2</td><td>t1</td><td>t2</td><td>t3</td></tr>
+        <tr><td>t5=t3+t2</td><td>ADD R1,R3,R2</td><td>t5=d</td><td>t2</td><td>—</td></tr>
+        <tr><td>d=t5</td><td>ST d,R1</td><td>d</td><td>—</td><td>—</td></tr>
+      </table>
+      <h3>COMPLETE CODE</h3>
+      <pre class="code-block">
+  LD  R1, a
+  LD  R2, b
+  SUB R1, R1, R2   ; R1 = a-b
+  LD  R2, a
+  LD  R3, c
+  SUB R2, R2, R3   ; R2 = a-c
+  ADD R3, R1, R2   ; R3 = (a-b)+(a-c)
+  ADD R1, R3, R2   ; R1 = (a-b)+(a-c)+(a-c)
+  ST  d, R1        ; store d</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q35 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.35</span>
+    <span class="q-text">Generate target code for static allocation: procedure p() with m=5, n=m*2, call q, halt; procedure q() with x=2*x, return. p at 100, q at 300; activation records at 400 and 600 respectively. <em>[Jul 2023 UE20CS353 Q5.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>STATIC ALLOCATION</h3>
+      <p>In static allocation, each procedure has a fixed activation record at a known address. Locations: p's code at 100, q's code at 300, p's activation record at 400 (m at 400, n at 404), q's activation record at 600 (x at 600).</p>
+      <pre class="code-block">
+  // Procedure p() — code starts at 100
+  100: MOV  400, #5      ; m = 5
+  108: MOV  R1, 400      ; load m into R1
+  116: MUL  R1, R1, #2   ; R1 = m * 2
+  124: MOV  404, R1      ; n = m*2
+  132: MOV  600, #ret_addr ; save return address for q
+  140: GOTO 300          ; call q (jump to q's code)
+  148: HALT              ; halt (return address is 148)
+
+  // Procedure q() — code starts at 300
+  300: MOV  R1, 600      ; load x into R1
+  308: MUL  R1, R1, #2   ; R1 = 2 * x
+  316: MOV  600, R1      ; store back x = 2*x
+  324: GOTO *ret_in_600  ; return: jump to return address</pre>
+      <div class="highlight-box">
+        In static allocation, the return address is stored in the callee's activation record (at a fixed offset). There's no stack; each procedure has exactly one activation record at a compile-time-known address. This means no recursion is possible.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q36 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.36</span>
+    <span class="q-text">Generate target code for array accesses: <code>x=a[i]; y=b[j]; a[i]=y; b[j]=x</code>. Arrays a and b have 4-byte elements. Explain Index and Indirect addressing modes. <em>[Dec 2024 Q4.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>ADDRESSING MODES</h3>
+      <p><strong>Index Addressing</strong>: Address = base + index. Used for array access. Example: <code>MOV R1, a(R2)</code> means load from address <code>a + R2</code>, where a is the base address and R2 holds the byte offset.</p>
+      <p><strong>Indirect Addressing</strong>: Address = value of register. Example: <code>MOV R1, *R2</code> means load from the address contained in R2. Used for pointers.</p>
+      <h3>TARGET CODE FOR ARRAY ACCESSES</h3>
+      <p>Array element address: <code>a[i]</code> is at address <code>base(a) + i * 4</code> (4 bytes per element).</p>
+      <pre class="code-block">
+  // x = a[i]
+  MOV  R1, i          ; R1 = i
+  MUL  R1, R1, #4     ; R1 = i * 4 (byte offset)
+  MOV  R2, a(R1)      ; R2 = a[i]  (indexed: base a + R1)
+  MOV  x, R2          ; x = a[i]
+
+  // y = b[j]
+  MOV  R1, j          ; R1 = j
+  MUL  R1, R1, #4     ; R1 = j * 4
+  MOV  R2, b(R1)      ; R2 = b[j]
+  MOV  y, R2          ; y = b[j]
+
+  // a[i] = y
+  MOV  R2, y          ; R2 = y
+  MOV  R1, i
+  MUL  R1, R1, #4
+  MOV  a(R1), R2      ; a[i] = y (store into indexed location)
+
+  // b[j] = x
+  MOV  R2, x          ; R2 = x
+  MOV  R1, j
+  MUL  R1, R1, #4
+  MOV  b(R1), R2      ; b[j] = x</pre>
+      <div class="highlight-box">
+        The indexed addressing instruction <code>MOV R, a(Ri)</code> computes the effective address as <code>a + Ri</code> and loads/stores from that address. This is exactly the pattern for array element access.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.8 — Three-Address Code Generation
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q37 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.37</span>
+    <span class="q-text">Generate Three-address code for: <code>switch(ch){ case 1: c=a+b; break; case 2: c=a-b; break; default: ... }</code> <em>[Jan-May 2024 UE21CS341B Q3.b(i)]</em></span>
+    <div class="q-meta"><span class="marks-badge">4 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>THREE-ADDRESS CODE FOR SWITCH</h3>
+      <p>A switch statement is typically compiled using a sequence of conditional jumps (for small number of cases) or a jump table (for many cases). Here, with 2 cases:</p>
+      <pre class="code-block">
+  // switch(ch) with cases 1 and 2
+
+  if ch != 1 goto L2     ; test case 1
+  t1 = a + b             ; case 1 body: c = a + b
+  c = t1
+  goto Lend              ; break → jump past switch
+
+  L2: if ch != 2 goto Ldefault  ; test case 2
+  t2 = a - b             ; case 2 body: c = a - b
+  c = t2
+  goto Lend              ; break
+
+  Ldefault:              ; default case
+  ...                    ; default code
+
+  Lend:                  ; after switch</pre>
+      <div class="highlight-box">
+        For switch with many integer cases, compilers generate a <strong>jump table</strong>: an array where entry <code>i</code> holds the address of case <code>i</code>'s code. The switch expression is used as an index into this array for O(1) dispatch.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q38 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.38</span>
+    <span class="q-text">Generate Three-address code for: <code>while(A&lt;C and B&gt;D) do if A=1 then C=C+1 else while A&lt;=D do A=A+B</code> <em>[Dec 2024 Q3.c]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>THREE-ADDRESS CODE</h3>
+      <pre class="code-block">
+  L1:                           ; outer while start
+  if A >= C goto Lend           ; ¬(A &lt; C) → exit
+  if B <= D goto Lend           ; ¬(B > D) → exit
+                                ; compound condition: A&lt;C AND B&gt;D
+
+  ; Body of outer while: if A=1 then C=C+1 else ...
+  if A != 1 goto Lelse
+  ; then branch: C = C + 1
+  t1 = C + 1
+  C = t1
+  goto L1                       ; loop back
+
+  Lelse:                        ; else branch: inner while A≤D do A=A+B
+  L2:
+  if A > D goto Lend2           ; ¬(A ≤ D) → exit inner while
+  t2 = A + B
+  A = t2
+  goto L2
+
+  Lend2:
+  goto L1                       ; continue outer while
+
+  Lend:</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q39 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.39</span>
+    <span class="q-text">Provide Three-address code, Quadruple, Triple and Indirect Triple for: <code>x = y[i] + z[j]</code> <em>[Jul 2023 UE20CS353 Q4.b]</em></span>
+    <div class="q-meta"><span class="marks-badge">7 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>THREE-ADDRESS CODE</h3>
+      <pre class="code-block">
+  t1 = y[i]       ; load array element
+  t2 = z[j]       ; load array element
+  t3 = t1 + t2    ; add them
+  x  = t3         ; assign to x</pre>
+      <h3>QUADRUPLES</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>=[]</td><td>y</td><td>i</td><td>t1</td></tr>
+        <tr><td>1</td><td>=[]</td><td>z</td><td>j</td><td>t2</td></tr>
+        <tr><td>2</td><td>+</td><td>t1</td><td>t2</td><td>t3</td></tr>
+        <tr><td>3</td><td>=</td><td>t3</td><td>—</td><td>x</td></tr>
+      </table>
+      <h3>TRIPLES</h3>
+      <table class="ans-table">
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>0</td><td>=[]</td><td>y</td><td>i</td></tr>
+        <tr><td>1</td><td>=[]</td><td>z</td><td>j</td></tr>
+        <tr><td>2</td><td>+</td><td>(0)</td><td>(1)</td></tr>
+        <tr><td>3</td><td>=</td><td>x</td><td>(2)</td></tr>
+      </table>
+      <h3>INDIRECT TRIPLES</h3>
+      <p>Same triple table as above, with an instruction-order array: [0]→(0), [1]→(1), [2]→(2), [3]→(3)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-header">
+  § 4.9 — Remaining / Mixed Questions
+  <button class="expand-all-btn" onclick="expandSection(this)">expand all</button>
+</div>
+
+<!-- Q40 -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.40</span>
+    <span class="q-text">What is DAG? Draw a syntax tree and DAG for: <code>((x+y) – ((x+y)*(x-y))) + ((x+y)*(x-y))</code> <em>[Jul 2023 UE20CS353 Q4.a]</em></span>
+    <div class="q-meta"><span class="marks-badge">7 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>DAG (Directed Acyclic Graph)</h3>
+      <p>A <strong>DAG</strong> for an expression is like a syntax tree except that common subexpressions are represented by <em>shared nodes</em> rather than repeated subtrees. This avoids redundant computation and is the basis for Common Subexpression Elimination (CSE).</p>
+      <h3>EXPRESSION ANALYSIS</h3>
+      <pre class="code-block">
+  Let E = ((x+y) – ((x+y)*(x-y))) + ((x+y)*(x-y))
+  Common subexpressions:
+    A = x+y   (appears 3 times)
+    B = x-y   (appears 2 times)
+    C = A*B = (x+y)*(x-y)  (appears 2 times)</pre>
+      <h3>SYNTAX TREE (showing redundancy)</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 480 300" width="450" height="300" xmlns="http://www.w3.org/2000/svg" style="font-size:10px;">
+          <!-- Root + -->
+          <circle cx="240" cy="20" r="14" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="240" y="24" fill="#58a6ff" text-anchor="middle">+</text>
+
+          <!-- Left: - -->
+          <circle cx="110" cy="80" r="14" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="110" y="84" fill="#3fb950" text-anchor="middle">–</text>
+          <line x1="226" y1="30" x2="124" y2="66" stroke="#58a6ff" stroke-width="1.5"/>
+
+          <!-- Right: * (C) -->
+          <circle cx="370" cy="80" r="14" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="370" y="84" fill="#f78166" text-anchor="middle">*</text>
+          <line x1="254" y1="30" x2="356" y2="66" stroke="#58a6ff" stroke-width="1.5"/>
+
+          <!-- Under -: (x+y) and * -->
+          <circle cx="50" cy="150" r="14" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="50" y="154" fill="#3fb950" text-anchor="middle">+</text>
+          <line x1="97" y1="91" x2="64" y2="136" stroke="#3fb950" stroke-width="1.5"/>
+
+          <circle cx="170" cy="150" r="14" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="170" y="154" fill="#f0883e" text-anchor="middle">*</text>
+          <line x1="120" y1="91" x2="158" y2="136" stroke="#3fb950" stroke-width="1.5"/>
+
+          <!-- Under right *: (x+y) and (x-y) -->
+          <circle cx="310" cy="150" r="14" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="310" y="154" fill="#3fb950" text-anchor="middle">+</text>
+          <line x1="357" y1="91" x2="324" y2="136" stroke="#f78166" stroke-width="1.5"/>
+
+          <circle cx="430" cy="150" r="14" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="430" y="154" fill="#3fb950" text-anchor="middle">–</text>
+          <line x1="383" y1="91" x2="416" y2="136" stroke="#f78166" stroke-width="1.5"/>
+
+          <!-- Leaf labels -->
+          <text x="50" y="195" fill="#8b949e" text-anchor="middle" font-size="9">x+y dup</text>
+          <text x="170" y="195" fill="#8b949e" text-anchor="middle" font-size="9">(x+y)*(x-y) dup</text>
+          <text x="310" y="195" fill="#8b949e" text-anchor="middle" font-size="9">x+y dup</text>
+          <text x="430" y="195" fill="#8b949e" text-anchor="middle" font-size="9">x-y dup</text>
+
+          <text x="240" y="260" fill="#f78166" text-anchor="middle" font-size="10">⬆ Syntax tree has 3 copies of x+y and 2 copies of (x+y)*(x-y)</text>
+        </svg>
+      </div>
+      <h3>DAG (sharing common nodes)</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 380 310" width="360" height="310" xmlns="http://www.w3.org/2000/svg" style="font-size:10px;">
+          <!-- x and y leaves -->
+          <circle cx="60" cy="260" r="12" fill="#1c2128" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="60" y="264" fill="#c9d1d9" text-anchor="middle">x</text>
+          <circle cx="120" cy="260" r="12" fill="#1c2128" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="120" y="264" fill="#c9d1d9" text-anchor="middle">y</text>
+          <circle cx="220" cy="260" r="12" fill="#1c2128" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="220" y="264" fill="#c9d1d9" text-anchor="middle">x</text>
+          <circle cx="280" cy="260" r="12" fill="#1c2128" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="280" y="264" fill="#c9d1d9" text-anchor="middle">y</text>
+
+          <!-- A = x+y (shared) -->
+          <circle cx="90" cy="190" r="14" fill="#1c2128" stroke="#3fb950" stroke-width="2"/>
+          <text x="90" y="194" fill="#3fb950" text-anchor="middle" font-weight="bold">+</text>
+          <text x="90" y="215" fill="#3fb950" text-anchor="middle" font-size="9">A=x+y</text>
+          <line x1="72" y1="201" x2="68" y2="248" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="103" y1="201" x2="113" y2="248" stroke="#3fb950" stroke-width="1.5"/>
+
+          <!-- B = x-y (shared) -->
+          <circle cx="250" cy="190" r="14" fill="#1c2128" stroke="#f0883e" stroke-width="2"/>
+          <text x="250" y="194" fill="#f0883e" text-anchor="middle" font-weight="bold">–</text>
+          <text x="250" y="215" fill="#f0883e" text-anchor="middle" font-size="9">B=x-y</text>
+          <line x1="235" y1="201" x2="228" y2="248" stroke="#f0883e" stroke-width="1.5"/>
+          <line x1="262" y1="201" x2="272" y2="248" stroke="#f0883e" stroke-width="1.5"/>
+
+          <!-- C = A*B (shared) -->
+          <circle cx="170" cy="120" r="14" fill="#1c2128" stroke="#f78166" stroke-width="2"/>
+          <text x="170" y="124" fill="#f78166" text-anchor="middle" font-weight="bold">*</text>
+          <text x="170" y="145" fill="#f78166" text-anchor="middle" font-size="9">C=A*B</text>
+          <line x1="157" y1="130" x2="102" y2="178" stroke="#f78166" stroke-width="1.5"/>
+          <line x1="183" y1="130" x2="238" y2="178" stroke="#f78166" stroke-width="1.5"/>
+
+          <!-- D = A-C -->
+          <circle cx="90" cy="55" r="14" fill="#1c2128" stroke="#58a6ff" stroke-width="2"/>
+          <text x="90" y="59" fill="#58a6ff" text-anchor="middle" font-weight="bold">–</text>
+          <text x="90" y="80" fill="#8b949e" text-anchor="middle" font-size="9">A-C</text>
+          <line x1="88" y1="69" x2="90" y2="178" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="3"/>
+          <line x1="92" y1="69" x2="158" y2="108" stroke="#58a6ff" stroke-width="1.5"/>
+
+          <!-- Root = D+C -->
+          <circle cx="190" cy="20" r="14" fill="#1c2128" stroke="#58a6ff" stroke-width="2.5"/>
+          <text x="190" y="24" fill="#58a6ff" text-anchor="middle" font-weight="bold">+</text>
+          <text x="190" y="44" fill="#8b949e" text-anchor="middle" font-size="9">E=D+C</text>
+          <line x1="178" y1="30" x2="102" y2="43" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="202" y1="30" x2="178" y2="108" stroke="#f78166" stroke-width="1.5" stroke-dasharray="3"/>
+
+          <text x="190" y="300" fill="#3fb950" text-anchor="middle" font-size="10">Nodes A, B, C are shared (not duplicated)</text>
+        </svg>
+      </div>
+      <div class="highlight-box">
+        In the DAG, <code>x+y</code> (node A) and <code>(x+y)*(x-y)</code> (node C) each have exactly one node with multiple incoming edges. This represents the sharing of common subexpressions.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q41 -->
+<div class="q-card" data-topics="cfg">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.41</span>
+    <span class="q-text">Partition the following 17-instruction sequence into basic blocks and construct the flow graph. <em>[Jul 2023 UE20CS353 Q4.c]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <pre class="code-block">
+  1. i=1           2. j=1           3. t1=10*i
+  4. t2=t1+j       5. t3=8*t2       6. t4=t3-88
+  7. a[t4]=0.0     8. j=j+1         9. If j&lt;=10 goto (3)
+  10. i=i+1        11. If i&lt;=10 goto (2)
+  12. i=1          13. t5=i-1       14. t6=88*t5
+  15. a[t6]=1.0    16. i=i+1        17. If i&lt;=10 goto(13)</pre>
+      <h3>LEADERS</h3>
+      <p>Leader rules: first instruction; target of jump; instruction after jump.</p>
+      <ul>
+        <li><strong>B1</strong>: 1, 2 (instructions 1-2)</li>
+        <li><strong>B2</strong>: 3 (target of goto at 9 and 11) → instructions 3-9</li>
+        <li><strong>B3</strong>: 10 (after jump at 9) → instructions 10-11</li>
+        <li><strong>B4</strong>: 12 (after jump at 11) → instructions 12</li>
+        <li><strong>B5</strong>: 13 (target of goto at 17) → instructions 13-17</li>
+      </ul>
+      <h3>BASIC BLOCKS</h3>
+      <table class="ans-table">
+        <tr><th>Block</th><th>Instructions</th></tr>
+        <tr><td>B1</td><td>1: i=1; 2: j=1</td></tr>
+        <tr><td>B2</td><td>3: t1=10*i; 4: t2=t1+j; 5: t3=8*t2; 6: t4=t3-88; 7: a[t4]=0.0; 8: j=j+1; 9: if j≤10 goto(3)</td></tr>
+        <tr><td>B3</td><td>10: i=i+1; 11: if i≤10 goto(2)</td></tr>
+        <tr><td>B4</td><td>12: i=1</td></tr>
+        <tr><td>B5</td><td>13: t5=i-1; 14: t6=88*t5; 15: a[t6]=1.0; 16: i=i+1; 17: if i≤10 goto(13)</td></tr>
+      </table>
+      <h3>FLOW GRAPH</h3>
+      <p>Edges: B1→B2; B2→B2(j≤10, self-loop/back-edge to instr 3); B2→B3(j>10); B3→B2(i≤10, back); B3→B4(i>10); B4→B5; B5→B5(i≤10, back); B5→exit(i>10)</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 360" width="380" height="360" xmlns="http://www.w3.org/2000/svg" style="font-size:10.5px;">
+          <defs><marker id="ar5" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#58a6ff"/></marker></defs>
+          <!-- B1 -->
+          <rect x="155" y="10" width="90" height="35" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="200" y="31" fill="#58a6ff" text-anchor="middle">B1: 1,2</text>
+
+          <!-- B2 -->
+          <rect x="130" y="90" width="140" height="50" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="200" y="110" fill="#3fb950" text-anchor="middle" font-weight="bold">B2: 3-9</text>
+          <text x="200" y="128" fill="#8b949e" text-anchor="middle">if j≤10 goto B2</text>
+
+          <!-- B3 -->
+          <rect x="130" y="190" width="140" height="50" rx="4" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="200" y="210" fill="#f0883e" text-anchor="middle" font-weight="bold">B3: 10-11</text>
+          <text x="200" y="228" fill="#8b949e" text-anchor="middle">if i≤10 goto B2</text>
+
+          <!-- B4 -->
+          <rect x="130" y="285" width="90" height="35" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="175" y="306" fill="#f78166" text-anchor="middle">B4: 12</text>
+
+          <!-- B5 -->
+          <rect x="270" y="285" width="110" height="50" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="325" y="305" fill="#58a6ff" text-anchor="middle" font-weight="bold">B5: 13-17</text>
+          <text x="325" y="323" fill="#8b949e" text-anchor="middle">if i≤10 goto B5</text>
+
+          <!-- Lines -->
+          <line x1="200" y1="45" x2="200" y2="90" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#ar5)"/>
+          <line x1="200" y1="140" x2="200" y2="190" stroke="#3fb950" stroke-width="1.5" marker-end="url(#ar5)"/>
+
+          <!-- B2 self loop (j<=10) -->
+          <line x1="270" y1="115" x2="310" y2="115" stroke="#3fb950" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="310" y1="115" x2="310" y2="60" stroke="#3fb950" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="310" y1="60" x2="270" y2="60" stroke="#3fb950" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="270" y1="60" x2="270" y2="90" stroke="#3fb950" stroke-width="1.5" marker-end="url(#ar5)"/>
+          <text x="320" y="88" fill="#3fb950" font-size="9">j≤10</text>
+
+          <!-- B3 → B2 back edge -->
+          <line x1="130" y1="215" x2="80" y2="215" stroke="#f0883e" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="80" y1="215" x2="80" y2="115" stroke="#f0883e" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="80" y1="115" x2="130" y2="115" stroke="#f0883e" stroke-width="1.5" marker-end="url(#ar5)"/>
+          <text x="50" y="165" fill="#f0883e" font-size="9">i≤10</text>
+
+          <!-- B3 → B4 -->
+          <line x1="185" y1="240" x2="175" y2="285" stroke="#f78166" stroke-width="1.5" marker-end="url(#ar5)"/>
+          <text x="165" y="268" fill="#f78166" font-size="9">i>10</text>
+
+          <!-- B4 → B5 -->
+          <line x1="220" y1="303" x2="270" y2="303" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#ar5)"/>
+
+          <!-- B5 self loop -->
+          <line x1="380" y1="310" x2="410" y2="310" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="410" y1="310" x2="410" y2="260" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="410" y1="260" x2="360" y2="260" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3"/>
+          <line x1="360" y1="260" x2="360" y2="285" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#ar5)"/>
+          <text x="415" y="288" fill="#58a6ff" font-size="9">i≤10</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q42 – remaining key questions -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.42</span>
+    <span class="q-text">Explain: (1) Calling Sequence and Return Sequence, (2) Activation Record with diagram, (3) Activation Tree with diagram, (4) Calling sequence and division of tasks between caller and callee. <em>[Jul 2023 UE20CS353 Q5.c / Q5.a]</em></span>
+    <div class="q-meta"><span class="marks-badge">4–5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <p>See <strong>Q4.23</strong> (Activation Record and Tree) and <strong>Q4.24 / Q4.29</strong> (Calling and Return Sequence) for complete answers with diagrams. These topics are the same across multiple papers.</p>
+      <h3>DIVISION OF TASKS: CALLER vs CALLEE</h3>
+      <p>The calling sequence is split between caller and callee to minimize overhead and allow separate compilation:</p>
+      <table class="ans-table">
+        <tr><th>CALLER (before call / after return)</th><th>CALLEE (prologue / epilogue)</th></tr>
+        <tr><td>Evaluate and push actual parameters</td><td>Allocate activation record</td></tr>
+        <tr><td>Store return address</td><td>Save control link (dynamic link)</td></tr>
+        <tr><td>Store access link if needed</td><td>Save access link (static link)</td></tr>
+        <tr><td>Jump to callee start</td><td>Save machine registers</td></tr>
+        <tr><td>After return: pop parameters</td><td>Initialize local variables</td></tr>
+        <tr><td>Use return value</td><td>On return: restore registers, pop AR, jump to return addr</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Q43 -->
+<div class="q-card" data-topics="target">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.43</span>
+    <span class="q-text">Explain the general structure of an activation record with a neat diagram. <em>[Jul 2023 UE20CS353 Q5.a]</em></span>
+    <div class="q-meta"><span class="marks-badge">6 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <p>See <strong>Q4.23</strong> for the complete activation record diagram and field descriptions.</p>
+      <p>The general structure contains (from high to low address on a typical downward-growing stack):</p>
+      <ol>
+        <li>Return value</li>
+        <li>Actual parameters (pushed by caller)</li>
+        <li>Control link (dynamic link) → caller's AR</li>
+        <li>Access link (static link) → enclosing scope's AR</li>
+        <li>Saved machine status (return address, registers)</li>
+        <li>Local data (procedure's own variables)</li>
+        <li>Temporaries (compiler-generated)</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- Q44 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.44</span>
+    <span class="q-text">Partition the basic block into CFG. Explain the Parser stack implementation of postfix SDTs. What is a dependency graph? <em>[Jul 2023 UE20CS353 Q3.c, Q3.d]</em></span>
+    <div class="q-meta"><span class="marks-badge">5+4 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>PARSER STACK IMPLEMENTATION OF POSTFIX SDTs</h3>
+      <p>In a bottom-up (LR) parser, semantic actions for a postfix SDT are executed when a production is <em>reduced</em>. The parser stack holds grammar symbols along with their synthesized attribute values.</p>
+      <ul>
+        <li>When reducing A → XYZ, the attributes of X, Y, Z are on the stack</li>
+        <li>The semantic action computes A.val from X.val, Y.val, Z.val</li>
+        <li>A.val is pushed onto the stack in place of XYZ</li>
+      </ul>
+      <p>Example for E → E₁ + T {E.val = E₁.val + T.val}:</p>
+      <pre class="code-block">
+  Stack before reduce:  ... | E (5) | + | T (3)
+  Action: E.val = 5 + 3 = 8
+  Stack after reduce:   ... | E (8)</pre>
+
+      <h3>DEPENDENCY GRAPH</h3>
+      <p>A <strong>dependency graph</strong> represents the dependencies between attribute instances in a parse tree.</p>
+      <ul>
+        <li>Each node is an attribute instance (a.b = attribute b at node a)</li>
+        <li>A directed edge from <em>c.k</em> to <em>b.j</em> means: to compute b.j, we need c.k first</li>
+        <li>A valid evaluation order must respect this graph (a topological sort)</li>
+        <li>If the graph has a cycle, the SDD has no valid evaluation order</li>
+      </ul>
+      <p>Example for E → E₁ + T:</p>
+      <pre class="code-block">
+  E₁.val ──┐
+            ├─→ E.val
+  T.val  ──┘</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q45 – Final summary question on register allocation -->
+<div class="q-card" data-topics="codegen">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.45</span>
+    <span class="q-text">Explain Register Allocation problem and the Graph Coloring approach to solve it.</span>
+    <div class="q-meta"><span class="marks-badge">concept</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>REGISTER ALLOCATION PROBLEM</h3>
+      <p>The goal is to assign program variables and temporaries to a limited set of machine registers such that:</p>
+      <ul>
+        <li>Two variables that are <em>live at the same time</em> (interfere) do not share a register</li>
+        <li>The number of registers used does not exceed the available registers k</li>
+        <li>If not possible (register pressure), some variables must be <em>spilled</em> to memory</li>
+      </ul>
+      <div class="highlight-box">Register allocation is NP-complete in general. The graph-coloring heuristic is the practical approach used in production compilers.</div>
+
+      <h3>GRAPH COLORING APPROACH</h3>
+      <p><strong>Step 1: Build the Interference Graph</strong></p>
+      <ul>
+        <li>Nodes = variables/temporaries</li>
+        <li>Edge between u and v if they are <em>simultaneously live</em> (interfere) at some program point</li>
+        <li>Use liveness analysis to determine interference</li>
+      </ul>
+      <p><strong>Step 2: Color the Graph</strong></p>
+      <ul>
+        <li>Assign colors (= registers) to nodes such that no two adjacent nodes share a color</li>
+        <li>Try to use at most k colors (= k registers available)</li>
+        <li>If k-colorable: assign variables to registers directly</li>
+        <li>If not: spill a variable (remove a node, recompute), retry</li>
+      </ul>
+      <p><strong>Chaitin's Algorithm (simplified):</strong></p>
+      <ol>
+        <li>Build interference graph</li>
+        <li>If a node has < k neighbors, push it onto a stack and remove from graph</li>
+        <li>Repeat step 2 until graph is empty or only high-degree nodes remain</li>
+        <li>Pop nodes from stack and assign them colors not used by their already-colored neighbors</li>
+        <li>If step 3 leaves high-degree nodes: spill one and restart</li>
+      </ol>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 320 160" width="300" height="160" xmlns="http://www.w3.org/2000/svg" style="font-size:10px;">
+          <!-- Nodes -->
+          <circle cx="80" cy="40" r="16" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="80" y="44" fill="#58a6ff" text-anchor="middle">a</text>
+          <text x="80" y="70" fill="#3fb950" text-anchor="middle" font-size="9">color: R1</text>
+
+          <circle cx="200" cy="40" r="16" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="200" y="44" fill="#f78166" text-anchor="middle">b</text>
+          <text x="200" y="70" fill="#f0883e" text-anchor="middle" font-size="9">color: R2</text>
+
+          <circle cx="140" cy="120" r="16" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="140" y="124" fill="#3fb950" text-anchor="middle">c</text>
+          <text x="140" y="148" fill="#3fb950" text-anchor="middle" font-size="9">color: R3</text>
+
+          <!-- Edges (interference) -->
+          <line x1="96" y1="40" x2="184" y2="40" stroke="#8b949e" stroke-width="1.5"/>
+          <text x="140" y="35" fill="#8b949e" text-anchor="middle" font-size="9">interfere</text>
+          <line x1="88" y1="54" x2="130" y2="107" stroke="#8b949e" stroke-width="1.5"/>
+          <line x1="192" y1="54" x2="152" y2="107" stroke="#8b949e" stroke-width="1.5"/>
+
+          <text x="280" y="80" fill="#8b949e" text-anchor="middle" font-size="9">k=3 colors</text>
+          <text x="280" y="95" fill="#8b949e" text-anchor="middle" font-size="9">→ assign</text>
+          <text x="280" y="110" fill="#3fb950" text-anchor="middle" font-size="9">R1,R2,R3</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q46 -->
+<div class="q-card" data-topics="lva">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.46</span>
+    <span class="q-text">Define use_B (use[B]) and def_B (def[B]). Calculate use[B], def[B] for all basic blocks in the flow graph with B1(e=1), B2(if x>0), B3(z=e*e), B4(return x), B5(y=e*x), B6(if x&amp;1), B7(e=z), B8(e=y). <em>[Jan-May 2024 UE20CS353 Q4.d — 5 marks]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>DEFINITIONS</h3>
+      <p><strong>use[B]</strong>: The set of variables that are <em>used in block B before being defined in B</em>. I.e., variables that need to have values when entering B.</p>
+      <p><strong>def[B]</strong>: The set of variables that are <em>defined (assigned) in block B before any use of that variable in B</em>.</p>
+      <div class="highlight-box">
+        Formally, given statements s₁; s₂; ... sₙ in block B: def[B] = {variables assigned in B where the assignment precedes any use}; use[B] = {variables used in B before their first definition in B}.
+      </div>
+      <h3>CALCULATION</h3>
+      <p>See <strong>Q4.20</strong> for the complete table of use[B] and def[B] for each block.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q47 Remaining CFG questions from various papers -->
+<div class="q-card" data-topics="cfg">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.47</span>
+    <span class="q-text">Construct CFG for TAC: <code>x=0; y=0; L1: ifFalse x&lt;10 goto L2; t1=y+x; y=t1; t2=x+1; x=t2; goto L1; L2: print y</code> <em>[Dec 2023/Jan-May 2024 UE18/UE20]</em></span>
+    <div class="q-meta"><span class="marks-badge">5 marks</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>BASIC BLOCKS</h3>
+      <ul>
+        <li><strong>B1</strong>: x=0; y=0</li>
+        <li><strong>B2 (L1)</strong>: ifFalse x&lt;10 goto L2</li>
+        <li><strong>B3</strong>: t1=y+x; y=t1; t2=x+1; x=t2; goto L1</li>
+        <li><strong>B4 (L2)</strong>: print y</li>
+      </ul>
+      <p>This is the same structure as Q4.8 with print y instead of z=x*y; return z. The CFG is identical: B1→B2→B3(x&lt;10)→B2(loop back); B2→B4(x≥10).</p>
+      <p>Refer to <strong>Q4.8</strong> for the CFG diagram.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q48 -->
+<div class="q-card" data-topics="opt">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.48</span>
+    <span class="q-text">Explain Peephole Optimization with examples. What are the typical improvements made by peephole optimization? <em>[General concept]</em></span>
+    <div class="q-meta"><span class="marks-badge">concept</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>PEEPHOLE OPTIMIZATION</h3>
+      <p>Peephole optimization is a local optimization technique that examines a small <em>window</em> (the "peephole") of consecutive instructions and replaces them with a shorter or faster equivalent sequence.</p>
+      <h3>TYPICAL IMPROVEMENTS</h3>
+      <p><strong>1. Redundant loads/stores:</strong></p>
+      <pre class="code-block">
+  Before:  ST  R0, x    ; store R0 into x
+           LD  R0, x    ; load x into R0 (redundant!)
+  After:   ST  R0, x    ; the load is unnecessary</pre>
+      <p><strong>2. Unreachable code:</strong></p>
+      <pre class="code-block">
+  Before:  GOTO L1
+           x = 5        ← unreachable
+           L1: ...
+  After:   GOTO L1
+           L1: ...      ; remove dead instruction</pre>
+      <p><strong>3. Flow-of-control optimizations:</strong></p>
+      <pre class="code-block">
+  Before:  GOTO L1
+           ...
+  L1:      GOTO L2
+  After:   GOTO L2      ; jump-to-jump optimization</pre>
+      <p><strong>4. Algebraic identities:</strong></p>
+      <pre class="code-block">
+  x = x + 0  →  (remove)
+  x = x * 1  →  (remove)
+  x = x ** 2  →  x = x * x</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Q49 -- Storage org -->
+<div class="q-card" data-topics="runtime">
+  <div class="q-header" onclick="toggle(this)">
+    <span class="q-num">Q4.49</span>
+    <span class="q-text">Explain the Storage Organization of a running program (the different memory regions: code, static data, stack, heap). <em>[General concept]</em></span>
+    <div class="q-meta"><span class="marks-badge">concept</span></div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="q-answer">
+    <div class="ans-section">
+      <h3>MEMORY LAYOUT OF A RUNNING PROGRAM</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 260 380" width="240" height="380" xmlns="http://www.w3.org/2000/svg" style="font-size:11px;">
+          <!-- Low address label -->
+          <text x="10" y="15" fill="#8b949e" font-size="9">Low address (0)</text>
+          <!-- Code segment -->
+          <rect x="40" y="20" width="180" height="55" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="130" y="42" fill="#58a6ff" text-anchor="middle" font-weight="bold">Code (Text) Segment</text>
+          <text x="130" y="60" fill="#8b949e" text-anchor="middle" font-size="9">compiled machine instructions</text>
+          <text x="130" y="72" fill="#8b949e" text-anchor="middle" font-size="9">read-only, fixed size</text>
+
+          <!-- Static data -->
+          <rect x="40" y="80" width="180" height="55" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="130" y="102" fill="#3fb950" text-anchor="middle" font-weight="bold">Static Data</text>
+          <text x="130" y="118" fill="#8b949e" text-anchor="middle" font-size="9">global/static variables</text>
+          <text x="130" y="130" fill="#8b949e" text-anchor="middle" font-size="9">allocated at compile time, fixed</text>
+
+          <!-- Heap -->
+          <rect x="40" y="140" width="180" height="80" rx="4" fill="#1c2128" stroke="#f0883e" stroke-width="1.5"/>
+          <text x="130" y="165" fill="#f0883e" text-anchor="middle" font-weight="bold">Heap</text>
+          <text x="130" y="183" fill="#8b949e" text-anchor="middle" font-size="9">dynamic memory (malloc/new)</text>
+          <text x="130" y="199" fill="#8b949e" text-anchor="middle" font-size="9">grows upward ↑</text>
+          <text x="130" y="214" fill="#8b949e" text-anchor="middle" font-size="9">managed by allocator</text>
+
+          <!-- Free space -->
+          <rect x="40" y="225" width="180" height="35" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
+          <text x="130" y="247" fill="#30363d" text-anchor="middle" font-size="9">free space (shrinks as heap/stack grow)</text>
+
+          <!-- Stack -->
+          <rect x="40" y="265" width="180" height="90" rx="4" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+          <text x="130" y="290" fill="#f78166" text-anchor="middle" font-weight="bold">Stack</text>
+          <text x="130" y="308" fill="#8b949e" text-anchor="middle" font-size="9">activation records (auto vars)</text>
+          <text x="130" y="324" fill="#8b949e" text-anchor="middle" font-size="9">grows downward ↓</text>
+          <text x="130" y="340" fill="#8b949e" text-anchor="middle" font-size="9">LIFO: push on call, pop on return</text>
+
+          <text x="10" y="370" fill="#8b949e" font-size="9">High address</text>
+
+          <!-- arrows -->
+          <text x="225" y="200" fill="#f0883e" font-size="14">↑</text>
+          <text x="225" y="285" fill="#f78166" font-size="14">↓</text>
+        </svg>
+      </div>
+      <p><strong>Static Allocation</strong>: Global/static variables at fixed addresses. No runtime overhead. No recursion possible for locals.</p>
+      <p><strong>Stack Allocation</strong>: Activation records for local variables and parameters. LIFO order matches procedure call/return. Supports recursion.</p>
+      <p><strong>Heap Allocation</strong>: For data with dynamic lifetime (e.g., objects created with <code>new/malloc</code>). Programmer or GC responsible for deallocation.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function toggle(header) {
+  const card = header.parentElement;
+  card.classList.toggle('open');
+}
+
+function filterAll() {
+  document.querySelectorAll('.q-card').forEach(c => c.style.display = '');
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function filterTopic(topic) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.q-card').forEach(card => {
+    const topics = card.dataset.topics || '';
+    card.style.display = topics.includes(topic) ? '' : 'none';
+  });
+}
+
+function expandSection(btn) {
+  const section = btn.closest('.section-header');
+  let el = section.nextElementSibling;
+  while (el && !el.classList.contains('section-header')) {
+    if (el.classList.contains('q-card')) el.classList.add('open');
+    el = el.nextElementSibling;
+  }
+  btn.textContent = 'collapse all';
+  btn.onclick = function() { collapseSection(btn); };
+}
+
+function collapseSection(btn) {
+  const section = btn.closest('.section-header');
+  let el = section.nextElementSibling;
+  while (el && !el.classList.contains('section-header')) {
+    if (el.classList.contains('q-card')) el.classList.remove('open');
+    el = el.nextElementSibling;
+  }
+  btn.textContent = 'expand all';
+  btn.onclick = function() { expandSection(btn); };
+}
+</script>
+</body>
+</html>
