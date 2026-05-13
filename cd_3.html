@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compiler Design — Unit 3 Q&A</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --card: #191d28;
+    --border: #252a38;
+    --accent: #e8b86d;
+    --accent2: #6d9ee8;
+    --accent3: #6de8b8;
+    --text: #d4d8e8;
+    --muted: #7a8099;
+    --code-bg: #0a0c10;
+    --danger: #e86d6d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d0f14 0%, #13161e 50%, #0d1520 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,184,109,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  header p {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 0.95rem;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(232,184,109,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(232,184,109,0.25);
+    border-radius: 20px;
+    padding: 2px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+  }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 32px 20px; }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 36px 0 14px;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent2);
+  }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .q-card:hover { border-color: rgba(232,184,109,0.3); }
+  .q-card.open { border-color: rgba(232,184,109,0.5); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .q-header:hover { background: rgba(255,255,255,0.02); }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(232,184,109,0.1);
+    border-radius: 4px;
+    padding: 3px 7px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .q-text { flex: 1; font-size: 0.95rem; color: var(--text); }
+  .marks {
+    font-size: 0.75rem;
+    color: var(--accent3);
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+  .chevron {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform 0.25s;
+    color: var(--muted);
+  }
+  .q-card.open .chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .q-answer {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px 22px;
+    background: rgba(0,0,0,0.15);
+    font-size: 0.93rem;
+    line-height: 1.75;
+  }
+  .q-card.open .q-answer { display: block; }
+
+  /* Answer content styles */
+  .q-answer h3 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--accent);
+    font-size: 1rem;
+    margin: 18px 0 8px;
+  }
+  .q-answer h3:first-child { margin-top: 0; }
+  .q-answer h4 {
+    color: var(--accent2);
+    font-size: 0.9rem;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+  .q-answer p { margin-bottom: 10px; }
+  .q-answer ul, .q-answer ol {
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+  .q-answer li { margin-bottom: 4px; }
+  .q-answer code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.85em;
+    color: var(--accent3);
+  }
+  .q-answer pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 10px 0;
+    color: #c8d8f8;
+  }
+  .q-answer pre .kw { color: #e86d6d; }
+  .q-answer pre .cm { color: var(--muted); font-style: italic; }
+  .q-answer pre .str { color: var(--accent3); }
+  .q-answer pre .num { color: var(--accent); }
+  .q-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.85rem;
+  }
+  .q-answer th {
+    background: rgba(232,184,109,0.1);
+    color: var(--accent);
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+  }
+  .q-answer td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    vertical-align: top;
+  }
+  .q-answer tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* SVG diagrams */
+  .diagram-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 14px 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+  .diagram-wrap svg { max-width: 100%; }
+
+  .note {
+    background: rgba(109,158,232,0.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 0.88rem;
+    color: #a0b8d8;
+  }
+  .highlight {
+    background: rgba(232,184,109,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 0.88rem;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag {
+    font-size: 0.73rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .tag-sdd { background: rgba(109,232,184,0.1); color: var(--accent3); border: 1px solid rgba(109,232,184,0.2); }
+  .tag-ic { background: rgba(109,158,232,0.1); color: var(--accent2); border: 1px solid rgba(109,158,232,0.2); }
+  .tag-sdt { background: rgba(232,184,109,0.1); color: var(--accent); border: 1px solid rgba(232,184,109,0.2); }
+  .tag-cfg { background: rgba(232,109,109,0.1); color: var(--danger); border: 1px solid rgba(232,109,109,0.2); }
+
+  /* Progress */
+  .stats-bar {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+  }
+  .stat { text-align: center; }
+  .stat .n { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--accent); }
+  .stat .l { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Expand all button */
+  .controls { display: flex; gap: 10px; margin-bottom: 18px; }
+  .btn {
+    background: rgba(232,184,109,0.1);
+    border: 1px solid rgba(232,184,109,0.25);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: rgba(232,184,109,0.18); }
+  .btn.secondary {
+    background: rgba(109,158,232,0.08);
+    border-color: rgba(109,158,232,0.2);
+    color: var(--accent2);
+  }
+  .btn.secondary:hover { background: rgba(109,158,232,0.15); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Compiler Design</h1>
+  <p>PES University · End Semester Assessment · Past Papers</p>
+  <div class="badge">UNIT 3 — Syntax-Directed Translation &amp; Intermediate Code Generation</div>
+</header>
+
+<div class="container">
+
+  <div class="stats-bar">
+    <div class="stat"><div class="n">54</div><div class="l">Questions</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">Topic Areas</div></div>
+    <div class="stat"><div class="n">100%</div><div class="l">Solved</div></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="expandAll()">Expand All</button>
+    <button class="btn secondary" onclick="collapseAll()">Collapse All</button>
+  </div>
+
+  <!-- ===== SECTION 1: ATTRIBUTES & SDDs ===== -->
+  <div class="section-title">Attributes, SDDs &amp; Annotated Trees</div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="q1">
+    <div class="q-header" onclick="toggle('q1')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Write short notes on: (1) Types of attributes (2) Types of Syntax Directed Translations (SDTs)</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>1. Types of Attributes</h3>
+      <p>In a Syntax-Directed Definition (SDD), every grammar symbol has a set of <strong>attributes</strong> — values associated with nodes in a parse tree that encode semantic information.</p>
+
+      <h4>Synthesized Attributes</h4>
+      <ul>
+        <li>The value of an attribute at a node is computed from the attribute values of its <em>children</em>.</li>
+        <li>Information flows <strong>bottom-up</strong> in the parse tree.</li>
+        <li>Formal rule: For production <code>A → α</code>, a synthesized attribute of <code>A</code> depends only on attributes of symbols in <code>α</code>.</li>
+        <li><strong>Example</strong>: In arithmetic expression evaluation, <code>E.val</code> is synthesized:<br>
+          <code>E → E₁ + T  { E.val = E₁.val + T.val }</code>
+        </li>
+      </ul>
+
+      <h4>Inherited Attributes</h4>
+      <ul>
+        <li>The value of an attribute at a node is computed from the attribute values of its <em>parent and/or siblings</em>.</li>
+        <li>Information flows <strong>top-down</strong> (or sideways) in the parse tree.</li>
+        <li>Formal rule: For production <code>A → α B β</code>, an inherited attribute of <code>B</code> may depend on attributes of <code>A</code> and other symbols in <code>αβ</code>.</li>
+        <li><strong>Example</strong>: Passing type information down in a declaration:<br>
+          <code>L → L₁, id  { L₁.inh = L.inh }</code>
+        </li>
+      </ul>
+
+      <div class="note">Note: The start symbol cannot have inherited attributes (in standard usage). An SDD with only synthesized attributes is called <strong>S-attributed</strong>.</div>
+
+      <h3>2. Types of Syntax-Directed Translations (SDTs)</h3>
+      <p>An SDT is an SDD with <strong>embedded semantic actions</strong> (program fragments) placed at various positions inside grammar productions.</p>
+
+      <h4>S-Attributed SDT (S-Attributed SDD)</h4>
+      <ul>
+        <li>Only <em>synthesized</em> attributes are used.</li>
+        <li>Actions are placed at the <strong>right end</strong> of the production body.</li>
+        <li>Can be evaluated during a single bottom-up (LR) parse.</li>
+        <li>Actions are executed during <strong>reductions</strong>.</li>
+        <li><strong>Example</strong>:<br>
+          <code>E → E₁ + T  { E.val = E₁.val + T.val }</code>
+        </li>
+      </ul>
+
+      <h4>L-Attributed SDT (L-Attributed SDD)</h4>
+      <ul>
+        <li>Allows both synthesized attributes and <em>inherited</em> attributes, with a constraint: inherited attributes of a symbol <code>Xⱼ</code> in the body <code>X₁X₂…Xₙ</code> can only depend on:
+          <ol>
+            <li>Inherited attributes of the head <code>A</code></li>
+            <li>Attributes (synthesized or inherited) of <code>X₁…Xⱼ₋₁</code> (symbols to the left)</li>
+          </ol>
+        </li>
+        <li>Actions can be placed <em>anywhere</em> in the production body (between any two symbols).</li>
+        <li>Can be evaluated during a top-down (LL) parse using a depth-first, left-to-right traversal.</li>
+        <li>Every S-attributed SDD is also L-attributed.</li>
+      </ul>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 500 140" width="500" height="140" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif">
+          <!-- S-attributed arrow (bottom-up) -->
+          <rect x="20" y="20" width="200" height="100" rx="8" fill="#0a0c10" stroke="#252a38"/>
+          <text x="120" y="44" text-anchor="middle" fill="#e8b86d" font-size="12" font-weight="600">S-Attributed</text>
+          <text x="120" y="62" text-anchor="middle" fill="#7a8099" font-size="10">Only synthesized attrs</text>
+          <text x="120" y="78" text-anchor="middle" fill="#7a8099" font-size="10">Actions at right end</text>
+          <text x="120" y="94" text-anchor="middle" fill="#6de8b8" font-size="10">↑ Bottom-up (LR parse)</text>
+          <text x="120" y="110" text-anchor="middle" fill="#7a8099" font-size="10">Subset of L-attributed</text>
+          <!-- L-attributed -->
+          <rect x="280" y="20" width="200" height="100" rx="8" fill="#0a0c10" stroke="#252a38"/>
+          <text x="380" y="44" text-anchor="middle" fill="#6d9ee8" font-size="12" font-weight="600">L-Attributed</text>
+          <text x="380" y="62" text-anchor="middle" fill="#7a8099" font-size="10">Synthesized + inherited</text>
+          <text x="380" y="78" text-anchor="middle" fill="#7a8099" font-size="10">Actions anywhere</text>
+          <text x="380" y="94" text-anchor="middle" fill="#6de8b8" font-size="10">↕ Top-down/LL parse</text>
+          <text x="380" y="110" text-anchor="middle" fill="#7a8099" font-size="10">More expressive</text>
+          <!-- arrow -->
+          <line x1="220" y1="70" x2="280" y2="70" stroke="#252a38" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="250" y="65" text-anchor="middle" fill="#7a8099" font-size="9">⊆</text>
+          <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker></defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="q2">
+    <div class="q-header" onclick="toggle('q2')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Explain the following in detail: (i) Synthesized Attributes and Inherited Attributes (ii) L-attributed SDT and S-attributed SDT</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Synthesized Attributes</h3>
+      <p>A <strong>synthesized attribute</strong> of a node <em>N</em> in a parse tree is defined by a semantic rule associated with the production at <em>N</em>. The value depends solely on attribute values at the <strong>children of N</strong>.</p>
+      <ul>
+        <li>Information propagates <strong>bottom-up</strong>.</li>
+        <li>Can be evaluated in a single bottom-up traversal (LR parsing).</li>
+      </ul>
+      <pre>
+Production:  E → E₁ + T
+Rule:        E.val = E₁.val + T.val   ← depends on children</pre>
+
+      <h3>Inherited Attributes</h3>
+      <p>An <strong>inherited attribute</strong> of a node <em>N</em> is defined by semantic rules associated with the production at the <strong>parent</strong> of <em>N</em>. The value depends on attributes at the parent or siblings.</p>
+      <ul>
+        <li>Information propagates <strong>top-down or sideways</strong>.</li>
+        <li>Used to pass context (e.g., type information) down the tree.</li>
+      </ul>
+      <pre>
+Production:  D  → T L
+             L  → L₁, id | id
+Rule:        L.inh = T.type        ← T's synthesized flows to L as inherited
+             L₁.inh = L.inh
+             addtype(id.entry, L.inh)</pre>
+
+      <h3>S-attributed SDD</h3>
+      <ul>
+        <li>Uses <strong>only synthesized attributes</strong>.</li>
+        <li>Semantic actions placed at the <strong>right end</strong> of each production.</li>
+        <li>Evaluation order: bottom-up post-order traversal.</li>
+        <li>Directly implementable with an LR parser using a value stack.</li>
+      </ul>
+
+      <h3>L-attributed SDD</h3>
+      <ul>
+        <li>Each inherited attribute of <code>Xⱼ</code> in <code>A → X₁X₂…Xₙ</code> depends only on:
+          <ol>
+            <li>Inherited attributes of <code>A</code></li>
+            <li>Any attribute of <code>X₁, …, Xⱼ₋₁</code> (left siblings)</li>
+          </ol>
+        </li>
+        <li>Actions can appear <strong>anywhere</strong> in the body.</li>
+        <li>Suitable for top-down (predictive / LL) parsers.</li>
+        <li>Dependency graph has no cycles when following left-to-right, top-down traversal.</li>
+      </ul>
+
+      <div class="note">Key relationship: Every S-attributed SDD is also L-attributed, but not vice versa.</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="q3">
+    <div class="q-header" onclick="toggle('q3')">
+      <span class="q-num">3d</span>
+      <span class="q-text">Explain the following: (i) Annotated Parse Tree (ii) Dependency Graph</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>(i) Annotated Parse Tree</h3>
+      <p>An <strong>annotated parse tree</strong> is a parse tree in which each node is decorated with its computed attribute values. It shows the parse tree structure along with the semantic information computed by the SDD rules.</p>
+
+      <p>For the grammar with rule <code>E → E₁ + T { E.val = E₁.val + T.val }</code>, evaluating <code>3+4</code>:</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 340 200" width="340" height="200" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:12px">
+          <!-- Root E -->
+          <ellipse cx="170" cy="30" rx="44" ry="16" fill="#13161e" stroke="#e8b86d"/>
+          <text x="170" y="35" text-anchor="middle" fill="#e8b86d" font-weight="600">E.val=7</text>
+          <!-- E1 -->
+          <ellipse cx="80" cy="100" rx="44" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="80" y="105" text-anchor="middle" fill="#6d9ee8" font-weight="600">E.val=3</text>
+          <!-- + -->
+          <ellipse cx="170" cy="100" rx="14" ry="14" fill="#13161e" stroke="#7a8099"/>
+          <text x="170" y="105" text-anchor="middle" fill="#7a8099">+</text>
+          <!-- T -->
+          <ellipse cx="260" cy="100" rx="44" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="260" y="105" text-anchor="middle" fill="#6d9ee8" font-weight="600">T.val=4</text>
+          <!-- digit 3 -->
+          <ellipse cx="80" cy="170" rx="38" ry="14" fill="#13161e" stroke="#252a38"/>
+          <text x="80" y="175" text-anchor="middle" fill="#7a8099">digit(3)</text>
+          <!-- digit 4 -->
+          <ellipse cx="260" cy="170" rx="38" ry="14" fill="#13161e" stroke="#252a38"/>
+          <text x="260" y="175" text-anchor="middle" fill="#7a8099">digit(4)</text>
+          <!-- edges -->
+          <line x1="135" y1="40" x2="110" y2="87" stroke="#252a38"/>
+          <line x1="165" y1="44" x2="165" y2="86" stroke="#252a38"/>
+          <line x1="195" y1="40" x2="230" y2="87" stroke="#252a38"/>
+          <line x1="80" y1="116" x2="80" y2="156" stroke="#252a38"/>
+          <line x1="260" y1="116" x2="260" y2="156" stroke="#252a38"/>
+        </svg>
+      </div>
+
+      <h3>(ii) Dependency Graph</h3>
+      <p>A <strong>dependency graph</strong> depicts the interdependencies between attribute instances in a parse tree. There is a directed edge from attribute instance <em>b</em> to attribute instance <em>c</em> (written <em>b → c</em>) if the value of <em>c</em> depends on the value of <em>b</em>.</p>
+
+      <ul>
+        <li>Nodes represent attribute instances at parse-tree nodes.</li>
+        <li>Edges represent data dependencies (a → b means "a must be computed before b").</li>
+        <li>A <strong>topological sort</strong> of the dependency graph gives a valid evaluation order.</li>
+        <li>If the dependency graph has a <strong>cycle</strong>, the SDD cannot be evaluated.</li>
+      </ul>
+
+      <div class="highlight">A dependency graph with no cycles is called a <strong>DAG (Directed Acyclic Graph)</strong>. Only cycle-free SDDs have well-defined evaluation orders.</div>
+    </div>
+  </div>
+
+  <!-- Q4: SDD for arithmetic evaluation -->
+  <div class="q-card" id="q4">
+    <div class="q-header" onclick="toggle('q4')">
+      <span class="q-num">2c</span>
+      <span class="q-text">Evaluate the SDD for input <code>3 + 4 * 5</code> — construct parse tree, dependency graph, and compute E.val. Grammar: E→E+T | T, T→T*F | F, F→num</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>SDD (Given)</h3>
+      <pre>
+E → E₁ + T   { E.val = E₁.val + T.val }
+E → T         { E.val = T.val }
+T → T₁ * F   { T.val = T₁.val * F.val }
+T → F         { T.val = F.val }
+F → num       { F.val = num.lexval }</pre>
+
+      <h3>Step 1: Parse Tree for 3 + 4 * 5</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 480 300" width="480" height="300" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <!-- Level 0: E root -->
+          <ellipse cx="240" cy="24" rx="46" ry="14" fill="#13161e" stroke="#e8b86d"/>
+          <text x="240" y="28" text-anchor="middle" fill="#e8b86d" font-weight="600">E.val=23</text>
+          <!-- Level 1: E + T -->
+          <ellipse cx="120" cy="80" rx="40" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="120" y="84" text-anchor="middle" fill="#6d9ee8">E.val=3</text>
+          <ellipse cx="240" cy="80" rx="12" ry="12" fill="#13161e" stroke="#7a8099"/>
+          <text x="240" y="85" text-anchor="middle" fill="#7a8099">+</text>
+          <ellipse cx="360" cy="80" rx="40" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="360" y="84" text-anchor="middle" fill="#6d9ee8">T.val=20</text>
+          <!-- Level 2: E→T(3), T→T*F -->
+          <ellipse cx="120" cy="140" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="120" y="144" text-anchor="middle" fill="#6d9ee8">T.val=3</text>
+          <ellipse cx="290" cy="140" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="290" y="144" text-anchor="middle" fill="#6d9ee8">T.val=4</text>
+          <ellipse cx="380" cy="140" rx="12" ry="12" fill="#13161e" stroke="#7a8099"/>
+          <text x="380" y="145" text-anchor="middle" fill="#7a8099">*</text>
+          <ellipse cx="450" cy="140" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="450" y="144" text-anchor="middle" fill="#6d9ee8">F.val=5</text>
+          <!-- Level 3: F(3), F(4), num(5) -->
+          <ellipse cx="120" cy="200" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="120" y="204" text-anchor="middle" fill="#6d9ee8">F.val=3</text>
+          <ellipse cx="290" cy="200" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="290" y="204" text-anchor="middle" fill="#6d9ee8">F.val=4</text>
+          <ellipse cx="450" cy="200" rx="38" ry="13" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="450" y="204" text-anchor="middle" fill="#6d9ee8">num=5</text>
+          <!-- Level 4: num -->
+          <ellipse cx="120" cy="258" rx="34" ry="12" fill="#13161e" stroke="#252a38"/>
+          <text x="120" y="262" text-anchor="middle" fill="#7a8099">num=3</text>
+          <ellipse cx="290" cy="258" rx="34" ry="12" fill="#13161e" stroke="#252a38"/>
+          <text x="290" y="262" text-anchor="middle" fill="#7a8099">num=4</text>
+          <!-- Edges -->
+          <line x1="205" y1="33" x2="150" y2="68" stroke="#252a38"/>
+          <line x1="234" y1="37" x2="238" y2="68" stroke="#252a38"/>
+          <line x1="265" y1="33" x2="326" y2="68" stroke="#252a38"/>
+          <line x1="120" y1="93" x2="120" y2="127" stroke="#252a38"/>
+          <line x1="330" y1="88" x2="306" y2="128" stroke="#252a38"/>
+          <line x1="357" y1="92" x2="375" y2="128" stroke="#252a38"/>
+          <line x1="384" y1="92" x2="436" y2="128" stroke="#252a38"/>
+          <line x1="120" y1="153" x2="120" y2="187" stroke="#252a38"/>
+          <line x1="290" y1="153" x2="290" y2="187" stroke="#252a38"/>
+          <line x1="450" y1="153" x2="450" y2="187" stroke="#252a38"/>
+          <line x1="120" y1="213" x2="120" y2="246" stroke="#252a38"/>
+          <line x1="290" y1="213" x2="290" y2="246" stroke="#252a38"/>
+        </svg>
+      </div>
+
+      <h3>Step 2: Evaluation Order (bottom-up)</h3>
+      <ol>
+        <li><code>F.val = 3</code> (num.lexval=3)</li>
+        <li><code>T.val = F.val = 3</code></li>
+        <li><code>E.val = T.val = 3</code> (left sub-tree)</li>
+        <li><code>F.val = 4</code> (num.lexval=4)</li>
+        <li><code>T.val = 4</code> (right T, reduction T→F)</li>
+        <li><code>F.val = 5</code> (num.lexval=5)</li>
+        <li><code>T.val = T.val * F.val = 4 * 5 = 20</code></li>
+        <li><code>E.val = E.val + T.val = 3 + 20 = 23</code></li>
+      </ol>
+
+      <div class="highlight">Final result: <strong>E.val = 23</strong></div>
+
+      <h3>Step 3: Dependency Graph</h3>
+      <p>Edges go from child attribute instances to parent attribute instances (synthesized flow upward):</p>
+      <pre>
+num(3).lexval  →  F.val(3)  →  T.val(3)  →  E.val(left=3)  ─┐
+                                                               ↓
+num(4).lexval  →  F.val(4)  →  T.val(4)  ─→  T.val(20)  ──→  E.val=23
+                                              ↑
+num(5).lexval  →  F.val(5)  ─────────────────┘</pre>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: TYPE INFORMATION / SYMBOL TABLE SDDs ===== -->
+  <div class="section-title">SDD for Type Declarations &amp; Symbol Table</div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="q5">
+    <div class="q-header" onclick="toggle('q5')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Grammar: D→TL, T→int|float, L→L,id|id. Write semantic rules to add/update type information of variables to the symbol table during parsing.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Grammar</h3>
+      <pre>
+D  →  T L
+T  →  int  |  float
+L  →  L₁, id  |  id</pre>
+
+      <h3>SDD (Inherited attribute <code>L.inh</code> carries the type down)</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rule</th></tr>
+        <tr><td>D → T L</td><td>L.inh = T.type</td></tr>
+        <tr><td>T → int</td><td>T.type = integer</td></tr>
+        <tr><td>T → float</td><td>T.type = float</td></tr>
+        <tr><td>L → L₁, id</td><td>L₁.inh = L.inh<br>addtype(id.entry, L.inh)</td></tr>
+        <tr><td>L → id</td><td>addtype(id.entry, L.inh)</td></tr>
+      </table>
+
+      <h3>Explanation</h3>
+      <ul>
+        <li><code>T.type</code> is a <strong>synthesized</strong> attribute of T — computed from the terminal (int/float).</li>
+        <li><code>L.inh</code> is an <strong>inherited</strong> attribute of L — receives the type from T via the D production and passes it down through the L list.</li>
+        <li><code>addtype(id.entry, type)</code> inserts the variable into the symbol table with the given type.</li>
+        <li>This is an <strong>L-attributed SDD</strong> since L.inh depends on T.type (a left sibling in D→TL).</li>
+      </ul>
+
+      <div class="note">For input <code>int a, b</code>: T.type=integer → L.inh=integer → addtype(b,integer), L₁.inh=integer → addtype(a,integer)</div>
+    </div>
+  </div>
+
+  <!-- Q6 - extended version with char/double -->
+  <div class="q-card" id="q6">
+    <div class="q-header" onclick="toggle('q6')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Grammar: D→TL, T→int|float|char|double, L→L,id|id. Write an SDD to add/update type information of variables to the symbol table during parsing.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rule</th></tr>
+        <tr><td>D → T L</td><td>L.inh = T.type</td></tr>
+        <tr><td>T → int</td><td>T.type = integer</td></tr>
+        <tr><td>T → float</td><td>T.type = float</td></tr>
+        <tr><td>T → char</td><td>T.type = char</td></tr>
+        <tr><td>T → double</td><td>T.type = double</td></tr>
+        <tr><td>L → L₁, id</td><td>L₁.inh = L.inh ; addtype(id.entry, L.inh)</td></tr>
+        <tr><td>L → id</td><td>addtype(id.entry, L.inh)</td></tr>
+      </table>
+
+      <h3>Attribute Flow Diagram</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 400 160" width="400" height="160" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <!-- D -->
+          <rect x="165" y="10" width="50" height="28" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="190" y="29" text-anchor="middle" fill="#e8b86d" font-weight="600">D</text>
+          <!-- T -->
+          <rect x="60" y="70" width="70" height="28" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="95" y="89" text-anchor="middle" fill="#6d9ee8">T.type=int</text>
+          <!-- L -->
+          <rect x="250" y="70" width="90" height="28" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="295" y="89" text-anchor="middle" fill="#6de8b8">L.inh=int ↓</text>
+          <!-- edges D→T, D→L -->
+          <line x1="180" y1="38" x2="115" y2="70" stroke="#252a38"/>
+          <line x1="205" y1="38" x2="275" y2="70" stroke="#252a38"/>
+          <!-- inherited arrow -->
+          <path d="M 130 84 Q 190 55 250 84" stroke="#e8b86d" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <text x="190" y="60" text-anchor="middle" fill="#e8b86d" font-size="10">L.inh = T.type</text>
+          <!-- L children -->
+          <rect x="180" y="130" width="90" height="26" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="225" y="147" text-anchor="middle" fill="#6de8b8">addtype(id, L.inh)</text>
+          <line x1="295" y1="98" x2="230" y2="130" stroke="#252a38"/>
+          <defs><marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto"><path d="M0,0 L0,5 L7,2.5 z" fill="#e8b86d"/></marker></defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: INTERMEDIATE CODE — LOOPS AND CONTROL FLOW ===== -->
+  <div class="section-title">SDD for Control Flow &amp; Intermediate Code Generation</div>
+
+  <!-- Q7: while loop SDD -->
+  <div class="q-card" id="q7">
+    <div class="q-header" onclick="toggle('q7')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for while-loop. Given: S → while(C) S₁</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Control-Flow Structure of while-loop</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 260 210" width="260" height="210" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <!-- L1 label -->
+          <text x="20" y="30" fill="#e8b86d" font-weight="600">L1:</text>
+          <!-- C box -->
+          <rect x="50" y="15" width="130" height="30" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="115" y="34" text-anchor="middle" fill="#6d9ee8">C  (condition)</text>
+          <!-- arrow down to S1 -->
+          <line x1="115" y1="45" x2="115" y2="80" stroke="#6de8b8" marker-end="url(#ga)"/>
+          <text x="122" y="68" fill="#6de8b8" font-size="10">true</text>
+          <!-- S1 box -->
+          <rect x="50" y="80" width="130" height="30" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="115" y="99" text-anchor="middle" fill="#6de8b8">S₁  (body)</text>
+          <!-- goto L1 -->
+          <line x1="115" y1="110" x2="115" y2="145" stroke="#252a38" marker-end="url(#ga)"/>
+          <text x="122" y="133" fill="#7a8099" font-size="10">goto L1</text>
+          <rect x="50" y="145" width="130" height="26" rx="5" fill="#13161e" stroke="#252a38"/>
+          <text x="115" y="162" text-anchor="middle" fill="#7a8099">S.next</text>
+          <!-- false arrow from C -->
+          <path d="M 180 30 Q 240 30 240 158 Q 240 172 180 172" stroke="#e86d6d" fill="none" marker-end="url(#ga2)"/>
+          <text x="218" y="28" fill="#e86d6d" font-size="10">false</text>
+          <defs>
+            <marker id="ga" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="ga2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → while(C) S₁</td>
+          <td>
+            L1 = newlabel();<br>
+            L2 = newlabel();<br>
+            C.true = L2;<br>
+            C.false = S.next;<br>
+            S₁.next = L1;<br>
+            S.code = label(L1) ‖ C.code ‖ label(L2) ‖ S₁.code ‖ gen('goto' L1)
+          </td>
+        </tr>
+      </table>
+
+      <h3>Generated Three-Address Code Pattern</h3>
+      <pre>
+L1:   &lt;evaluate C&gt;
+      if C.result goto L2
+      goto S.next
+L2:   &lt;body S₁ code&gt;
+      goto L1
+S.next: ...</pre>
+
+      <h3>Attribute Explanation</h3>
+      <ul>
+        <li><code>C.true</code> — label to jump to when condition is true (L2 = start of body)</li>
+        <li><code>C.false</code> — label to jump to when condition is false (S.next = after loop)</li>
+        <li><code>S₁.next</code> — the label after S₁'s body (L1 = re-evaluate condition)</li>
+        <li><code>S.next</code> — inherited attribute: where to go after the whole statement</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q8: if-else SDD -->
+  <div class="q-card" id="q8">
+    <div class="q-header" onclick="toggle('q8')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for if-else statement. Given: S → if(C) S₁ else S₂</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Control-Flow Structure</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 300 200" width="300" height="200" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <rect x="100" y="10" width="100" height="28" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="150" y="29" text-anchor="middle" fill="#6d9ee8">C (condition)</text>
+          <!-- true branch -->
+          <line x1="120" y1="38" x2="70" y2="75" stroke="#6de8b8" marker-end="url(#ga3)"/>
+          <text x="78" y="65" fill="#6de8b8" font-size="10">true(L1)</text>
+          <rect x="20" y="80" width="90" height="28" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="65" y="98" text-anchor="middle" fill="#6de8b8">S₁ (then body)</text>
+          <!-- false branch -->
+          <line x1="183" y1="38" x2="228" y2="75" stroke="#e86d6d" marker-end="url(#ga4)"/>
+          <text x="214" y="65" fill="#e86d6d" font-size="10">false(L2)</text>
+          <rect x="188" y="80" width="90" height="28" rx="5" fill="#13161e" stroke="#e86d6d"/>
+          <text x="233" y="98" text-anchor="middle" fill="#e86d6d">S₂ (else body)</text>
+          <!-- merge to S.next -->
+          <line x1="65" y1="108" x2="65" y2="160" stroke="#252a38"/>
+          <line x1="65" y1="160" x2="148" y2="160" stroke="#252a38" marker-end="url(#ga5)"/>
+          <line x1="233" y1="108" x2="233" y2="160" stroke="#252a38"/>
+          <line x1="233" y1="160" x2="153" y2="160" stroke="#252a38" marker-end="url(#ga5)"/>
+          <rect x="110" y="150" width="80" height="24" rx="5" fill="#13161e" stroke="#252a38"/>
+          <text x="150" y="166" text-anchor="middle" fill="#7a8099">S.next</text>
+          <defs>
+            <marker id="ga3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="ga4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+            <marker id="ga5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → if(C) S₁ else S₂</td>
+          <td>
+            L1 = newlabel();<br>
+            L2 = newlabel();<br>
+            C.true = L1;<br>
+            C.false = L2;<br>
+            S₁.next = S.next;<br>
+            S₂.next = S.next;<br>
+            S.code = C.code ‖ label(L1) ‖ S₁.code ‖ label(L2) ‖ S₂.code
+          </td>
+        </tr>
+      </table>
+
+      <h3>Generated Three-Address Code Pattern</h3>
+      <pre>
+      &lt;C.code&gt;          // evaluate condition
+      if C goto L1      // if true, jump to then-branch
+      goto L2           // else go to else-branch
+L1:   &lt;S₁.code&gt;        // then body
+      goto S.next
+L2:   &lt;S₂.code&gt;        // else body
+S.next: ...</pre>
+    </div>
+  </div>
+
+  <!-- Q9: for-loop SDD -->
+  <div class="q-card" id="q9">
+    <div class="q-header" onclick="toggle('q9')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for for-loop. Given: S → for(S₁; C; S₃)S₄</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>For-loop structure</h3>
+      <p>The for-loop <code>for(S₁; C; S₃) S₄</code> is equivalent to:</p>
+      <pre>
+S₁;
+L1: evaluate C
+    if C goto L2
+    goto S.next
+L2: S₄ (body)
+L3: S₃ (update/increment)
+    goto L1
+S.next:</pre>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → for(S₁; C; S₃) S₄</td>
+          <td>
+            L1 = newlabel(); L2 = newlabel(); L3 = newlabel();<br>
+            S₁.next = L1;<br>
+            C.true = L2;<br>
+            C.false = S.next;<br>
+            S₄.next = L3;<br>
+            S₃.next = L1;<br>
+            S.code = S₁.code ‖ label(L1) ‖ C.code ‖ label(L2) ‖ S₄.code ‖ label(L3) ‖ S₃.code ‖ gen('goto' L1)
+          </td>
+        </tr>
+      </table>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 280 260" width="280" height="260" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <rect x="80" y="10" width="120" height="26" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="140" y="27" text-anchor="middle" fill="#6d9ee8">S₁ (init)</text>
+          <line x1="140" y1="36" x2="140" y2="55" stroke="#252a38"/>
+          <text x="20" y="62" fill="#e8b86d">L1:</text>
+          <rect x="80" y="55" width="120" height="26" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="140" y="72" text-anchor="middle" fill="#e8b86d">C (condition)</text>
+          <line x1="140" y1="81" x2="140" y2="100" stroke="#6de8b8" marker-end="url(#gf1)"/>
+          <text x="148" y="94" fill="#6de8b8" font-size="10">true→L2</text>
+          <text x="20" y="108" fill="#6de8b8">L2:</text>
+          <rect x="80" y="100" width="120" height="26" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="140" y="117" text-anchor="middle" fill="#6de8b8">S₄ (body)</text>
+          <line x1="140" y1="126" x2="140" y2="145" stroke="#252a38"/>
+          <text x="20" y="153" fill="#6d9ee8">L3:</text>
+          <rect x="80" y="145" width="120" height="26" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="140" y="162" text-anchor="middle" fill="#6d9ee8">S₃ (update)</text>
+          <path d="M 200 158 Q 250 158 250 68 Q 250 68 200 68" stroke="#252a38" fill="none" stroke-dasharray="4,3" marker-end="url(#gf2)"/>
+          <text x="245" y="120" text-anchor="middle" fill="#7a8099" font-size="9">goto L1</text>
+          <!-- false from C -->
+          <path d="M 80 68 Q 30 68 30 210 Q 30 220 80 220" stroke="#e86d6d" fill="none" marker-end="url(#gf3)"/>
+          <text x="16" y="145" fill="#e86d6d" font-size="10" transform="rotate(-90,16,145)">false</text>
+          <rect x="80" y="210" width="120" height="26" rx="5" fill="#13161e" stroke="#252a38"/>
+          <text x="140" y="227" text-anchor="middle" fill="#7a8099">S.next</text>
+          <defs>
+            <marker id="gf1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="gf2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker>
+            <marker id="gf3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q10: do-while SDD -->
+  <div class="q-card" id="q10">
+    <div class="q-header" onclick="toggle('q10')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for do-while loop. Given: S → do S₁ while(C)</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>do-while structure</h3>
+      <p>Unlike while, the body executes <strong>before</strong> the condition is checked.</p>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → do S₁ while(C)</td>
+          <td>
+            L1 = newlabel();<br>
+            L2 = newlabel();<br>
+            S₁.next = L2;<br>
+            C.true = L1;<br>
+            C.false = S.next;<br>
+            S.code = label(L1) ‖ S₁.code ‖ label(L2) ‖ C.code ‖ gen('if C goto' L1)
+          </td>
+        </tr>
+      </table>
+
+      <h3>Generated Three-Address Code Pattern</h3>
+      <pre>
+L1:  &lt;S₁.code&gt;    // execute body first
+L2:  &lt;C.code&gt;     // evaluate condition
+     if C goto L1  // loop back if true
+     goto S.next   // exit if false (C.false)</pre>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 260 180" width="260" height="180" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <text x="20" y="35" fill="#e8b86d">L1:</text>
+          <rect x="50" y="20" width="120" height="28" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="110" y="38" text-anchor="middle" fill="#6de8b8">S₁ (body)</text>
+          <line x1="110" y1="48" x2="110" y2="70" stroke="#252a38"/>
+          <text x="20" y="82" fill="#6d9ee8">L2:</text>
+          <rect x="50" y="70" width="120" height="28" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="110" y="88" text-anchor="middle" fill="#6d9ee8">C (condition)</text>
+          <!-- true: loop back -->
+          <path d="M 170 84 Q 230 84 230 30 Q 230 30 170 30" stroke="#6de8b8" fill="none" marker-end="url(#dw1)"/>
+          <text x="216" y="63" fill="#6de8b8" font-size="10">true</text>
+          <!-- false: exit -->
+          <line x1="110" y1="98" x2="110" y2="140" stroke="#e86d6d" marker-end="url(#dw2)"/>
+          <text x="118" y="125" fill="#e86d6d" font-size="10">false</text>
+          <rect x="50" y="140" width="120" height="26" rx="5" fill="#13161e" stroke="#252a38"/>
+          <text x="110" y="157" text-anchor="middle" fill="#7a8099">S.next</text>
+          <defs>
+            <marker id="dw1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="dw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q11: Boolean expr C→B||B -->
+  <div class="q-card" id="q11">
+    <div class="q-header" onclick="toggle('q11')">
+      <span class="q-num">3d</span>
+      <span class="q-text">Write SDD to generate three-address intermediate code for conditional boolean expression: C → B₁ ‖ B₂ (OR). Use function new() for new labels.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Short-Circuit Evaluation of B₁ ‖ B₂</h3>
+      <p>For <code>B₁ || B₂</code>: if B₁ is <strong>true</strong>, the whole expression is true (no need to evaluate B₂). Only if B₁ is false do we evaluate B₂.</p>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>C → B₁ ‖ B₂</td>
+          <td>
+            L = new();<br>
+            B₁.true = C.true;<br>
+            B₁.false = L;<br>
+            B₂.true = C.true;<br>
+            B₂.false = C.false;<br>
+            C.code = B₁.code ‖ label(L) ‖ B₂.code
+          </td>
+        </tr>
+      </table>
+
+      <h3>Generated Three-Address Code</h3>
+      <pre>
+      &lt;B₁.code&gt;
+      if B₁ goto C.true    // short-circuit: B₁ true → whole OR true
+      goto L               // B₁ false → evaluate B₂
+L:    &lt;B₂.code&gt;
+      if B₂ goto C.true    // B₂ true
+      goto C.false         // both false → overall false</pre>
+
+      <h3>Explanation</h3>
+      <ul>
+        <li><code>C.true</code> and <code>C.false</code> are <strong>inherited</strong> labels from the enclosing context (e.g., if-statement).</li>
+        <li>L is a fresh label inserted between B₁ and B₂ evaluation.</li>
+        <li>If B₁ is true → jump directly to C.true (short circuit).</li>
+        <li>If B₁ is false → fall through to L and evaluate B₂.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q12: Boolean expr C→B&&B -->
+  <div class="q-card" id="q12">
+    <div class="q-header" onclick="toggle('q12')">
+      <span class="q-num">3d</span>
+      <span class="q-text">Write SDD to generate three-address intermediate code for: C → B₁ &amp;&amp; B₂ (AND). Use function new() for new labels.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Short-Circuit Evaluation of B₁ &amp;&amp; B₂</h3>
+      <p>For <code>B₁ &amp;&amp; B₂</code>: if B₁ is <strong>false</strong>, the whole expression is false (no need to evaluate B₂). Only if B₁ is true do we evaluate B₂.</p>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>C → B₁ &amp;&amp; B₂</td>
+          <td>
+            L = new();<br>
+            B₁.true = L;<br>
+            B₁.false = C.false;<br>
+            B₂.true = C.true;<br>
+            B₂.false = C.false;<br>
+            C.code = B₁.code ‖ label(L) ‖ B₂.code
+          </td>
+        </tr>
+      </table>
+
+      <h3>Generated Three-Address Code</h3>
+      <pre>
+      &lt;B₁.code&gt;
+      if B₁ goto L         // B₁ true → must check B₂
+      goto C.false         // short-circuit: B₁ false → AND is false
+L:    &lt;B₂.code&gt;
+      if B₂ goto C.true    // both true
+      goto C.false         // B₂ false</pre>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: SDT SCHEMES, POSTFIX, L-ATTRIBUTED IMPL ===== -->
+  <div class="section-title">SDT Schemes, Postfix &amp; L-Attributed Implementation</div>
+
+  <!-- Q13: Postfix SDT parser stack -->
+  <div class="q-card" id="q13">
+    <div class="q-header" onclick="toggle('q13')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Explain parser stack implementation of postfix SDTs with the help of a diagram.</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Postfix SDT</h3>
+      <p>A <strong>postfix SDT</strong> (S-attributed) has all semantic actions placed at the <em>rightmost end</em> of every production. This allows actions to be executed during <strong>LR parsing at reduction time</strong>.</p>
+
+      <h3>Parser Stack Implementation</h3>
+      <p>The LR parser maintains a stack of <strong>(state, value)</strong> pairs. When a reduction occurs:</p>
+      <ol>
+        <li>Pop the right-hand side symbols and their attributes from the value stack.</li>
+        <li>Execute the semantic action to compute the left-hand side attribute.</li>
+        <li>Push the new value onto the stack.</li>
+      </ol>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 460 200" width="460" height="200" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <!-- State stack -->
+          <rect x="20" y="10" width="90" height="175" rx="6" fill="#0a0c10" stroke="#252a38"/>
+          <text x="65" y="28" text-anchor="middle" fill="#7a8099" font-weight="600">State Stack</text>
+          <rect x="28" y="35" width="74" height="22" fill="#13161e" stroke="#252a38" rx="3"/>
+          <text x="65" y="50" text-anchor="middle" fill="#e8b86d">s₅</text>
+          <rect x="28" y="60" width="74" height="22" fill="#13161e" stroke="#252a38" rx="3"/>
+          <text x="65" y="75" text-anchor="middle" fill="#e8b86d">s₃</text>
+          <rect x="28" y="85" width="74" height="22" fill="#13161e" stroke="#252a38" rx="3"/>
+          <text x="65" y="100" text-anchor="middle" fill="#e8b86d">s₁</text>
+          <rect x="28" y="110" width="74" height="22" fill="#13161e" stroke="#252a38" rx="3"/>
+          <text x="65" y="125" text-anchor="middle" fill="#7a8099">s₀</text>
+          <!-- Value stack -->
+          <rect x="130" y="10" width="110" height="175" rx="6" fill="#0a0c10" stroke="#252a38"/>
+          <text x="185" y="28" text-anchor="middle" fill="#7a8099" font-weight="600">Value Stack</text>
+          <rect x="138" y="35" width="94" height="22" fill="#13161e" stroke="#6d9ee8" rx="3"/>
+          <text x="185" y="50" text-anchor="middle" fill="#6d9ee8">val[top]=9</text>
+          <rect x="138" y="60" width="94" height="22" fill="#13161e" stroke="#6d9ee8" rx="3"/>
+          <text x="185" y="75" text-anchor="middle" fill="#6d9ee8">val[top-1]=5</text>
+          <rect x="138" y="85" width="94" height="22" fill="#13161e" stroke="#6d9ee8" rx="3"/>
+          <text x="185" y="100" text-anchor="middle" fill="#6d9ee8">val[top-2]=3</text>
+          <rect x="138" y="110" width="94" height="22" fill="#13161e" stroke="#252a38" rx="3"/>
+          <text x="185" y="125" text-anchor="middle" fill="#7a8099">—</text>
+          <!-- Reduce action -->
+          <rect x="270" y="40" width="170" height="130" rx="8" fill="#13161e" stroke="#e8b86d"/>
+          <text x="355" y="60" text-anchor="middle" fill="#e8b86d" font-weight="600">On Reduce: E→E₁+T</text>
+          <text x="280" y="82" fill="#6de8b8">1. Pop T val (9)</text>
+          <text x="280" y="100" fill="#6de8b8">2. Pop '+' (no val)</text>
+          <text x="280" y="118" fill="#6de8b8">3. Pop E₁ val (5)</text>
+          <text x="280" y="136" fill="#e8b86d">4. Action: val = 5+9=14</text>
+          <text x="280" y="154" fill="#6d9ee8">5. Push 14 as E.val</text>
+          <!-- arrow -->
+          <line x1="244" y1="90" x2="268" y2="90" stroke="#252a38" marker-end="url(#ps1)"/>
+          <defs><marker id="ps1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker></defs>
+        </svg>
+      </div>
+
+      <h3>Example</h3>
+      <pre>
+Production:  E → E₁ + T  { E.val = E₁.val + T.val }
+
+During LR parse of 3+5:
+Stack before reduce:   [E.val=3, +, T.val=5]
+Action:                E.val = 3 + 5 = 8
+Stack after reduce:    [E.val=8]</pre>
+
+      <h3>Key Properties</h3>
+      <ul>
+        <li>Works only for <strong>S-attributed SDDs</strong> (synthesized attributes only).</li>
+        <li>At reduce time, the values of the body's symbols are at known positions relative to the top of the value stack.</li>
+        <li>If production has body of length <em>n</em>, the values are at <code>val[top-n+1]</code> through <code>val[top]</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q14: Converting L-attributed SDD to SDT (for-loop) -->
+  <div class="q-card" id="q14">
+    <div class="q-header" onclick="toggle('q14')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Given the L-attributed SDD for the for-statement, convert it into an L-attributed SDT suitable for implementation.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Original SDD</h3>
+      <pre>
+Production: S → for(S₁; C; S₃)S₄
+Rules:
+  L1=new(); L2=new(); L3=new();
+  S₁.next = L1;
+  C.true = L2;
+  C.false = S.next;
+  S₄.next = L3;
+  S₃.next = L1;
+  S.code = S₁.code ‖ label(L1) ‖ C.code ‖ label(L2) ‖ S₄.code ‖ label(L3) ‖ S₃.code ‖ gen('goto' L1)</pre>
+
+      <h3>Rules for Converting L-attributed SDD to L-attributed SDT</h3>
+      <ol>
+        <li>Actions computing inherited attributes for a grammar symbol Xⱼ are placed <em>just before</em> Xⱼ in the production body.</li>
+        <li>Actions computing synthesized attributes for the head are placed at the <em>right end</em>.</li>
+      </ol>
+
+      <h3>Resulting L-attributed SDT</h3>
+      <pre>
+S → for (
+      { L1=new(); L2=new(); L3=new(); }
+      S₁          // S₁.next = L1 → set before S₁
+      { S₁.next=L1; emit(label(L1)); }
+    ;
+      { C.true=L2; C.false=S.next; }
+      C
+    ;
+      { S₃.next=L1; }
+      S₃
+    )
+      { S₄.next=L3; }
+      S₄
+      { emit(label(L3)); emit('goto' L1);
+        S.code = ...; }</pre>
+
+      <div class="note">Inherited attributes (like S₁.next, C.true, etc.) must be computed by actions placed immediately before the respective non-terminal in the production body.</div>
+    </div>
+  </div>
+
+  <!-- Q15: Converting if-else SDT to bottom-up (LR) -->
+  <div class="q-card" id="q15">
+    <div class="q-header" onclick="toggle('q15')">
+      <span class="q-num">3d</span>
+      <span class="q-text">Given the L-attributed SDT for if-else, convert it into an SDT suitable for bottom-up (LR) parsing.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Original L-attributed SDT (for top-down)</h3>
+      <pre>
+S → if ({ L1=new(); L2=new(); C.false=L2; C.true=L1; } C)
+       { S₁.next=S.next; }
+       S₁
+    else
+       { S₂.next=S.next; }
+       S₂
+    { S.code = C.code ‖ label(L1) ‖ S₁.code ‖ label(L2) ‖ S₂.code }</pre>
+
+      <h3>Converting to Bottom-Up SDT</h3>
+      <p>For LR parsing, actions with <em>mid-production</em> positions are handled by introducing <strong>marker non-terminals</strong>. Each marker Mᵢ has an ε-production with the embedded action.</p>
+
+      <pre>
+S  → if (C) M₁ S₁ else M₂ S₂
+       { S.code = C.code ‖ label(M₁.label) ‖ S₁.code 
+                         ‖ label(M₂.label) ‖ S₂.code }
+
+M₁ → ε  { M₁.label = new();
+           backpatch(C.truelist, M₁.label); }
+
+M₂ → ε  { M₂.label = new();
+           emit('goto' S.next);
+           backpatch(C.falselist, M₂.label); }</pre>
+
+      <h3>Simplified Version (using emit directly)</h3>
+      <pre>
+S  → if (C) M S₁ else M S₂
+       { S.code generated via backpatching }
+
+M  → ε  { M.quad = nextquad;
+           emit('goto' _); }  // placeholder</pre>
+
+      <div class="note">The key technique: any mid-production action is moved into a new marker non-terminal M → ε with that action. LR parsers reduce M → ε at the right point in parsing.</div>
+    </div>
+  </div>
+
+  <!-- Q16: SDD for infix to postfix -->
+  <div class="q-card" id="q16">
+    <div class="q-header" onclick="toggle('q16')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Write an SDD to convert a given infix expression to postfix expression during parsing. Grammar: E→E+T|E-T|T, T→T*F|T/F|F, F→num</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Approach</h3>
+      <p>Use a synthesized attribute <code>.t</code> (translation/postfix string) for each non-terminal.</p>
+
+      <h3>SDD</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rule</th></tr>
+        <tr><td>E → E₁ + T</td><td>E.t = E₁.t ‖ T.t ‖ '+'</td></tr>
+        <tr><td>E → E₁ - T</td><td>E.t = E₁.t ‖ T.t ‖ '-'</td></tr>
+        <tr><td>E → T</td><td>E.t = T.t</td></tr>
+        <tr><td>T → T₁ * F</td><td>T.t = T₁.t ‖ F.t ‖ '*'</td></tr>
+        <tr><td>T → T₁ / F</td><td>T.t = T₁.t ‖ F.t ‖ '/'</td></tr>
+        <tr><td>T → F</td><td>T.t = F.t</td></tr>
+        <tr><td>F → num</td><td>F.t = num.lexval</td></tr>
+      </table>
+
+      <h3>Example: Convert 3+4*5 to postfix</h3>
+      <pre>
+Input infix:   3 + 4 * 5
+Postfix:       3 4 5 * +
+
+Derivation:
+  F.t=3,  T.t=3,  E.t=3
+  F.t=4,  T.t=4
+  F.t=5
+  T.t = T.t ‖ F.t ‖ '*' = "4 5 *"
+  E.t = E.t ‖ T.t ‖ '+' = "3 4 5 * +"</pre>
+
+      <p>This SDD is <strong>S-attributed</strong> (only synthesized attributes), so it can be implemented easily with an LR parser.</p>
+    </div>
+  </div>
+
+  <!-- Q17: SDD for arithmetic expression (assignment + unary) -->
+  <div class="q-card" id="q17">
+    <div class="q-header" onclick="toggle('q17')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Design an SDD to generate intermediate code for arithmetic expressions: S→id=E, E→E+E₂, E→-E₁, E→(E₁), E→id</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>SDD using three-address code</h3>
+      <p>Each expression node has a synthesized attribute <code>.place</code> (the temporary or variable holding the result) and a <code>.code</code> (the three-address code string).</p>
+
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → id = E</td>
+          <td>S.code = E.code ‖ gen(id.place '=' E.place)</td>
+        </tr>
+        <tr><td>E → E₁ + E₂</td>
+          <td>t = newtemp();<br>E.place = t;<br>E.code = E₁.code ‖ E₂.code ‖ gen(t '=' E₁.place '+' E₂.place)</td>
+        </tr>
+        <tr><td>E → -E₁</td>
+          <td>t = newtemp();<br>E.place = t;<br>E.code = E₁.code ‖ gen(t '=' 'uminus' E₁.place)</td>
+        </tr>
+        <tr><td>E → (E₁)</td>
+          <td>E.place = E₁.place;<br>E.code = E₁.code</td>
+        </tr>
+        <tr><td>E → id</td>
+          <td>E.place = id.place;<br>E.code = ''</td>
+        </tr>
+      </table>
+
+      <h3>Example: x = -(a + b)</h3>
+      <pre>
+E → id(a):         a.place = 'a',  code = ''
+E → id(b):         b.place = 'b',  code = ''
+E → E₁ + E₂:      t1 = newtemp()
+                   code: t1 = a + b
+E → -E₁:           t2 = newtemp()
+                   code: t2 = uminus t1
+E → (E):           t2.place = t2,  code propagated
+S → id = E:        code: x = t2
+
+Final TAC:
+  t1 = a + b
+  t2 = uminus t1
+  x  = t2</pre>
+    </div>
+  </div>
+
+  <!-- Q18: Three-address code generation for complex code -->
+  <div class="q-card" id="q18">
+    <div class="q-header" onclick="toggle('q18')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Generate Three-address code for the switch(ch) statement with cases c=a+b and c=a-b.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Source Code</h3>
+      <pre>
+switch(ch) {
+  case 1: c = a + b; break;
+  case 2: c = a - b; break;
+  default: ...
+}</pre>
+
+      <h3>Three-Address Code</h3>
+      <pre>
+      t1 = ch
+      if t1 == 1 goto L1
+      if t1 == 2 goto L2
+      goto Ldefault
+
+L1:   t2 = a + b
+      c = t2
+      goto Lnext
+
+L2:   t3 = a - b
+      c = t3
+      goto Lnext
+
+Ldefault:
+      ...
+
+Lnext:
+      ...</pre>
+
+      <h3>Explanation</h3>
+      <ul>
+        <li>Each <code>case</code> label is translated to a conditional branch checking the switch variable.</li>
+        <li>After each case body, a <code>goto Lnext</code> implements the <code>break</code>.</li>
+        <li>The <code>default</code> case is reached if no case matched.</li>
+        <li>For large switch statements, a jump table is more efficient, but above uses if-chain form.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q19: Three-address code for complex while+if -->
+  <div class="q-card" id="q19">
+    <div class="q-header" onclick="toggle('q19')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Generate Three-address code for: while(A&lt;C and B&gt;D) do if A=1 then C=C+1 else while A≤D do A=A+B</span>
+      <span class="marks">6 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Three-Address Code</h3>
+      <pre>
+L1:   if A &lt; C goto L2       // first part of AND condition
+      goto Lend               // A &lt; C is false, exit outer while
+
+L2:   if B &gt; D goto L3       // second part of AND condition
+      goto Lend               // B &gt; D is false
+
+L3:   if A = 1 goto L4       // if A = 1 (then branch)
+      goto L5                 // else branch
+
+L4:   t1 = C + 1             // C = C + 1
+      C = t1
+      goto L1                 // back to outer while
+
+L5:   if A &lt;= D goto L6      // inner while condition
+      goto L1                 // inner while false, back to outer
+
+L6:   t2 = A + B             // A = A + B
+      A = t2
+      goto L5                 // back to inner while
+
+Lend:
+      ...</pre>
+
+      <h3>Structure Summary</h3>
+      <ul>
+        <li>L1–L2: short-circuit AND condition for outer while</li>
+        <li>L3–L4: if-then-else</li>
+        <li>L5–L6: inner while loop</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: INTERMEDIATE REPRESENTATIONS ===== -->
+  <div class="section-title">Intermediate Representations: Syntax Trees, DAG, TAC</div>
+
+  <!-- Q20: DAG for expressions -->
+  <div class="q-card" id="q20">
+    <div class="q-header" onclick="toggle('q20')">
+      <span class="q-num">4a</span>
+      <span class="q-text">What is a DAG? Draw a syntax tree and DAG for: ((x+y) – ((x+y)*(x–y))) + ((x+y)*(x–y))</span>
+      <span class="marks">7 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>What is a DAG?</h3>
+      <p>A <strong>Directed Acyclic Graph (DAG)</strong> for an expression is like a syntax tree except that nodes representing common subexpressions are <strong>shared</strong> (have multiple parents) rather than duplicated. This compact representation:</p>
+      <ul>
+        <li>Identifies all common subexpressions.</li>
+        <li>Reduces redundant computations.</li>
+        <li>Is used in value-numbering optimization.</li>
+      </ul>
+
+      <h3>Identifying Common Subexpressions</h3>
+      <p>In the expression <code>((x+y) – ((x+y)*(x–y))) + ((x+y)*(x–y))</code>:</p>
+      <ul>
+        <li><code>x+y</code> — appears 3 times → <strong>node A</strong></li>
+        <li><code>x-y</code> — appears 2 times → <strong>node B</strong></li>
+        <li><code>(x+y)*(x-y)</code> — appears 2 times → <strong>node C</strong> = A * B</li>
+        <li><code>(x+y) - C</code> → <strong>node D</strong> = A - C</li>
+        <li><strong>root</strong> = D + C</li>
+      </ul>
+
+      <h3>DAG Diagram</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 280" width="420" height="280" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:11px">
+          <!-- Root + -->
+          <ellipse cx="210" cy="25" rx="20" ry="16" fill="#13161e" stroke="#e8b86d"/>
+          <text x="210" y="30" text-anchor="middle" fill="#e8b86d" font-weight="600">+</text>
+          <!-- D = A - C -->
+          <ellipse cx="100" cy="90" rx="20" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="100" y="95" text-anchor="middle" fill="#6d9ee8" font-weight="600">-</text>
+          <text x="100" y="110" text-anchor="middle" fill="#7a8099" font-size="9">(D)</text>
+          <!-- C = A*B -->
+          <ellipse cx="300" cy="90" rx="20" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="300" y="95" text-anchor="middle" fill="#6d9ee8" font-weight="600">*</text>
+          <text x="300" y="110" text-anchor="middle" fill="#7a8099" font-size="9">(C)</text>
+          <!-- A = x+y -->
+          <ellipse cx="150" cy="175" rx="20" ry="16" fill="#13161e" stroke="#6de8b8"/>
+          <text x="150" y="180" text-anchor="middle" fill="#6de8b8" font-weight="600">+</text>
+          <text x="150" y="195" text-anchor="middle" fill="#7a8099" font-size="9">(A)</text>
+          <!-- B = x-y -->
+          <ellipse cx="300" cy="175" rx="20" ry="16" fill="#13161e" stroke="#6de8b8"/>
+          <text x="300" y="180" text-anchor="middle" fill="#6de8b8" font-weight="600">-</text>
+          <text x="300" y="195" text-anchor="middle" fill="#7a8099" font-size="9">(B)</text>
+          <!-- x node -->
+          <ellipse cx="120" cy="250" rx="16" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="120" y="255" text-anchor="middle" fill="#d4d8e8">x</text>
+          <!-- y node -->
+          <ellipse cx="190" cy="250" rx="16" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="190" y="255" text-anchor="middle" fill="#d4d8e8">y</text>
+          <!-- x2 -->
+          <ellipse cx="270" cy="250" rx="16" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="270" y="255" text-anchor="middle" fill="#d4d8e8">x</text>
+          <!-- y2 -->
+          <ellipse cx="330" cy="250" rx="16" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="330" y="255" text-anchor="middle" fill="#d4d8e8">y</text>
+          <!-- Root → D, C -->
+          <line x1="195" y1="36" x2="118" y2="77" stroke="#252a38"/>
+          <line x1="225" y1="36" x2="282" y2="77" stroke="#252a38"/>
+          <!-- D → A, C -->
+          <line x1="84" y1="100" x2="140" y2="163" stroke="#6d9ee8" stroke-dasharray="3,2"/>
+          <line x1="116" y1="100" x2="284" y2="78" stroke="#6d9ee8" stroke-dasharray="3,2"/>
+          <!-- C → A, B (shared!) -->
+          <line x1="286" y1="100" x2="168" y2="163" stroke="#e8b86d" stroke-width="1.5"/>
+          <line x1="310" y1="100" x2="302" y2="163" stroke="#e8b86d" stroke-width="1.5"/>
+          <!-- A → x, y -->
+          <line x1="138" y1="187" x2="128" y2="238" stroke="#252a38"/>
+          <line x1="162" y1="187" x2="182" y2="238" stroke="#252a38"/>
+          <!-- B → x, y (shared leaf nodes) -->
+          <line x1="288" y1="187" x2="280" y2="238" stroke="#252a38"/>
+          <line x1="312" y1="187" x2="322" y2="238" stroke="#252a38"/>
+          <!-- Label for shared nodes -->
+          <text x="210" y="145" text-anchor="middle" fill="#e8b86d" font-size="9">← shared</text>
+        </svg>
+      </div>
+
+      <p>In the DAG, nodes A (<code>x+y</code>), B (<code>x-y</code>), and C (<code>A*B</code>) are each computed once and reused. This eliminates redundant computation of common subexpressions.</p>
+    </div>
+  </div>
+
+  <!-- Q21: TAC and Quadruples/Triples for x=y[i]+z[j] -->
+  <div class="q-card" id="q21">
+    <div class="q-header" onclick="toggle('q21')">
+      <span class="q-num">4b</span>
+      <span class="q-text">Provide Three-address code and its Quadruple, Triple and Indirect Triple representation for <code>x = y[i] + z[j]</code></span>
+      <span class="marks">7 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Three-Address Code</h3>
+      <pre>
+t1 = y[i]        // t1 = *(y + i)  (indexed access)
+t2 = z[j]        // t2 = *(z + j)
+t3 = t1 + t2
+x  = t3</pre>
+
+      <h3>Quadruple Representation</h3>
+      <p>Each instruction: <code>(op, arg1, arg2, result)</code></p>
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>=[]</td><td>y</td><td>i</td><td>t1</td></tr>
+        <tr><td>1</td><td>=[]</td><td>z</td><td>j</td><td>t2</td></tr>
+        <tr><td>2</td><td>+</td><td>t1</td><td>t2</td><td>t3</td></tr>
+        <tr><td>3</td><td>=</td><td>t3</td><td>—</td><td>x</td></tr>
+      </table>
+
+      <h3>Triple Representation</h3>
+      <p>No result field; reference an instruction by its position (index).</p>
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>(0)</td><td>=[]</td><td>y</td><td>i</td></tr>
+        <tr><td>(1)</td><td>=[]</td><td>z</td><td>j</td></tr>
+        <tr><td>(2)</td><td>+</td><td>(0)</td><td>(1)</td></tr>
+        <tr><td>(3)</td><td>=</td><td>x</td><td>(2)</td></tr>
+      </table>
+
+      <h3>Indirect Triple Representation</h3>
+      <p>An instruction list (pointers) refers to the triple table. Allows reordering without modifying the triple table.</p>
+      <table>
+        <tr><th>Order</th><th>Pointer</th><th>Triple Table #</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>0</td><td>→ (35)</td><td>(35)</td><td>=[]</td><td>y</td><td>i</td></tr>
+        <tr><td>1</td><td>→ (36)</td><td>(36)</td><td>=[]</td><td>z</td><td>j</td></tr>
+        <tr><td>2</td><td>→ (37)</td><td>(37)</td><td>+</td><td>(35)</td><td>(36)</td></tr>
+        <tr><td>3</td><td>→ (38)</td><td>(38)</td><td>=</td><td>x</td><td>(37)</td></tr>
+      </table>
+
+      <div class="note">Disadvantage of Triples: optimizations that reorder instructions require updating all references to those instructions. Indirect Triples solve this by only changing the ordering list.</div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: QUADRUPLES, TRIPLES, SSA ===== -->
+  <div class="section-title">Quadruples, Triples, Indirect Triples &amp; SSA</div>
+
+  <!-- Q22: Short notes on Quadruples -->
+  <div class="q-card" id="q22">
+    <div class="q-header" onclick="toggle('q22')">
+      <span class="q-num">4a</span>
+      <span class="q-text">Write short notes on: (i) Quadruples (ii) Static Single Assignment (SSA)</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>(i) Quadruples</h3>
+      <p>A <strong>quadruple</strong> is a record structure with four fields: <code>(op, arg1, arg2, result)</code>. Each three-address instruction is represented as one quadruple.</p>
+
+      <table>
+        <tr><th>Instruction</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>x = y + z</td><td>+</td><td>y</td><td>z</td><td>x</td></tr>
+        <tr><td>x = -y</td><td>uminus</td><td>y</td><td>—</td><td>x</td></tr>
+        <tr><td>x = y</td><td>=</td><td>y</td><td>—</td><td>x</td></tr>
+        <tr><td>param x</td><td>param</td><td>x</td><td>—</td><td>—</td></tr>
+        <tr><td>call p, n</td><td>call</td><td>p</td><td>n</td><td>—</td></tr>
+        <tr><td>if x&lt;y goto L</td><td>&lt;</td><td>x</td><td>y</td><td>L</td></tr>
+      </table>
+
+      <p><strong>Advantages</strong>: Easy to access and reorder; result field names exactly where the result is stored.</p>
+      <p><strong>Disadvantage</strong>: Requires many temporary variable names; the symbol table can become large.</p>
+
+      <h3>Example: Quadruple representation of param and call</h3>
+      <pre>
+param x
+param y
+t1 = call add, 2
+sum = t1
+
+Quadruples:
+(0): (param, x, —, —)
+(1): (param, y, —, —)
+(2): (call, add, 2, t1)
+(3): (=, t1, —, sum)</pre>
+
+      <h3>(ii) Static Single Assignment (SSA) Form</h3>
+      <p><strong>SSA form</strong> is an intermediate representation in which <strong>every variable is assigned exactly once</strong>. When a variable has multiple definitions (e.g., in different branches), they are renamed with subscripts.</p>
+
+      <p><strong>Key properties</strong>:</p>
+      <ul>
+        <li>Each variable name corresponds to exactly one definition.</li>
+        <li>Uses special <strong>φ-functions (phi-functions)</strong> at join points (where control flow merges).</li>
+        <li><code>x₃ = φ(x₁, x₂)</code> means x₃ gets the value of x₁ if coming from one predecessor, or x₂ from the other.</li>
+      </ul>
+
+      <pre>
+Non-SSA:          SSA:
+x = 1             x₁ = 1
+y = x + 2         y₁ = x₁ + 2
+if (cond)         if (cond)
+  x = 3             x₂ = 3
+else              else
+  x = 4             x₃ = 4
+z = x + 1         x₄ = φ(x₂, x₃)
+                  z₁ = x₄ + 1</pre>
+
+      <p><strong>Benefits of SSA</strong>:</p>
+      <ul>
+        <li>Simplifies many dataflow analyses and optimizations (constant propagation, dead code elimination, register allocation).</li>
+        <li>Def-use chains are explicit and immediate.</li>
+        <li>Used by modern compilers: GCC, LLVM.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q23: Short notes Triples + SSA -->
+  <div class="q-card" id="q23">
+    <div class="q-header" onclick="toggle('q23')">
+      <span class="q-num">4a</span>
+      <span class="q-text">Write short notes on: (i) Triples (ii) Static Single Assignment (SSA)</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>(i) Triples</h3>
+      <p>A <strong>triple</strong> is a three-field record: <code>(op, arg1, arg2)</code>. Unlike quadruples, there is <em>no explicit result field</em>. Results are referenced by the instruction's <em>index (position)</em> in the table.</p>
+
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>(0)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>(1)</td><td>*</td><td>b</td><td>(0)</td></tr>
+        <tr><td>(2)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>(3)</td><td>*</td><td>b</td><td>(2)</td></tr>
+        <tr><td>(4)</td><td>+</td><td>(1)</td><td>(3)</td></tr>
+        <tr><td>(5)</td><td>=</td><td>a</td><td>(4)</td></tr>
+      </table>
+
+      <p><em>For: a = b*(-c) + b*(-c)</em></p>
+
+      <p><strong>Advantage</strong>: Avoids creating temporary variable names; more compact.</p>
+      <p><strong>Disadvantage</strong>: Moving (reordering) an instruction requires updating all references to it. This complicates optimization.</p>
+
+      <h3>Indirect Triples</h3>
+      <p>To overcome the reordering problem, <strong>indirect triples</strong> use a separate <em>list of pointers</em> into the triple table. Reordering the instruction list does not change the triple table, only the pointer list.</p>
+
+      <h3>(ii) SSA Form</h3>
+      <p>See answer in Q22 above — SSA assigns each variable exactly once and uses φ-functions at merge points.</p>
+    </div>
+  </div>
+
+  <!-- Q24: Quadruple, Triple, Indirect Triple for TAC -->
+  <div class="q-card" id="q24">
+    <div class="q-header" onclick="toggle('q24')">
+      <span class="q-num">3d</span>
+      <span class="q-text">Write the Quadruple, Triple and Indirect Triples representation for: t1=-c; t2=b*t1; t3=-c; t4=b*t3; t5=t2+t4; a=t5</span>
+      <span class="marks">3 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Three-Address Code (given)</h3>
+      <pre>
+t1 = -c
+t2 = b * t1
+t3 = -c
+t4 = b * t3
+t5 = t2 + t4
+a  = t5</pre>
+
+      <h3>Quadruples (op, arg1, arg2, result)</h3>
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>uminus</td><td>c</td><td>—</td><td>t1</td></tr>
+        <tr><td>1</td><td>*</td><td>b</td><td>t1</td><td>t2</td></tr>
+        <tr><td>2</td><td>uminus</td><td>c</td><td>—</td><td>t3</td></tr>
+        <tr><td>3</td><td>*</td><td>b</td><td>t3</td><td>t4</td></tr>
+        <tr><td>4</td><td>+</td><td>t2</td><td>t4</td><td>t5</td></tr>
+        <tr><td>5</td><td>=</td><td>t5</td><td>—</td><td>a</td></tr>
+      </table>
+
+      <h3>Triples (op, arg1, arg2)</h3>
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>(0)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>(1)</td><td>*</td><td>b</td><td>(0)</td></tr>
+        <tr><td>(2)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>(3)</td><td>*</td><td>b</td><td>(2)</td></tr>
+        <tr><td>(4)</td><td>+</td><td>(1)</td><td>(3)</td></tr>
+        <tr><td>(5)</td><td>=</td><td>a</td><td>(4)</td></tr>
+      </table>
+
+      <h3>Indirect Triples</h3>
+      <table>
+        <tr><th>Instruction List</th><th>Triple Table #</th><th>op</th><th>arg1</th><th>arg2</th></tr>
+        <tr><td>0 → (100)</td><td>(100)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>1 → (101)</td><td>(101)</td><td>*</td><td>b</td><td>(100)</td></tr>
+        <tr><td>2 → (102)</td><td>(102)</td><td>uminus</td><td>c</td><td>—</td></tr>
+        <tr><td>3 → (103)</td><td>(103)</td><td>*</td><td>b</td><td>(102)</td></tr>
+        <tr><td>4 → (104)</td><td>(104)</td><td>+</td><td>(101)</td><td>(103)</td></tr>
+        <tr><td>5 → (105)</td><td>(105)</td><td>=</td><td>a</td><td>(104)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q25: TAC + Quadruple for param/call -->
+  <div class="q-card" id="q25">
+    <div class="q-header" onclick="toggle('q25')">
+      <span class="q-num">4a</span>
+      <span class="q-text">What is the disadvantage of using Quadruple format? Express the following TAC in Quadruple format: param x; param y; t1=call add,2; sum=t1</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Disadvantage of Quadruples</h3>
+      <ul>
+        <li>Quadruples require <strong>explicit temporary variable names</strong> for every intermediate result. This inflates the symbol table.</li>
+        <li>More memory is consumed per instruction compared to Triples.</li>
+        <li>However, quadruples are easier to reorder during optimization since results are named explicitly (no positional references).</li>
+      </ul>
+
+      <h3>Quadruple Representation</h3>
+      <pre>
+Three-Address Code:
+  param x
+  param y
+  t1 = call add, 2
+  sum = t1</pre>
+
+      <table>
+        <tr><th>#</th><th>op</th><th>arg1</th><th>arg2</th><th>result</th></tr>
+        <tr><td>0</td><td>param</td><td>x</td><td>—</td><td>—</td></tr>
+        <tr><td>1</td><td>param</td><td>y</td><td>—</td><td>—</td></tr>
+        <tr><td>2</td><td>call</td><td>add</td><td>2</td><td>t1</td></tr>
+        <tr><td>3</td><td>=</td><td>t1</td><td>—</td><td>sum</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q26: SSA conversion -->
+  <div class="q-card" id="q26">
+    <div class="q-header" onclick="toggle('q26')">
+      <span class="q-num">4a</span>
+      <span class="q-text">Convert the following code to SSA form: x=u-t; y=x*v; if(y>100) x=y+w; else x=y-w; y=t-z; y=x*y;</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Original Code</h3>
+      <pre>
+x = u - t;
+y = x * v;
+if (y > 100)
+    x = y + w;
+else
+    x = y - w;
+y = t - z;
+y = x * y;</pre>
+
+      <h3>Step 1: Rename each assignment with a new subscript</h3>
+      <p>For SSA, each definition gets a unique version number. At join points (after if-else), use φ-functions.</p>
+
+      <h3>SSA Form</h3>
+      <pre>
+x₁ = u₁ - t₁
+y₁ = x₁ * v₁
+if (y₁ > 100)
+    x₂ = y₁ + w₁        // then-branch
+else
+    x₃ = y₁ - w₁        // else-branch
+
+// Join point: x could be x₂ or x₃ depending on branch
+x₄ = φ(x₂, x₃)
+
+y₂ = t₁ - z₁
+y₃ = x₄ * y₂</pre>
+
+      <h3>φ-function explanation</h3>
+      <p><code>x₄ = φ(x₂, x₃)</code> means: after the if-else, x₄ takes the value of x₂ if we came from the then-branch, or x₃ if we came from the else-branch. This is placed at the <em>merge point</em> in the control flow graph.</p>
+
+      <div class="note">Note: u, t, v, w, z are assumed to have single definitions here (u₁, t₁, etc.). In a real program, they would also be renamed if redefined.</div>
+    </div>
+  </div>
+
+  <!-- Q27: CFG + SSA conversion -->
+  <div class="q-card" id="q27">
+    <div class="q-header" onclick="toggle('q27')">
+      <span class="q-num">3e</span>
+      <span class="q-text">Construct CFG for the given TAC and convert to SSA form: i=1; j=1; k=0; L1: ifFalse k&lt;100 goto L3; ifFalse j&lt;20 goto L2; j=i; k=k+1; goto L1; L2: j=k; k=k+1; goto L1; L3: return j</span>
+      <span class="marks">6 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Step 1: Identify Basic Blocks</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th></tr>
+        <tr><td>B1</td><td>i=1; j=1; k=0</td></tr>
+        <tr><td>B2</td><td>ifFalse k&lt;100 goto L3; ifFalse j&lt;20 goto L2</td></tr>
+        <tr><td>B3</td><td>j=i; k=k+1; goto L1</td></tr>
+        <tr><td>B4</td><td>j=k; k=k+1; goto L1</td></tr>
+        <tr><td>B5</td><td>return j</td></tr>
+      </table>
+
+      <h3>Step 2: Control Flow Graph (CFG)</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 320 320" width="320" height="320" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <!-- B1 -->
+          <rect x="115" y="10" width="90" height="34" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="160" y="26" text-anchor="middle" fill="#e8b86d" font-weight="600">B1</text>
+          <text x="160" y="38" text-anchor="middle" fill="#7a8099">i=1,j=1,k=0</text>
+          <!-- B2 -->
+          <rect x="115" y="75" width="90" height="34" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="160" y="91" text-anchor="middle" fill="#6d9ee8" font-weight="600">B2 (L1)</text>
+          <text x="160" y="103" text-anchor="middle" fill="#7a8099">k&lt;100? j&lt;20?</text>
+          <!-- B3 -->
+          <rect x="30" y="155" width="90" height="34" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="75" y="171" text-anchor="middle" fill="#6de8b8" font-weight="600">B3</text>
+          <text x="75" y="183" text-anchor="middle" fill="#7a8099">j=i; k=k+1</text>
+          <!-- B4 -->
+          <rect x="200" y="155" width="90" height="34" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="245" y="171" text-anchor="middle" fill="#6de8b8" font-weight="600">B4 (L2)</text>
+          <text x="245" y="183" text-anchor="middle" fill="#7a8099">j=k; k=k+1</text>
+          <!-- B5 -->
+          <rect x="115" y="255" width="90" height="34" rx="5" fill="#13161e" stroke="#e86d6d"/>
+          <text x="160" y="271" text-anchor="middle" fill="#e86d6d" font-weight="600">B5 (L3)</text>
+          <text x="160" y="283" text-anchor="middle" fill="#7a8099">return j</text>
+          <!-- Edges -->
+          <line x1="160" y1="44" x2="160" y2="75" stroke="#252a38" marker-end="url(#ca1)"/>
+          <line x1="140" y1="109" x2="90" y2="155" stroke="#6de8b8" marker-end="url(#ca2)"/>
+          <text x="105" y="135" fill="#6de8b8" font-size="9">j&lt;20(true)</text>
+          <line x1="180" y1="109" x2="220" y2="155" stroke="#e86d6d" marker-end="url(#ca3)"/>
+          <text x="200" y="135" fill="#e86d6d" font-size="9">j≥20</text>
+          <!-- B3, B4 → B2 (loop back) -->
+          <path d="M 75 189 Q 20 220 20 95 Q 20 75 115 85" stroke="#252a38" fill="none" stroke-dasharray="3,2" marker-end="url(#ca1)"/>
+          <path d="M 245 189 Q 310 220 310 95 Q 310 75 205 85" stroke="#252a38" fill="none" stroke-dasharray="3,2" marker-end="url(#ca1)"/>
+          <!-- B2 → B5 (k≥100) -->
+          <line x1="160" y1="109" x2="160" y2="255" stroke="#e86d6d" stroke-dasharray="3,2" marker-end="url(#ca3)"/>
+          <text x="170" y="190" fill="#e86d6d" font-size="9">k≥100</text>
+          <defs>
+            <marker id="ca1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker>
+            <marker id="ca2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="ca3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>Step 3: SSA Form</h3>
+      <pre>
+B1:  i₁ = 1;  j₁ = 1;  k₁ = 0
+
+B2:  // join point: i, j, k from B1 (first time) or B3/B4 (loops)
+     i₂ = φ(i₁, i₂, i₂)          // i unchanged in B3,B4
+     j₂ = φ(j₁, j₃, j₄)          // j redefined in B3, B4
+     k₂ = φ(k₁, k₃, k₄)          // k redefined in B3, B4
+     ifFalse k₂ &lt; 100 goto L3
+     ifFalse j₂ &lt; 20  goto L2
+
+B3:  j₃ = i₂;   k₃ = k₂ + 1;   goto L1
+
+B4:  j₄ = k₂;   k₄ = k₂ + 1;   goto L1
+
+B5:  return j₂</pre>
+    </div>
+  </div>
+
+  <!-- Q28: Binary to decimal SDD -->
+  <div class="q-card" id="q28">
+    <div class="q-header" onclick="toggle('q28')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Grammar translates binary integer to decimal. B.val = decimal value. B→L; L→LB|B; B→0|B→1. Give translation scheme. Draw annotated parse tree for '10111'.</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Grammar</h3>
+      <pre>
+B → L
+L → L B
+L → B
+B → 0
+B → 1</pre>
+
+      <h3>Translation Scheme</h3>
+      <p>We need inherited attributes to track the position (bit weight). We use <code>L.len</code> (synthesized: number of bits) and compute values bottom-up.</p>
+
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>B → L</td><td>B.val = L.val</td></tr>
+        <tr><td>L → L₁ B</td><td>L.val = L₁.val * 2 + B.val<br>L.len = L₁.len + 1</td></tr>
+        <tr><td>L → B</td><td>L.val = B.val<br>L.len = 1</td></tr>
+        <tr><td>B → 0</td><td>B.val = 0</td></tr>
+        <tr><td>B → 1</td><td>B.val = 1</td></tr>
+      </table>
+
+      <h3>Annotated Parse Tree for '10111'</h3>
+      <p>10111₂ = 16 + 4 + 2 + 1 = 23₁₀</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 480 300" width="480" height="300" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <!-- Root B -->
+          <ellipse cx="240" cy="20" rx="50" ry="14" fill="#13161e" stroke="#e8b86d"/>
+          <text x="240" y="25" text-anchor="middle" fill="#e8b86d">B.val=23</text>
+          <!-- L (top) -->
+          <ellipse cx="240" cy="65" rx="55" ry="14" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="240" y="70" text-anchor="middle" fill="#6d9ee8">L.val=23,len=5</text>
+          <!-- L4 + B5 -->
+          <ellipse cx="165" cy="115" rx="55" ry="14" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="165" y="120" text-anchor="middle" fill="#6d9ee8">L.val=11,len=4</text>
+          <ellipse cx="330" cy="115" rx="36" ry="14" fill="#13161e" stroke="#6de8b8"/>
+          <text x="330" y="120" text-anchor="middle" fill="#6de8b8">B.val=1</text>
+          <text x="330" y="135" text-anchor="middle" fill="#7a8099">('1')</text>
+          <!-- L3 + B4 -->
+          <ellipse cx="90" cy="165" rx="55" ry="14" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="90" y="170" text-anchor="middle" fill="#6d9ee8">L.val=5,len=3</text>
+          <ellipse cx="230" cy="165" rx="36" ry="14" fill="#13161e" stroke="#6de8b8"/>
+          <text x="230" y="170" text-anchor="middle" fill="#6de8b8">B.val=1</text>
+          <text x="230" y="185" text-anchor="middle" fill="#7a8099">('1')</text>
+          <!-- L2 + B3 -->
+          <ellipse cx="30" cy="215" rx="50" ry="14" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="30" y="220" text-anchor="middle" fill="#6d9ee8">L.val=2,len=2</text>
+          <ellipse cx="140" cy="215" rx="36" ry="14" fill="#13161e" stroke="#6de8b8"/>
+          <text x="140" y="220" text-anchor="middle" fill="#6de8b8">B.val=1</text>
+          <text x="140" y="235" text-anchor="middle" fill="#7a8099">('1')</text>
+          <!-- B1=1, B2=0 -->
+          <ellipse cx="0" cy="265" rx="36" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="0" y="270" text-anchor="middle" fill="#6de8b8">B.val=1</text>
+          <ellipse cx="60" cy="265" rx="36" ry="13" fill="#13161e" stroke="#252a38"/>
+          <text x="60" y="270" text-anchor="middle" fill="#6de8b8">B.val=0</text>
+          <!-- Edges -->
+          <line x1="240" y1="34" x2="240" y2="51" stroke="#252a38"/>
+          <line x1="210" y1="78" x2="188" y2="101" stroke="#252a38"/>
+          <line x1="272" y1="78" x2="316" y2="101" stroke="#252a38"/>
+          <line x1="136" y1="128" x2="113" y2="151" stroke="#252a38"/>
+          <line x1="196" y1="128" x2="218" y2="151" stroke="#252a38"/>
+          <line x1="62" y1="178" x2="48" y2="201" stroke="#252a38"/>
+          <line x1="118" y1="178" x2="132" y2="201" stroke="#252a38"/>
+          <line x1="10" y1="228" x2="6" y2="252" stroke="#252a38"/>
+          <line x1="28" y1="228" x2="54" y2="252" stroke="#252a38"/>
+        </svg>
+      </div>
+
+      <p>Evaluation: L.val=1 → L.val=1*2+0=2 → L.val=2*2+1=5 → L.val=5*2+1=11 → L.val=11*2+1=23</p>
+    </div>
+  </div>
+
+  <!-- Q29: Dependency graph explanation -->
+  <div class="q-card" id="q29">
+    <div class="q-header" onclick="toggle('q29')">
+      <span class="q-num">3d</span>
+      <span class="q-text">What is a dependency graph? Explain with example.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Dependency Graph</h3>
+      <p>A <strong>dependency graph</strong> is a directed graph that depicts the flow of information between attribute instances in a parse tree. It is used to determine a valid evaluation order for the attributes in an SDD.</p>
+
+      <h4>Construction Rules</h4>
+      <ul>
+        <li>For each parse tree node, create a <em>node</em> in the dependency graph for each attribute instance at that node.</li>
+        <li>For each semantic rule <code>b = f(c₁, c₂, ..., cₙ)</code>, add edges <code>cᵢ → b</code> for each i (each cᵢ must be computed before b).</li>
+      </ul>
+
+      <h4>Example</h4>
+      <p>For the declaration grammar with <code>D→TL, T→int, L→L₁,id</code> and input <code>int a, b</code>:</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 400 180" width="400" height="180" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <!-- T.type -->
+          <ellipse cx="60" cy="50" rx="44" ry="16" fill="#13161e" stroke="#e8b86d"/>
+          <text x="60" y="55" text-anchor="middle" fill="#e8b86d">T.type=int</text>
+          <!-- L.inh (top) -->
+          <ellipse cx="200" cy="50" rx="44" ry="16" fill="#13161e" stroke="#6de8b8"/>
+          <text x="200" y="55" text-anchor="middle" fill="#6de8b8">L.inh</text>
+          <!-- T.type → L.inh -->
+          <line x1="104" y1="50" x2="156" y2="50" stroke="#e8b86d" marker-end="url(#dp1)"/>
+          <text x="130" y="45" text-anchor="middle" fill="#7a8099" font-size="9">L.inh=T.type</text>
+          <!-- L₁.inh -->
+          <ellipse cx="200" cy="120" rx="44" ry="16" fill="#13161e" stroke="#6de8b8"/>
+          <text x="200" y="125" text-anchor="middle" fill="#6de8b8">L₁.inh</text>
+          <!-- L.inh → L1.inh -->
+          <line x1="200" y1="66" x2="200" y2="104" stroke="#6de8b8" marker-end="url(#dp2)"/>
+          <!-- addtype(a) -->
+          <ellipse cx="340" cy="120" rx="52" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="340" y="125" text-anchor="middle" fill="#6d9ee8">addtype(a,L.inh)</text>
+          <!-- L.inh → addtype -->
+          <line x1="244" y1="50" x2="310" y2="112" stroke="#6de8b8" stroke-dasharray="3,2" marker-end="url(#dp2)"/>
+          <!-- addtype(b) -->
+          <ellipse cx="340" cy="50" rx="52" ry="16" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="340" y="55" text-anchor="middle" fill="#6d9ee8">addtype(b,L₁.inh)</text>
+          <line x1="244" y1="120" x2="310" y2="56" stroke="#6de8b8" stroke-dasharray="3,2" marker-end="url(#dp2)"/>
+          <defs>
+            <marker id="dp1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e8b86d"/></marker>
+            <marker id="dp2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h4>Topological Order (evaluation order)</h4>
+      <p>T.type → L.inh → L₁.inh → addtype(a, L.inh), addtype(b, L₁.inh)</p>
+    </div>
+  </div>
+
+  <!-- Q30: Inherited attributes and L-attributed SDD -->
+  <div class="q-card" id="q30">
+    <div class="q-header" onclick="toggle('q30')">
+      <span class="q-num">3b</span>
+      <span class="q-text">What is an inherited attribute? What does L stand for in L-attributed SDD? If the SDD is not L-attributed, does that mean it can never be evaluated?</span>
+      <span class="marks">6 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Inherited Attribute</h3>
+      <p>An <strong>inherited attribute</strong> of a node N in a parse tree is computed using attribute values of N's <em>parent, siblings, or N's own other attributes</em>. Information flows from the root toward the leaves (top-down), or from left siblings to the current node.</p>
+
+      <p>Example: <code>L.inh = T.type</code> in <code>D → T L</code> — L's type is inherited from T (its sibling) via D.</p>
+
+      <h3>L in L-attributed SDD</h3>
+      <p><strong>L stands for "Left"</strong> — referring to the constraint that an inherited attribute of a symbol can only depend on symbols to its <em>left</em> in the production, or on the head's inherited attributes.</p>
+
+      <p>Formally, for production <code>A → X₁ X₂ … Xₙ</code>, inherited attribute of Xⱼ depends only on:</p>
+      <ol>
+        <li>Inherited attributes of A (head)</li>
+        <li>Any attribute of X₁, X₂, …, Xⱼ₋₁ (symbols to the left)</li>
+      </ol>
+      <p>This ensures evaluation can proceed left-to-right, top-down — matching depth-first traversal of a top-down parser.</p>
+
+      <h3>Can non-L-attributed SDDs be evaluated?</h3>
+      <p><strong>Yes, they can still be evaluated</strong>, but not during a standard single-pass parse. Options:</p>
+      <ul>
+        <li>Build the full parse tree first, then evaluate using a <strong>topological sort</strong> of the dependency graph.</li>
+        <li>If the dependency graph has no cycles, any SDD can be evaluated via topological order.</li>
+        <li>The restriction to L-attributed is a <em>practical implementation constraint</em> (one-pass evaluation), not a theoretical impossibility.</li>
+      </ul>
+      <div class="note">An SDD where the dependency graph has cycles <em>cannot</em> be evaluated at all — it represents circular dependencies.</div>
+    </div>
+  </div>
+
+  <!-- Q31: Converting SDD to SDT procedure -->
+  <div class="q-card" id="q31">
+    <div class="q-header" onclick="toggle('q31')">
+      <span class="q-num">3b</span>
+      <span class="q-text">What is the procedure to convert any SDD to an SDT scheme?</span>
+      <span class="marks">2 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Converting SDD to SDT</h3>
+      <p>An <strong>SDT (Syntax-Directed Translation scheme)</strong> embeds semantic actions directly into the grammar production bodies. The conversion rules depend on whether the SDD is S-attributed or L-attributed:</p>
+
+      <h4>For S-attributed SDDs (only synthesized attributes)</h4>
+      <ol>
+        <li>Place all semantic actions at the <strong>right end</strong> of the production body.</li>
+        <li>The action is executed when the production is reduced.</li>
+      </ol>
+      <pre>E → E₁ + T  { E.val = E₁.val + T.val }  // at the end</pre>
+
+      <h4>For L-attributed SDDs (synthesized + inherited)</h4>
+      <ol>
+        <li>Actions that compute <strong>inherited attributes</strong> for grammar symbol Xⱼ are placed immediately <strong>before Xⱼ</strong> in the production body.</li>
+        <li>Actions that compute <strong>synthesized attributes</strong> for the head A are placed at the <strong>right end</strong>.</li>
+      </ol>
+      <pre>
+D → { L.inh = T.type; } T L  // action before L to set inherited attr
+                { /* final synthesized attrs here */ }</pre>
+    </div>
+  </div>
+
+  <!-- Q32: Compute E.val for complex expression -->
+  <div class="q-card" id="q32">
+    <div class="q-header" onclick="toggle('q32')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Using the given translation scheme (#=multiply, %=divide), compute E.val for: 20 # 10 % 5 # 8 % 2 % 2</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Grammar and Rules</h3>
+      <pre>
+E → E₁ # T   { E.val = E₁.val * T.val }   // # means multiply
+E → T         { E.val = T.val }
+T → T₁ % F   { T.val = T₁.val / F.val }   // % means divide
+T → F         { T.val = F.val }
+F → id        { F.val = id.val }</pre>
+
+      <h3>Expression: 20 # 10 % 5 # 8 % 2 % 2</h3>
+      <p>Operator precedence: <code>%</code> (/) has higher precedence than <code>#</code> (*), so evaluate % first within each T sub-expression, then # left-to-right.</p>
+
+      <pre>
+Parse using grammar (left-to-right, left-assoc for same prec):
+
+Step 1: Identify T sub-expressions (grouped by %):
+  E = E₁ # T₂ # T₃
+where:
+  T₁ = 20
+  T₂ = 10 % 5 = 10/5 = 2
+  T₃ = 8 % 2 % 2 = (8/2)/2 = 4/2 = 2
+
+Step 2: Evaluate E left-to-right:
+  E₁ = 20
+  E₂ = E₁ # T₂ = 20 * 2 = 40
+  E₃ = E₂ # T₃ = 40 * 2 = 80</pre>
+
+      <div class="highlight">E.val = <strong>80</strong></div>
+    </div>
+  </div>
+
+  <!-- Q33: SDD for sequence of a's (UE20CS353 Q3a) -->
+  <div class="q-card" id="q33">
+    <div class="q-header" onclick="toggle('q33')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Given grammar S→TS|λ; T→aTb|bTc|cTa|λ. Add semantic actions that count the number of sequences of successive a's (e.g. acab and aacabb have 2 each). Use attributes: int val, bool left, bool right. Run SDD over "aacabb".</span>
+      <span class="marks">10 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Understanding the Problem</h3>
+      <p>A "sequence of a's" is a maximal run of consecutive a's. We need to count how many such maximal sequences exist.</p>
+      <ul>
+        <li><code>acab</code>: "a", "a" → 2 sequences</li>
+        <li><code>aacabb</code>: "aa", "a" → 2 sequences</li>
+        <li><code>abacabcb</code>: "a", "a", "a" → 3 sequences</li>
+      </ul>
+
+      <h3>Attribute Design</h3>
+      <ul>
+        <li><code>val</code>: integer count of complete a-sequences within this subtree</li>
+        <li><code>left</code>: boolean — does this string start with an 'a'?</li>
+        <li><code>right</code>: boolean — does this string end with an 'a'?</li>
+      </ul>
+      <p>When concatenating two strings (S→TS), if T ends with 'a' and S starts with 'a', those merge into one sequence (so subtract 1).</p>
+
+      <h3>SDD Rules</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → T S₁</td>
+          <td>S.val = T.val + S₁.val - (T.right &amp;&amp; S₁.left ? 1 : 0)<br>
+              S.left = T.left<br>
+              S.right = S₁.right</td>
+        </tr>
+        <tr><td>S → λ</td><td>S.val=0; S.left=false; S.right=false</td></tr>
+        <tr><td>T → a T₁ b</td>
+          <td>T.val = T₁.val + 1 - (T₁.left ? 1 : 0)<br>
+              // outer 'a' starts a seq; if T₁ starts with 'a', they'd merge (but 'b' separates them actually)<br>
+              // Simpler: count a-sequences; outer 'a' is a new seq if not immediately followed by inner a<br>
+              T.left = true; T.right = false</td>
+        </tr>
+        <tr><td>T → b T₁ c</td>
+          <td>T.val = T₁.val<br>T.left = false; T.right = false</td>
+        </tr>
+        <tr><td>T → c T₁ a</td>
+          <td>T.val = T₁.val + 1 - (T₁.right ? 1 : 0)<br>T.left = false; T.right = true</td>
+        </tr>
+        <tr><td>T → λ</td><td>T.val=0; T.left=false; T.right=false</td></tr>
+      </table>
+
+      <h3>Trace for "aacabb"</h3>
+      <p>Parse: S → T S → (aTb) S → (a(aTb)b)(aS) → (a(aλb)b)(a(bS))</p>
+      <pre>
+Inner T (empty): val=0, left=false, right=false
+T₁ = aTb where T₁.inner=λ:
+   val = 0 + 1 = 1 (outer 'a' starts new seq)
+   left=true, right=false
+T₂ = aTb where T₂.inner=T₁:
+   inner 'a' already counted. outer 'a' and inner T start with 'a' → merge:
+   val = 1 + 1 - 1 = 1, left=true, right=false
+   
+Second part "a": T₃ = cTa-like... actually "abb":
+T for 'b' inner: val=0, left=false, right=false
+S for remaining: val=1 (the last 'a' in "abb" is actually from T=λ after structure)
+
+Final S.val: merging "aac" part (val=1,right=false) with "abb" part:
+  combined = 1 + 1 - 0 = 2</pre>
+
+      <div class="highlight">Result for "aacabb" = <strong>2 sequences</strong> (correct: "aa" and "a")</div>
+
+      <h3>Type of SDD</h3>
+      <p>This SDD is <strong>S-attributed</strong>: all attributes (val, left, right) are <em>synthesized</em> — computed from children up to the parent. It can be evaluated bottom-up with an LR parser.</p>
+    </div>
+  </div>
+
+  <!-- Q34: SDD for while-loop (L-attributed SDT conversion) -->
+  <div class="q-card" id="q34">
+    <div class="q-header" onclick="toggle('q34')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Given L-attributed SDD for while-statement, convert it into an L-attributed SDT.</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Original L-attributed SDD</h3>
+      <pre>
+Production: S → while (C) S₁
+Rules:
+  L1 = new label();
+  L2 = new label();
+  C.true = L2
+  C.false = S.next
+  S₁.next = L1
+  S.code = label(L1) ‖ C.code ‖ label(L2) ‖ S₁.code ‖ gen('goto' L1)</pre>
+
+      <h3>L-attributed SDT (actions embedded in production)</h3>
+      <p>Actions setting inherited attributes must be placed <em>before</em> the non-terminal receiving them:</p>
+      <pre>
+S → while (
+        { L1 = newlabel(); L2 = newlabel();
+          emit(label(L1)); }
+        C
+        { C.true = L2; C.false = S.next; emit(label(L2)); }
+     )
+        { S₁.next = L1; }
+        S₁
+        { emit('goto' L1); }</pre>
+
+      <h3>Explanation of Action Placement</h3>
+      <ul>
+        <li>Before <code>C</code>: Create labels L1, L2. Emit label(L1).</li>
+        <li>After <code>C</code> (before generating C's code): Set C.true=L2, C.false=S.next, emit label(L2).</li>
+        <li>Before <code>S₁</code>: Set S₁.next=L1 (inherited).</li>
+        <li>After <code>S₁</code>: Emit goto L1 to loop back.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q35: Strength reduction / induction variables optimization -->
+  <div class="q-card" id="q35">
+    <div class="q-header" onclick="toggle('q35')">
+      <span class="q-num">3c</span>
+      <span class="q-text">(i) Reduce loop overhead from 100% to 50% for: for(i=0; i&lt;100; i++) g(); (ii) Apply loop strength reduction by induction variables + constant folding on given TAC: i=0; L: i=i+1; t1=4*i; t2=a[t1]; if t2&lt;v goto L</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>(i) Loop Unrolling to Reduce Overhead by 50%</h3>
+      <p><strong>Loop unrolling</strong>: duplicate the loop body so each iteration does 2 units of work, halving the number of branch/conditional checks.</p>
+      <pre>
+Original:
+  for (i = 0; i &lt; 100; i++)
+    g();
+
+After 50% unrolling (2x unroll):
+  for (i = 0; i &lt; 100; i += 2) {
+    g();   // iteration i
+    g();   // iteration i+1
+  }
+// 50 iterations instead of 100, 50% fewer conditional branches</pre>
+
+      <h3>(ii) Strength Reduction by Induction Variables</h3>
+      <p><strong>Original TAC:</strong></p>
+      <pre>
+  i = 0
+L: i = i + 1
+   t1 = 4 * i      ← t1 is an induction variable: t1 = 4*i
+   t2 = a[t1]
+   if t2 &lt; v goto L</pre>
+
+      <p><strong>Step 1 — Introduce induction variable t1</strong>:<br>
+        t1 tracks 4*i. Instead of multiplying each iteration, just add 4:</p>
+      <pre>
+  i = 0
+  t1 = 0            ← initialize t1 = 4*0 = 0
+L: i = i + 1
+   t1 = t1 + 4      ← strength reduction: multiply → add
+   t2 = a[t1]
+   if t2 &lt; v goto L</pre>
+
+      <p><strong>Step 2 — Dead code elimination</strong>:<br>
+        If <code>i</code> is not used after the loop, remove it:</p>
+      <pre>
+  t1 = 0
+L: t1 = t1 + 4
+   t2 = a[t1]
+   if t2 &lt; v goto L</pre>
+
+      <p><strong>Step 3 — Constant Folding</strong>: 4*1=4 (already done above).</p>
+      <p>Result: the expensive multiplication <code>4 * i</code> is replaced by a cheap addition <code>t1 + 4</code>.</p>
+    </div>
+  </div>
+
+  <!-- Q36: E.val computation -->
+  <div class="q-card" id="q36">
+    <div class="q-header" onclick="toggle('q36')">
+      <span class="q-num">2c (i)</span>
+      <span class="q-text">Define Synthesized Attributes with suitable examples. Evaluate SDD for 3+4*5 (construct parse tree, dependency graph, evaluation order, final E.val).</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Synthesized Attributes</h3>
+      <p>A <strong>synthesized attribute</strong> at parse-tree node N is defined by rules associated with N's production. The value depends only on attributes of N's <em>children</em>. All information flows <strong>upward (bottom-up)</strong>.</p>
+
+      <p>Example: <code>E → E₁ + T { E.val = E₁.val + T.val }</code> — E.val is synthesized from its children E₁ and T.</p>
+
+      <h3>Evaluation of 3+4*5</h3>
+      <p>(Full detailed answer same as Q4 above — parse tree, dependency graph, and evaluation order.)</p>
+
+      <h3>Parse Tree with Annotations</h3>
+      <pre>
+             E.val=23
+            /   |    \
+      E.val=3   +   T.val=20
+         |           /  |  \
+      T.val=3   T.val=4  *  F.val=5
+         |          |             |
+      F.val=3    F.val=4        num=5
+         |          |
+       num=3      num=4</pre>
+
+      <h3>Evaluation Order (topological sort of dependency graph)</h3>
+      <ol>
+        <li>F.val = num.lexval = 3</li>
+        <li>T.val = F.val = 3</li>
+        <li>E.val(left) = T.val = 3</li>
+        <li>F.val = 4</li>
+        <li>T(sub).val = F.val = 4</li>
+        <li>F.val = 5</li>
+        <li>T.val = T.val * F.val = 4 * 5 = 20</li>
+        <li>E.val = E.val + T.val = 3 + 20 = <strong>23</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Q37: Inherited attribute for L-attributed SDD with example -->
+  <div class="q-card" id="q37">
+    <div class="q-header" onclick="toggle('q37')">
+      <span class="q-num">2d</span>
+      <span class="q-text">Explain Inherited Attribute and L-attributed SDT with suitable examples.</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Inherited Attribute</h3>
+      <p>An inherited attribute of a node N is defined using attribute values from N's <strong>parent or left siblings</strong> in the parse tree. It carries context <em>into</em> subtrees.</p>
+
+      <h4>Example: Type propagation in declarations</h4>
+      <pre>
+Grammar:  D → T L,  T → int | float,  L → L,id | id
+Rule:     D → T L  { L.inh = T.type }  ← T.type inherited by L
+          L → id   { addtype(id.entry, L.inh) }
+
+For "float a, b":
+  T.type = float (synthesized)
+  L.inh = float (inherited from T)
+  addtype(a, float), addtype(b, float)</pre>
+
+      <h3>L-attributed SDT</h3>
+      <p>In an L-attributed SDD, each inherited attribute of Xⱼ in <code>A → X₁…Xₙ</code> depends on:</p>
+      <ol>
+        <li>Inherited attributes of head A</li>
+        <li>Any attribute of X₁, …, Xⱼ₋₁ (left of Xⱼ)</li>
+      </ol>
+
+      <h4>Example: Array type calculation</h4>
+      <pre>
+T  → BC         { T.type = array(C.num, B.type) }
+B  → int        { B.type = integer }
+C  → [num]      { C.num = num.val }</pre>
+
+      <p>This is L-attributed: C.num is synthesized from <code>num</code> (its child), and T.type is synthesized from B.type and C.num. No cycles, no right-to-left dependencies.</p>
+
+      <div class="note">L-attributed SDDs allow implementation during a single left-to-right, top-down parse. Actions for inherited attributes are placed before the respective non-terminal in the SDT.</div>
+    </div>
+  </div>
+
+  <!-- Q38: SDD for arithmetic intermediate code (full version) -->
+  <div class="q-card" id="q38">
+    <div class="q-header" onclick="toggle('q38')">
+      <span class="q-num">3b</span>
+      <span class="q-text">Consider arithmetic expression grammar E→E+T|E-T|T, T→T*F|T/F|F, F→num. Write SDD to evaluate arithmetic expressions during parsing (desk calculator).</span>
+      <span class="marks">8 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>SDD — Desk Calculator</h3>
+      <table>
+        <tr><th>Production</th><th>Semantic Rule</th></tr>
+        <tr><td>L → E n</td><td>print(E.val)</td></tr>
+        <tr><td>E → E₁ + T</td><td>E.val = E₁.val + T.val</td></tr>
+        <tr><td>E → E₁ - T</td><td>E.val = E₁.val - T.val</td></tr>
+        <tr><td>E → T</td><td>E.val = T.val</td></tr>
+        <tr><td>T → T₁ * F</td><td>T.val = T₁.val * F.val</td></tr>
+        <tr><td>T → T₁ / F</td><td>T.val = T₁.val / F.val</td></tr>
+        <tr><td>T → F</td><td>T.val = F.val</td></tr>
+        <tr><td>F → ( E )</td><td>F.val = E.val</td></tr>
+        <tr><td>F → digit</td><td>F.val = digit.lexval</td></tr>
+      </table>
+
+      <h3>Example: 3+4*5</h3>
+      <pre>
+Bottom-up evaluation (S-attributed, post-order):
+digit(3) → F.val=3 → T.val=3 → E.val=3
+digit(4) → F.val=4 → T.val=4
+digit(5) → F.val=5
+T.val = 4 * 5 = 20
+E.val = 3 + 20 = 23
+Output: 23</pre>
+
+      <p>This is an <strong>S-attributed SDD</strong> — all attributes are synthesized. Actions execute at reduction time in an LR parser (bottom-up). The value stack of the LR parser stores E.val, T.val, F.val directly.</p>
+    </div>
+  </div>
+
+  <!-- Q39: TAC for while...and...if...else...while nested -->
+  <div class="q-card" id="q39">
+    <div class="q-header" onclick="toggle('q39')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Generate Three-address code for: while(A&lt;C and B&gt;D) do if A=1 then C=C+1 else while A≤D do A=A+B [same as Q19 but as a separate exam question]</span>
+      <span class="marks">6 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q19 above. The three-address code is identical:</p>
+      <pre>
+L1:   if A &lt; C goto L2
+      goto Lend
+L2:   if B &gt; D goto L3
+      goto Lend
+L3:   if A = 1 goto L4
+      goto L5
+L4:   t1 = C + 1
+      C = t1
+      goto L1
+L5:   if A &lt;= D goto L6
+      goto L1
+L6:   t2 = A + B
+      A = t2
+      goto L5
+Lend: ...</pre>
+    </div>
+  </div>
+
+  <!-- Q40: Parser-stack SDT with diagram -->
+  <div class="q-card" id="q40">
+    <div class="q-header" onclick="toggle('q40')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Explain parser stack implementation of postfix SDTs with diagram. [Repeat from Q13 for different exam]</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q13 above. Key points:</p>
+      <ul>
+        <li>Postfix SDTs (S-attributed) place actions at the right end of each production.</li>
+        <li>LR parser maintains a value stack parallel to the state stack.</li>
+        <li>On reduction with production of length n: pop n values, compute action, push result.</li>
+        <li>val[top-n+1] through val[top] hold the body's attribute values.</li>
+      </ul>
+      <pre>
+For E → E₁ + T { E.val = E₁.val + T.val }:
+  val[top-2] = E₁.val
+  val[top-1] = '+' (ignored)
+  val[top]   = T.val
+  new value  = val[top-2] + val[top]
+  push new value; pop 3, push 1</pre>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 7: CONTROL FLOW GRAPH ===== -->
+  <div class="section-title">Control Flow Graph (CFG) Construction</div>
+
+  <!-- Q41: CFG for standard TAC -->
+  <div class="q-card" id="q41">
+    <div class="q-header" onclick="toggle('q41')">
+      <span class="q-num">4b</span>
+      <span class="q-text">Construct CFG for: s=0; a=4; i=0; ifFalse k==0 goto L1; b=1; goto L2; L1: b=2; L2: ifFalse i&lt;n goto L3; t1=a*b; t2=s+t1; s=t2; t3=i+1; i=t3; goto L2; L3: return s</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Step 1: Identify Leaders (first instruction of each basic block)</h3>
+      <ul>
+        <li>First instruction is a leader → <strong>s=0</strong></li>
+        <li>Target of conditional/goto → <strong>L1: b=2</strong> and <strong>L2: ifFalse i&lt;n</strong></li>
+        <li>Instruction after a branch → <strong>b=1</strong></li>
+        <li>Target of goto → <strong>L3: return s</strong></li>
+      </ul>
+
+      <h3>Step 2: Basic Blocks</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th></tr>
+        <tr><td>B1</td><td>s=0; a=4; i=0; ifFalse k==0 goto L1</td></tr>
+        <tr><td>B2</td><td>b=1; goto L2</td></tr>
+        <tr><td>B3 (L1)</td><td>b=2</td></tr>
+        <tr><td>B4 (L2)</td><td>ifFalse i&lt;n goto L3</td></tr>
+        <tr><td>B5</td><td>t1=a*b; t2=s+t1; s=t2; t3=i+1; i=t3; goto L2</td></tr>
+        <tr><td>B6 (L3)</td><td>return s</td></tr>
+      </table>
+
+      <h3>Step 3: Control Flow Graph</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 360 370" width="360" height="370" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <!-- B1 -->
+          <rect x="130" y="10" width="100" height="36" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="180" y="27" text-anchor="middle" fill="#e8b86d" font-weight="600">B1</text>
+          <text x="180" y="40" text-anchor="middle" fill="#7a8099">s=0,a=4,i=0,k==0?</text>
+          <!-- B2 -->
+          <rect x="30" y="80" width="90" height="30" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="75" y="95" text-anchor="middle" fill="#6d9ee8" font-weight="600">B2</text>
+          <text x="75" y="106" text-anchor="middle" fill="#7a8099">b=1; goto L2</text>
+          <!-- B3 -->
+          <rect x="240" y="80" width="90" height="30" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="285" y="95" text-anchor="middle" fill="#6d9ee8" font-weight="600">B3 (L1)</text>
+          <text x="285" y="106" text-anchor="middle" fill="#7a8099">b=2</text>
+          <!-- B4 -->
+          <rect x="130" y="150" width="100" height="30" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="180" y="165" text-anchor="middle" fill="#6de8b8" font-weight="600">B4 (L2)</text>
+          <text x="180" y="177" text-anchor="middle" fill="#7a8099">if i&lt;n</text>
+          <!-- B5 -->
+          <rect x="130" y="230" width="100" height="50" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="180" y="246" text-anchor="middle" fill="#6de8b8" font-weight="600">B5</text>
+          <text x="180" y="260" text-anchor="middle" fill="#7a8099">t1=a*b; t2=s+t1</text>
+          <text x="180" y="274" text-anchor="middle" fill="#7a8099">s=t2; i=i+1; →L2</text>
+          <!-- B6 -->
+          <rect x="130" y="320" width="100" height="30" rx="5" fill="#13161e" stroke="#e86d6d"/>
+          <text x="180" y="335" text-anchor="middle" fill="#e86d6d" font-weight="600">B6 (L3)</text>
+          <text x="180" y="347" text-anchor="middle" fill="#7a8099">return s</text>
+          <!-- Edges -->
+          <line x1="160" y1="46" x2="100" y2="80" stroke="#252a38" marker-end="url(#cf1)"/>
+          <text x="115" y="68" fill="#6de8b8" font-size="9">k≠0(true)</text>
+          <line x1="202" y1="46" x2="260" y2="80" stroke="#252a38" marker-end="url(#cf1)"/>
+          <text x="236" y="68" fill="#e86d6d" font-size="9">k=0(goto L1)</text>
+          <!-- B2, B3 → B4 -->
+          <line x1="75" y1="110" x2="140" y2="150" stroke="#252a38" marker-end="url(#cf1)"/>
+          <line x1="285" y1="110" x2="218" y2="150" stroke="#252a38" marker-end="url(#cf1)"/>
+          <!-- B4 branches -->
+          <line x1="180" y1="180" x2="180" y2="230" stroke="#6de8b8" marker-end="url(#cf2)"/>
+          <text x="188" y="210" fill="#6de8b8" font-size="9">i&lt;n</text>
+          <line x1="180" y1="180" x2="180" y2="320" stroke="#e86d6d" stroke-dasharray="3,2" marker-end="url(#cf3)"/>
+          <!-- wait - this overlaps. Use side arrow for B4→B6 -->
+          <path d="M 232 165 Q 330 165 330 335 Q 330 350 230 350" stroke="#e86d6d" fill="none" stroke-dasharray="3,2" marker-end="url(#cf3)"/>
+          <text x="336" y="255" fill="#e86d6d" font-size="9">i≥n</text>
+          <!-- B5 → B4 (loop back) -->
+          <path d="M 130 255 Q 60 255 60 165 Q 60 155 130 160" stroke="#252a38" fill="none" stroke-dasharray="3,2" marker-end="url(#cf1)"/>
+          <text x="42" y="210" fill="#7a8099" font-size="9">goto L2</text>
+          <defs>
+            <marker id="cf1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker>
+            <marker id="cf2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="cf3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q42: CFG for x=n, y=m, ifFalse x<y goto L1... -->
+  <div class="q-card" id="q42">
+    <div class="q-header" onclick="toggle('q42')">
+      <span class="q-num">4b</span>
+      <span class="q-text">Construct CFG for: x=n; y=m; ifFalse x&lt;y goto L1; t1=x+1; x=t1; t2=y-1; y=t2; goto L2; L1: y=x+2; L2: z=x*y; return z</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Basic Blocks</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th></tr>
+        <tr><td>B1</td><td>x=n; y=m; ifFalse x&lt;y goto L1</td></tr>
+        <tr><td>B2</td><td>t1=x+1; x=t1; t2=y-1; y=t2; goto L2</td></tr>
+        <tr><td>B3 (L1)</td><td>y = x+2</td></tr>
+        <tr><td>B4 (L2)</td><td>z = x*y; return z</td></tr>
+      </table>
+
+      <h3>CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 300 260" width="300" height="260" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <rect x="90" y="10" width="120" height="36" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="150" y="24" text-anchor="middle" fill="#e8b86d" font-weight="600">B1</text>
+          <text x="150" y="38" text-anchor="middle" fill="#7a8099">x=n, y=m, x&lt;y?</text>
+          <!-- B2 and B3 -->
+          <rect x="20" y="90" width="110" height="42" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="75" y="106" text-anchor="middle" fill="#6d9ee8" font-weight="600">B2 (x&lt;y true)</text>
+          <text x="75" y="120" text-anchor="middle" fill="#7a8099">x=x+1; y=y-1</text>
+          <text x="75" y="130" text-anchor="middle" fill="#7a8099">goto L2</text>
+          <rect x="180" y="90" width="100" height="36" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="230" y="104" text-anchor="middle" fill="#6d9ee8" font-weight="600">B3 (L1)</text>
+          <text x="230" y="118" text-anchor="middle" fill="#7a8099">y = x+2</text>
+          <!-- B4 -->
+          <rect x="90" y="190" width="120" height="36" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="150" y="204" text-anchor="middle" fill="#6de8b8" font-weight="600">B4 (L2)</text>
+          <text x="150" y="218" text-anchor="middle" fill="#7a8099">z=x*y; return z</text>
+          <!-- Edges -->
+          <line x1="130" y1="46" x2="90" y2="90" stroke="#252a38" marker-end="url(#cf4)"/>
+          <text x="96" y="74" fill="#6de8b8" font-size="9">x&lt;y</text>
+          <line x1="170" y1="46" x2="210" y2="90" stroke="#252a38" marker-end="url(#cf4)"/>
+          <text x="188" y="74" fill="#e86d6d" font-size="9">x≥y</text>
+          <line x1="75" y1="132" x2="120" y2="190" stroke="#252a38" marker-end="url(#cf4)"/>
+          <line x1="230" y1="126" x2="180" y2="190" stroke="#252a38" marker-end="url(#cf4)"/>
+          <defs><marker id="cf4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker></defs>
+        </svg>
+      </div>
+
+      <p>B1 branches to B2 if x&lt;y (true) or B3 (L1) if x≥y. Both B2 and B3 flow into B4 (L2).</p>
+    </div>
+  </div>
+
+  <!-- Q43: CFG for x=0, y=0, L1: ifFalse x<10 goto L2... -->
+  <div class="q-card" id="q43">
+    <div class="q-header" onclick="toggle('q43')">
+      <span class="q-num">4b</span>
+      <span class="q-text">Construct CFG for: x=0; y=0; L1: ifFalse x&lt;10 goto L2; t1=y+x; y=t1; t2=x+1; x=t2; goto L1; L2: print y</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Basic Blocks</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th></tr>
+        <tr><td>B1</td><td>x=0; y=0</td></tr>
+        <tr><td>B2 (L1)</td><td>ifFalse x&lt;10 goto L2</td></tr>
+        <tr><td>B3</td><td>t1=y+x; y=t1; t2=x+1; x=t2; goto L1</td></tr>
+        <tr><td>B4 (L2)</td><td>print y</td></tr>
+      </table>
+
+      <h3>CFG</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 280 280" width="280" height="280" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;font-size:10px">
+          <rect x="90" y="10" width="100" height="28" rx="5" fill="#13161e" stroke="#e8b86d"/>
+          <text x="140" y="28" text-anchor="middle" fill="#e8b86d">B1: x=0,y=0</text>
+          <line x1="140" y1="38" x2="140" y2="68" stroke="#252a38" marker-end="url(#cf5)"/>
+          <rect x="90" y="70" width="100" height="28" rx="5" fill="#13161e" stroke="#6d9ee8"/>
+          <text x="140" y="82" text-anchor="middle" fill="#6d9ee8" font-weight="600">B2 (L1)</text>
+          <text x="140" y="93" text-anchor="middle" fill="#7a8099">x &lt; 10 ?</text>
+          <!-- true → B3 -->
+          <line x1="140" y1="98" x2="140" y2="140" stroke="#6de8b8" marker-end="url(#cf6)"/>
+          <text x="148" y="122" fill="#6de8b8" font-size="9">x&lt;10</text>
+          <rect x="80" y="142" width="120" height="40" rx="5" fill="#13161e" stroke="#6de8b8"/>
+          <text x="140" y="157" text-anchor="middle" fill="#6de8b8" font-weight="600">B3</text>
+          <text x="140" y="170" text-anchor="middle" fill="#7a8099">y=y+x; x=x+1; →L1</text>
+          <!-- B3 → B2 (loop) -->
+          <path d="M 80 162 Q 20 162 20 84 Q 20 70 90 78" stroke="#252a38" fill="none" stroke-dasharray="3,2" marker-end="url(#cf5)"/>
+          <text x="6" y="125" fill="#7a8099" font-size="9">goto L1</text>
+          <!-- false → B4 -->
+          <path d="M 190 84 Q 250 84 250 220 Q 250 238 190 238" stroke="#e86d6d" fill="none" marker-end="url(#cf7)"/>
+          <text x="236" y="163" fill="#e86d6d" font-size="9">x≥10</text>
+          <rect x="90" y="230" width="100" height="28" rx="5" fill="#13161e" stroke="#e86d6d"/>
+          <text x="140" y="248" text-anchor="middle" fill="#e86d6d">B4: print y</text>
+          <defs>
+            <marker id="cf5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#252a38"/></marker>
+            <marker id="cf6" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6de8b8"/></marker>
+            <marker id="cf7" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e86d6d"/></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <p>This is a simple while-loop CFG: B1 initializes, B2 tests the condition (loop header), B3 is the loop body (back edge to B2), B4 is the exit block.</p>
+    </div>
+  </div>
+
+  <!-- Q44: Partition code into basic blocks (large example) -->
+  <div class="q-card" id="q44">
+    <div class="q-header" onclick="toggle('q44')">
+      <span class="q-num">4c</span>
+      <span class="q-text">Partition the following 17-instruction sequence into basic blocks and construct the flow graph. (i=1 through a[t6]=1.0)</span>
+      <span class="marks">6 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Source Instructions</h3>
+      <pre>
+1.  i = 1
+2.  j = 1
+3.  t1 = 10*i
+4.  t2 = t1+j
+5.  t3 = 8*t2
+6.  t4 = t3-88
+7.  a[t4] = 0.0
+8.  j = j+1
+9.  if j &lt;= 10 goto (3)
+10. i = i+1
+11. if i &lt;= 10 goto (2)
+12. i = 1
+13. t5 = i-1
+14. t6 = 88*t5
+15. a[t6] = 1.0
+16. i = i+1
+17. if i &lt;= 10 goto (13)</pre>
+
+      <h3>Identifying Leaders</h3>
+      <ul>
+        <li>Instr 1: first instruction → leader</li>
+        <li>Instr 3: target of goto (9) → leader</li>
+        <li>Instr 2: target of goto (11) → leader</li>
+        <li>Instr 10: after conditional (9) → leader</li>
+        <li>Instr 12: after conditional (11) → leader</li>
+        <li>Instr 13: target of goto (17) → leader</li>
+        <li>Instr 16 (after 15): after conditional would go here → leader</li>
+      </ul>
+
+      <h3>Basic Blocks</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th><th>Successors</th></tr>
+        <tr><td>B1</td><td>1-2</td><td>B2</td></tr>
+        <tr><td>B2</td><td>3-9</td><td>B2 (if j≤10), B3 (if j&gt;10)</td></tr>
+        <tr><td>B3</td><td>10-11</td><td>B2 (if i≤10), B4 (if i&gt;10)</td></tr>
+        <tr><td>B4</td><td>12</td><td>B5</td></tr>
+        <tr><td>B5</td><td>13-17</td><td>B5 (if i≤10, goto 13), exit (if i&gt;10)</td></tr>
+      </table>
+
+      <h3>Flow Graph</h3>
+      <pre>
+B1 → B2 ──loop──→ B2
+          |
+          ↓ (j>10)
+         B3 ──loop──→ B2
+          |
+          ↓ (i>10)
+         B4 → B5 ──loop──→ B5
+                    |
+                    ↓ (i>10)
+                   EXIT</pre>
+    </div>
+  </div>
+
+  <!-- Q45: SDD for assignment + arithmetic intermediate code (alternative) -->
+  <div class="q-card" id="q45">
+    <div class="q-header" onclick="toggle('q45')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Design SDD to generate intermediate code for: S→id=E, E→E+E₂, E→-E₁, E→(E₁), E→id [separate instance for different paper]</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q17. The SDD uses synthesized attributes <code>.place</code> and <code>.code</code>:</p>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → id = E</td><td>S.code = E.code ‖ gen(id.place '=' E.place)</td></tr>
+        <tr><td>E → E₁ + E₂</td><td>t=newtemp(); E.place=t; E.code=E₁.code‖E₂.code‖gen(t'='E₁.place'+'E₂.place)</td></tr>
+        <tr><td>E → -E₁</td><td>t=newtemp(); E.place=t; E.code=E₁.code‖gen(t'='uminus E₁.place)</td></tr>
+        <tr><td>E → (E₁)</td><td>E.place=E₁.place; E.code=E₁.code</td></tr>
+        <tr><td>E → id</td><td>E.place=id.place; E.code=''</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q46: SSA conversion 2 -->
+  <div class="q-card" id="q46">
+    <div class="q-header" onclick="toggle('q46')">
+      <span class="q-num">4a</span>
+      <span class="q-text">Convert to SSA form: x=u-t; y=x*v; if(y>100) x=y+w; else x=y-w; y=t-z; y=x*y [same variant — separate paper]</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q26. The SSA form is:</p>
+      <pre>
+x₁ = u₁ - t₁
+y₁ = x₁ * v₁
+if (y₁ > 100)
+    x₂ = y₁ + w₁       // then-branch
+else
+    x₃ = y₁ - w₁       // else-branch
+x₄ = φ(x₂, x₃)         // join point
+y₂ = t₁ - z₁
+y₃ = x₄ * y₂</pre>
+    </div>
+  </div>
+
+  <!-- Q47: Explain three-address code -->
+  <div class="q-card" id="q47">
+    <div class="q-header" onclick="toggle('q47')">
+      <span class="q-num">concept</span>
+      <span class="q-text">What is Three-Address Code (TAC)? Explain with examples of different instruction types.</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Three-Address Code (TAC)</h3>
+      <p>Three-address code is an intermediate representation where each instruction has at most <strong>three operands</strong> (two operands and one result). The general form is: <code>x = y op z</code></p>
+
+      <h3>Types of TAC Instructions</h3>
+      <table>
+        <tr><th>Type</th><th>Form</th><th>Example</th></tr>
+        <tr><td>Binary assignment</td><td>x = y op z</td><td>t1 = a + b</td></tr>
+        <tr><td>Unary assignment</td><td>x = op y</td><td>t1 = -a</td></tr>
+        <tr><td>Copy</td><td>x = y</td><td>x = t1</td></tr>
+        <tr><td>Unconditional jump</td><td>goto L</td><td>goto L3</td></tr>
+        <tr><td>Conditional jump</td><td>if x rop y goto L</td><td>if a &lt; b goto L2</td></tr>
+        <tr><td>Indexed copy (read)</td><td>x = y[i]</td><td>t = a[i]</td></tr>
+        <tr><td>Indexed copy (write)</td><td>x[i] = y</td><td>a[i] = t</td></tr>
+        <tr><td>Address/pointer</td><td>x = &amp;y; x = *y; *x = y</td><td>t = &amp;a</td></tr>
+        <tr><td>Procedure call</td><td>param x; call p,n</td><td>param a; call f,1</td></tr>
+        <tr><td>Return</td><td>return y</td><td>return t1</td></tr>
+      </table>
+
+      <h3>Example</h3>
+      <pre>
+Source: a = b * -c + b * -c
+
+TAC:
+  t1 = uminus c
+  t2 = b * t1
+  t3 = uminus c
+  t4 = b * t3
+  t5 = t2 + t4
+  a  = t5</pre>
+    </div>
+  </div>
+
+  <!-- Q48: SDD for if-else generating intermediate code (full) -->
+  <div class="q-card" id="q48">
+    <div class="q-header" onclick="toggle('q48')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for if-else. Given: S → if(C) S₁ else S₂ [variant with diagram S₁,S₂,C,L₁,L₂,S.next]</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q8 above. This is identical to the standard if-else SDD.</p>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → if(C) S₁ else S₂</td>
+          <td>
+            L1 = newlabel(); L2 = newlabel();<br>
+            C.true = L1; C.false = L2;<br>
+            S₁.next = S.next; S₂.next = S.next;<br>
+            S.code = C.code ‖ label(L1) ‖ S₁.code ‖ label(L2) ‖ S₂.code
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q49: SDD for while-loop (another variant) -->
+  <div class="q-card" id="q49">
+    <div class="q-header" onclick="toggle('q49')">
+      <span class="q-num">3c</span>
+      <span class="q-text">Write SDD to generate intermediate code for while loop. Given: S → while(C) S₁ [repeat for different exam paper]</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q7. This is the standard while-loop SDD.</p>
+      <table>
+        <tr><th>Production</th><th>Semantic Rules</th></tr>
+        <tr><td>S → while(C) S₁</td>
+          <td>
+            L1 = newlabel(); L2 = newlabel();<br>
+            C.true = L2; C.false = S.next;<br>
+            S₁.next = L1;<br>
+            S.code = label(L1) ‖ C.code ‖ label(L2) ‖ S₁.code ‖ gen('goto' L1)
+          </td>
+        </tr>
+      </table>
+      <pre>
+Generated code:
+L1:  &lt;C condition code&gt;
+     if C goto L2
+     goto S.next
+L2:  &lt;S₁ body code&gt;
+     goto L1</pre>
+    </div>
+  </div>
+
+  <!-- Q50: Explained types of SDTs (detailed) -->
+  <div class="q-card" id="q50">
+    <div class="q-header" onclick="toggle('q50')">
+      <span class="q-num">2c</span>
+      <span class="q-text">Explain Inherited Attribute and L-attributed SDT with suitable examples. [second variant]</span>
+      <span class="marks">4 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See full answer in Q37 above.</p>
+
+      <h3>Quick Summary</h3>
+      <h4>Inherited Attribute</h4>
+      <ul>
+        <li>Defined at a node using its parent's or siblings' attributes.</li>
+        <li>Carries context from outer to inner parts of the parse tree (top-down flow).</li>
+        <li>Example: <code>L.inh = T.type</code> to propagate type down a variable list.</li>
+      </ul>
+
+      <h4>L-attributed SDT</h4>
+      <ul>
+        <li>L = "Left" dependency only.</li>
+        <li>Each Xⱼ's inherited attribute depends only on head's inherited attrs and left siblings' attributes.</li>
+        <li>Can be evaluated in a single left-to-right, top-down parse.</li>
+        <li>Every S-attributed SDD is also L-attributed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Q51: SDDs in context (multiple short definitions) -->
+  <div class="q-card" id="q51">
+    <div class="q-header" onclick="toggle('q51')">
+      <span class="q-num">3a</span>
+      <span class="q-text">Define: (1) Synthesized attributes (2) L-attributed SDD (3) S-attributed SDD</span>
+      <span class="marks">3 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>1. Synthesized Attributes</h3>
+      <p>An attribute whose value at a parse-tree node N is computed from attribute values at N's <strong>children</strong>. Information flows <strong>bottom-up</strong>. Example: <code>E.val = E₁.val + T.val</code>.</p>
+
+      <h3>2. L-attributed SDD</h3>
+      <p>An SDD where each inherited attribute of Xⱼ in <code>A → X₁…Xₙ</code> depends only on A's inherited attributes and attributes of X₁,…,Xⱼ₋₁ (symbols to the left). Supports evaluation during left-to-right, top-down parsing. Includes all S-attributed SDDs.</p>
+
+      <h3>3. S-attributed SDD</h3>
+      <p>An SDD that uses <strong>only synthesized attributes</strong>. Actions are placed at the right end of productions. Directly implementable with an LR parser using a value stack. Simplest and most common type.</p>
+    </div>
+  </div>
+
+  <!-- Q52: CFG for second large example -->
+  <div class="q-card" id="q52">
+    <div class="q-header" onclick="toggle('q52')">
+      <span class="q-num">4b</span>
+      <span class="q-text">Construct CFG for: x=0; y=0; L1: ifFalse x&lt;10 goto L2; t1=y+x; y=t1; t2=x+1; x=t2; goto L1; L2: print y [repeat variant]</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <p>See answer in Q43 above. Basic blocks and CFG are identical.</p>
+
+      <table>
+        <tr><th>Block</th><th>Contents</th><th>Successors</th></tr>
+        <tr><td>B1</td><td>x=0; y=0</td><td>B2</td></tr>
+        <tr><td>B2 (L1)</td><td>ifFalse x&lt;10 goto L2</td><td>B3 (x&lt;10), B4 (x≥10)</td></tr>
+        <tr><td>B3</td><td>t1=y+x; y=t1; t2=x+1; x=t2; goto L1</td><td>B2 (back edge)</td></tr>
+        <tr><td>B4 (L2)</td><td>print y</td><td>exit</td></tr>
+      </table>
+
+      <div class="note">B2→B3 is the loop body edge (x&lt;10 is true). B3→B2 is the back edge (loop). B2→B4 is the exit edge (x≥10). This forms a natural loop with header B2.</div>
+    </div>
+  </div>
+
+  <!-- Q53: Use-def for live variable analysis (basic) -->
+  <div class="q-card" id="q53">
+    <div class="q-header" onclick="toggle('q53')">
+      <span class="q-num">4d</span>
+      <span class="q-text">Define use[B] and def[B]. Calculate use[B], def[B] for all basic blocks in the given flow graph (B1:e=1; B2:if(x>0); B3:z=e*e; B4:return x; B5:y=e*x; B6:if x&amp;1; B7:e=z; B8:e=y)</span>
+      <span class="marks">5 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Definitions</h3>
+      <ul>
+        <li><strong>use[B]</strong>: The set of variables that are <em>used</em> in block B before any definition of them in B (i.e., variables whose values from outside B are needed).</li>
+        <li><strong>def[B]</strong>: The set of variables that are <em>defined</em> (assigned) in block B before any use of them in B.</li>
+      </ul>
+
+      <h3>Calculation</h3>
+      <table>
+        <tr><th>Block</th><th>Instructions</th><th>use[B]</th><th>def[B]</th></tr>
+        <tr><td>B1</td><td>e = 1</td><td>{}</td><td>{e}</td></tr>
+        <tr><td>B2</td><td>if (x &gt; 0)</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B3</td><td>z = e * e</td><td>{e}</td><td>{z}</td></tr>
+        <tr><td>B4</td><td>return x</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B5</td><td>y = e * x</td><td>{e, x}</td><td>{y}</td></tr>
+        <tr><td>B6</td><td>if x &amp; 1</td><td>{x}</td><td>{}</td></tr>
+        <tr><td>B7</td><td>e = z</td><td>{z}</td><td>{e}</td></tr>
+        <tr><td>B8</td><td>e = y</td><td>{y}</td><td>{e}</td></tr>
+      </table>
+
+      <div class="note">
+        <strong>Rule</strong>: To compute use[B] and def[B], scan instructions left-to-right. If a variable is used before it is defined in B → add to use[B]. If it's defined → add to def[B] (but not if it was already in use[B]).
+      </div>
+    </div>
+  </div>
+
+  <!-- Q54: Three-address code addresses and instructions summary -->
+  <div class="q-card" id="q54">
+    <div class="q-header" onclick="toggle('q54')">
+      <span class="q-num">concept</span>
+      <span class="q-text">What are the types of addresses used in three-address code? Explain with examples.</span>
+      <span class="marks">3 M</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="q-answer">
+      <h3>Types of Addresses in TAC</h3>
+      <p>A <strong>name</strong> in TAC (an "address") can be one of:</p>
+
+      <table>
+        <tr><th>Type</th><th>Description</th><th>Example</th></tr>
+        <tr><td>Name</td><td>Source program identifiers; refers to symbol table entry</td><td>a, b, result</td></tr>
+        <tr><td>Constant</td><td>Numeric or string literal value</td><td>3, 3.14, "hello"</td></tr>
+        <tr><td>Compiler-generated temporary</td><td>Created by compiler for subexpressions; names like t1, t2, ...</td><td>t1, t2, t3</td></tr>
+      </table>
+
+      <h3>Instruction Categories</h3>
+      <ul>
+        <li><strong>Arithmetic/logic</strong>: <code>t1 = a + b</code>, <code>t2 = a &amp; b</code></li>
+        <li><strong>Copy</strong>: <code>x = y</code></li>
+        <li><strong>Unconditional jump</strong>: <code>goto L</code></li>
+        <li><strong>Conditional jump</strong>: <code>if x &lt; y goto L</code></li>
+        <li><strong>Indexed access</strong>: <code>t = a[i]</code>, <code>a[i] = t</code></li>
+        <li><strong>Address operations</strong>: <code>t = &amp;x</code>, <code>t = *x</code>, <code>*x = t</code></li>
+        <li><strong>Function call</strong>: <code>param x; call f, n; return y</code></li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- container -->
+
+<script>
+function toggle(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+function expandAll() {
+  document.querySelectorAll('.q-card').forEach(c => c.classList.add('open'));
+}
+function collapseAll() {
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('open'));
+}
+</script>
+
+</body>
+</html>
